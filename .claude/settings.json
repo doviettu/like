@@ -11,3 +11,8 @@
     "context-mode@context-mode": true
   }
 }
+{
+  "permissions": {
+    "allow": ["Bash(npm install --global rea-agents)"]
+  }
+}
