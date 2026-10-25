@@ -2559,6 +2559,8 @@ stage.addEventListener("keydown", (event) => {
   target = (running ? angle : target) + step; hold(); run();
 });
 stage.addEventListener("focus", () => stage.setAttribute("aria-valuetext", M.strokeOf(angle).name + ", " + Math.round(((angle % 720) + 720) % 720) + " độ"));
+// Móc cho việc xuất video: vẽ đúng góc c (độ) tại thời điểm t (giây), không chạy vòng lặp.
+window.__f1 = { frame(c, t) { running = false; clearTimeout(idle); clock = t; first.x = 1; first.v = 0; angle = target = c; lastKey = ""; draw(c); } };
 draw(angle);
 
 </script></body></html>
