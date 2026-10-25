@@ -9,6 +9,7 @@ import { tubePieces, tubeSvg } from "../../.claude/skills/anatomy/kit/tube.mjs";
 import * as A from "../../.claude/skills/anatomy/kit/audit.mjs";
 import * as M from "./model.mjs";
 import * as MV from "./moving.mjs";
+import { glCamera } from "../../.claude/skills/anatomy/kit/gl.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const KIT = join(HERE, "../../.claude/skills/anatomy/kit");
@@ -160,7 +161,7 @@ function innerHalfCylinder(r, z0, z1, a0 = Math.PI, a1 = 2 * Math.PI, n = 60) {
   }
   const rim = (z) => k.pathOf(Array.from({ length: n + 1 }, (_, i) => a0 + ((a1 - a0) * i) / n).map((t) => at([r * Math.cos(t), r * Math.sin(t), z])));
   const fill = k.pathOf([...Array.from({ length: n + 1 }, (_, i) => a0 + ((a1 - a0) * i) / n).map((t) => at([r * Math.cos(t), r * Math.sin(t), z0])), ...Array.from({ length: n + 1 }, (_, i) => a1 - ((a1 - a0) * i) / n).map((t) => at([r * Math.cos(t), r * Math.sin(t), z1]))], true);
-  return `<g class="iso-solid f1-bore"><path class="iso-fill" d="${fill}"/>${shades.map((list, i) => (list.length ? `<path class="iso-shade" data-shade="${i}" d="${list.join("")}"/>` : "")).join("")}${Ln(rim(z0), { tone: "lo" })}${Ln(rim(z1), { tone: "lo" })}${Ln([0.35, 0.65].map((f) => rim(z0 + (z1 - z0) * f)).join(""), { tone: "faint" })}</g>`;
+  return `<g class="iso-solid f1-bore"><path class="iso-fill" d="${fill}"/>${shades.map((list, i) => (list.length ? `<path class="iso-shade" data-shade="${i}" d="${list.join("")}"/>` : "")).join("")}${Ln(rim(z0), { tone: "lo" })}${Ln(rim(z1), { tone: "lo" })}${Ln([0.35, 0.65].map((f) => rim(z0 + (z1 - z0) * f)).join(""), { tone: "faint" })}${Ln([a0, a1].map((t) => k.pathOf([at([r * Math.cos(t), r * Math.sin(t), z0]), at([r * Math.cos(t), r * Math.sin(t), z1])])).join(""), { tone: "lo" })}</g>`;
 }
 
 function block() {
@@ -573,6 +574,7 @@ const PLUG_TIP = at([0, 0, roofZ(0) - 1.5]);
 const GAS0 = M.gasOf(C0);
 const gas = (where, d) => `<g class="f1-gas" data-gas="${where}"><path class="f1-fresh" style="fill-opacity:${(0.2 * GAS0.fresh).toFixed(3)}" d="${d}"/><path class="f1-exh" style="fill-opacity:${(0.32 * GAS0.exhaust).toFixed(3)}" d="${d}"/><path class="f1-flame" style="opacity:${GAS0.flame.toFixed(3)}" d="${d}"/></g>`;
 
+const SPLIT = "<!--split-->";
 const body = [
   `<defs><radialGradient id="f1-flame-grad" gradientUnits="userSpaceOnUse" cx="${PLUG_TIP[0].toFixed(1)}" cy="${PLUG_TIP[1].toFixed(1)}" r="60"><stop offset="0" stop-color="var(--f1-flame-core)"/><stop offset=".45" stop-color="var(--f1-flame)"/><stop offset="1" stop-color="var(--f1-flame)" stop-opacity="0"/></radialGradient></defs>`,
   plate(),
@@ -591,7 +593,9 @@ const body = [
   `<g data-part="piston" transform="${pistonShift(C0)}">${piston0}</g>`,
   head(),
   gas("chamber", g0.chamber),
+  `<path class="f1-port" style="opacity:${(0.85 * M.flameOf(C0).blow).toFixed(3)}" d="${onCut(portPath(1))}"/>`,
   chamberOutline(),
+  SPLIT,
   cover(),
   camshafts(),
   ...[-1, 1].map((side) => `<g data-part="valve${side}" transform="${valveShift(side, M.liftOf(side < 0 ? M.INTAKE : M.EXHAUST, C0))}">${valve0(side)}</g>`),
@@ -612,13 +616,149 @@ const body = [
 
 A.auditOrExit(R, P, {});
 
+const cut = body.indexOf(SPLIT);
 const svg = k.figureSvg({
   width: W,
   height: H,
   label:
-    "Động cơ thử nghiệm một xi-lanh của F1 bổ đôi trên bệ thử: trục khuỷu, thanh truyền, piston đường kính 80 mm hành trình 53 mm, hai trục cam đẩy van nạp và van xả có lò xo khí nén, bugi với buồng đốt trước, kim phun trực tiếp, ống nạp từ hộp gió, ống xả bọc cách nhiệt, và máy đo vẽ đồ thị áp suất – thể tích của chu trình bốn kỳ.",
-  body,
+    "Động cơ thử nghiệm một xi-lanh của F1 bổ đôi trên bệ thử: trục khuỷu, thanh truyền, piston đường kính 80 mm hành trình 53 mm, hai trục cam đẩy van nạp và van xả có lò xo khí nén, bugi với buồng đốt trước bắn tia lửa vào buồng đốt chính, kim phun trực tiếp, ống nạp từ hộp gió, ống xả bọc cách nhiệt, và máy đo vẽ đồ thị áp suất – thể tích của chu trình bốn kỳ.",
+  body: body.slice(0, cut),
 });
+const frontSvg = `<svg xmlns="http://www.w3.org/2000/svg" class="iso-svg f1-layer" viewBox="0 0 ${W} ${H}" aria-hidden="true">${body.slice(cut + 1).join("")}</svg>`;
+const stageHtml = `${svg}<canvas class="f1-layer f1-gl" aria-hidden="true"></canvas>${frontSvg}`;
+
+// ---------- shader ngọn lửa ----------
+const PORT = (() => {
+  const seat = MV.valveFrame(1).o;
+  return { p0: [seat[0], seat[2] + 6], p1: [seat[0] + 4, 192], p2: [HEAD.x1, 192], r: 12.5 };
+})();
+const GLDATA = {
+  camera: glCamera(P),
+  view: [W, H],
+  fixed: {
+    uPlug: [0, 0, roofZ(0) - 2],
+    uRoof: [168, 0.27, DECK, LINER_R],
+    uHead: [HEAD.x0, HEAD.x1, HEAD.top, 0],
+    uPort0: [...PORT.p0, ...PORT.p1],
+    uPort1: [...PORT.p2, PORT.r, 0],
+  },
+};
+const FRAG = `
+uniform float uLight;
+uniform vec3 uPlug;
+uniform vec4 uRoof;   // đỉnh mái, độ dốc mái, mặt máy, bán kính lỗ xi-lanh
+uniform vec4 uHead;   // x0, x1, mặt trên nắp máy
+uniform vec4 uPort0;  // cửa xả: p0, p1 (mặt phẳng x–z)
+uniform vec4 uPort1;  // p2, bán kính
+uniform float uCrown, uFront, uShell, uJet, uJetLen, uHot, uBlow, uFade;
+
+float roofAt(float x){ return uRoof.x - abs(x) * uRoof.y; }
+// Mặt cắt nắp máy (y = 0) che phần khí phía sau nó, trừ lỗ buồng đốt.
+float headMaterial(vec3 q, float px){
+  float inX = window(q.x, uHead.x, uHead.y, px);
+  float inZ = window(q.z, uRoof.z, uHead.z, px);
+  float hole = window(q.x, -uRoof.w, uRoof.w, px) * (1. - smoothstep(-px, px, q.z - roofAt(q.x)));
+  return inX * inZ * (1. - hole);
+}
+vec2 bez(float t){ vec2 a = uPort0.xy, b = uPort0.zw, c = uPort1.xy; float u = 1. - t; return u*u*a + 2.*u*t*b + t*t*c; }
+
+void main(){
+  vec2 vb = viewOf(gl_FragCoord.xy);
+  float px = pixelOf();
+  vec3 V = towardViewer();
+  vec3 p0 = rayOf(vb);
+  vec3 hot = vec3(0.);   // tia lửa + mặt lửa (rất nóng)
+  vec3 body = vec3(0.);  // khí đã cháy
+  float jets = 0., front = 0., burnt = 0.;
+
+  // ---- thể tích xi-lanh: hình trụ r = uRoof.w, từ đỉnh piston tới mái buồng đốt ----
+  if (uJet + uShell + uHot > .002) {
+    float a = dot(V.xy, V.xy), b = 2. * dot(p0.xy, V.xy), c = dot(p0.xy, p0.xy) - uRoof.w * uRoof.w;
+    float disc = b * b - 4. * a * c;
+    if (disc > 0.) {
+      float sq = sqrt(disc);
+      float ta = (-b - sq) / (2. * a), tb = (-b + sq) / (2. * a);
+      ta = max(ta, (uCrown - p0.z) / V.z);
+      tb = min(tb, (uRoof.x - p0.z) / V.z);
+      float ty = -p0.y / V.y;
+      float occ = headMaterial(p0 + ty * V, .7 * px);
+      if (tb > ta) {
+        const int N = 26;
+        float dt = (tb - ta) / float(N);
+        float j0 = hash12(gl_FragCoord.xy + fract(uTime * .37) * 71.);
+        for (int i = 0; i < N; i++) {
+          float t = ta + (float(i) + j0) * dt;
+          vec3 p = p0 + t * V;
+          float vis = mix(1. - occ, 1., smoothstep(-.6, .6, p.y));
+          float inside = smoothstep(-.6, .6, roofAt(p.x) - p.z) * smoothstep(-.6, .6, p.z - uCrown) * smoothstep(-.8, .8, uRoof.w - length(p.xy));
+          float w = vis * inside * dt;
+          vec3 d = p - uPlug;
+          // sáu tia lửa phun xuống – ra ngoài từ buồng đốt trước
+          float jt = 0.;
+          for (int k = 0; k < 6; k++) {
+            float ang = float(k) * 1.0472 + .52;
+            vec3 dir = normalize(vec3(cos(ang) * .82, sin(ang) * .82, -.58));
+            float s = clamp(dot(d, dir), 0., uJetLen);
+            float r = length(d - dir * s);
+            float wide = 1.2 + .11 * s;
+            jt += exp(-(r * r) / (wide * wide)) * (1. - smoothstep(.55 * uJetLen, uJetLen, s));
+          }
+          float n = noise3(p * .11 + vec3(0., 0., uTime * 2.1));
+          float dist = length(d) * (1. + .16 * (n - .5));
+          float shell = exp(-pow((dist - uFront) / 3.2, 2.)) + .35 * smoothstep(uFront + 1.5, uFront - 9., dist) * (.6 + .4 * n);
+          float burned = smoothstep(uFront + 2.5, uFront - 5., dist) * (.55 + .45 * noise3(p * .07 - vec3(uTime * 1.3)));
+          jets += jt * w; front += shell * w; burnt += burned * w;
+        }
+      }
+    }
+  }
+  jets *= uJet * .9;
+  front *= uShell * .11;
+  burnt *= uHot * .045;
+
+  // ---- khí nóng phụt vào cửa xả khi van xả mở (trên mặt cắt y = 0) ----
+  float port = 0.;
+  if (uBlow > .002) {
+    vec3 q = p0 + (-p0.y / V.y) * V;
+    float best = 1e4, along = 0.;
+    for (int i = 0; i <= 16; i++) {
+      float t = float(i) / 16.;
+      float dd = length(q.xz - bez(t));
+      if (dd < best) { best = dd; along = t; }
+    }
+    float inPort = 1. - smoothstep(uPort1.z - .3 - 1.4 * px, uPort1.z - .3, best);
+    float n = noise3(vec3(q.xz * .09 - vec2(uTime * 3.2 * (1. - along), 0.), uTime * .7));
+    port = inPort * uBlow * (1. - .55 * along) * (.6 + .5 * n) * (1. - .6 * smoothstep(.55, 1., best / uPort1.z));
+  }
+
+  float eHot = 1. - exp(-1.5 * (jets + front));
+  float eBody = 1. - exp(-1.4 * (burnt + port));
+  vec4 ink;
+  if (uLight < .5) {
+    vec3 col = vec3(1., .48, .09) * (jets + front) * 1.7 + vec3(1., .3, .04) * (burnt + port) * 1.5 + vec3(.2, .26, .3) * pow(eHot, 3.) * 1.2;
+    col = tonemap(col, 1.25);
+    ink = vec4(col, max(col.r, max(col.g, col.b)));
+  } else {
+    // giấy trắng: thân cam bão hoà, lõi vàng nhạt, giải mực từ màu cần thấy
+    vec3 seenBody = mix(vec3(1.), vec3(.96, .45, .08), smoothstep(0., .75, eBody));
+    vec3 seenHot = mix(vec3(.96, .46, .06), vec3(1., .72, .16), smoothstep(.35, .75, eHot));
+    seenHot = mix(seenHot, vec3(1., .93, .72), smoothstep(.85, .99, eHot));
+    seenHot = mix(vec3(1.), seenHot, smoothstep(0., .3, eHot));
+    vec3 absB = 1. - seenBody, absH = 1. - seenHot;
+    float aB = max(absB.r, max(absB.g, absB.b));
+    float aH = max(max(absH.r, max(absH.g, absH.b)), .9 * smoothstep(.5, .9, eHot));
+    vec4 inkB = vec4(vec3(aB) - absB, aB);
+    vec4 inkH = vec4(vec3(aH) - absH, aH);
+    ink = inkH + inkB * (1. - inkH.a);
+  }
+  ink *= uFade;
+  ink.rgb = min(ink.rgb, vec3(ink.a));
+  float m = ink.a;
+  float dn = (hash12(gl_FragCoord.xy + fract(uTime * .61) * 91.) + hash12(gl_FragCoord.yx * 1.37 + fract(uTime * .37) * 57.) - 1.) / 255.;
+  ink = max(ink + dn * smoothstep(0., 1.5 / 255., m), 0.);
+  ink.rgb = min(ink.rgb, vec3(ink.a));
+  gl_FragColor = ink;
+}`;
 
 const CSS = `
 .iso{--f1-void:#0b0b0b;--f1-fresh:#6b9bff;--f1-exh:#8a8a8f;--f1-flame:#ff7a2e;--f1-flame-core:#ffe2a8;--f1-screen:#0a120d;--f1-trace:#6be0a0;--f1-trace-dim:#1f3a2a}
@@ -628,6 +768,13 @@ const CSS = `
 .f1-fresh{fill:var(--f1-fresh)}
 .f1-exh{fill:var(--f1-exh)}
 .f1-flame{fill:url(#f1-flame-grad);opacity:0}
+.f1-port{fill:var(--f1-flame);opacity:0}
+.iso[data-theme="light"] .f1-port{mix-blend-mode:multiply}
+.iso-stage{position:relative}
+.iso-stage>svg,.iso-stage>canvas{display:block;width:100%;height:auto}
+.iso-stage>.f1-layer{position:absolute;inset:0;height:100%!important;pointer-events:none}
+.iso:not([data-theme="light"]) .f1-gl{mix-blend-mode:screen}
+.iso-stage[data-gl] .f1-flame,.iso-stage[data-gl] .f1-port{display:none}
 .iso[data-theme="light"] .f1-gas{mix-blend-mode:multiply}
 .f1-screen{fill:var(--f1-screen)}
 .f1-trace .f1-grid{stroke:var(--f1-trace-dim)}
@@ -648,6 +795,7 @@ const script =
   ns("G", readFileSync(join(KIT, "lathe.mjs"), "utf8"), "const { cameraOf, iso, pathOf } = k;") +
   ns("M", readFileSync(join(HERE, "model.mjs"), "utf8")) +
   ns("MV", readFileSync(join(HERE, "moving.mjs"), "utf8")) +
+  ns("GL", readFileSync(join(KIT, "gl.mjs"), "utf8")) +
   `
 const P = ${JSON.stringify(P)};
 const C0 = ${C0};
@@ -657,6 +805,8 @@ const SCREEN = ${JSON.stringify(SCREEN)}, SCOPE_Y = ${SCOPE.y + SCOPE.d - 2};
 const PV = ${JSON.stringify({ P_LO, P_HI, V_LO, V_HI })};
 const DEG = Math.PI / 180, NOSE = ${JSON.stringify(NOSE)};
 const markAt = ${markAt.toString()};
+const GLDATA = ${JSON.stringify(GLDATA)};
+const FRAG = ${JSON.stringify(FRAG)};
 ${live()}
 `;
 
@@ -664,7 +814,11 @@ function live() {
   return `
 const stage = document.querySelector(".iso-stage");
 const svg = stage.querySelector("svg");
-const part = (name) => svg.querySelector('[data-part="' + name + '"]');
+const part = (name) => stage.querySelector('[data-part="' + name + '"]');
+const portFallback = stage.querySelector(".f1-port");
+const layer = GL.glLayer({ canvas: stage.querySelector(".f1-gl"), fragment: FRAG, view: GLDATA.view, camera: GLDATA.camera, uniforms: ["uCrown", "uFront", "uShell", "uJet", "uJetLen", "uHot", "uBlow", "uFade"], fixed: { ...GLDATA.fixed, uLight: document.body.dataset.theme === "light" ? 1 : 0 } });
+if (layer) stage.setAttribute("data-gl", "");
+let clock = 0, first = { x: 0, v: 0 }, lastKey = "";
 const parts = { rear: part("crank-rear"), front: part("crank-front"), rod: part("rod"), piston: part("piston"), teeth: part("teeth"), dot: part("dot"), cams: [part("cam-1"), part("cam1")], valves: [part("valve-1"), part("valve1")] };
 const gas = [...svg.querySelectorAll(".f1-gas")];
 const readout = document.querySelector("[data-readout]");
@@ -700,6 +854,14 @@ function draw(c) {
     el.querySelector(".f1-exh").style.fillOpacity = (0.32 * g.exhaust).toFixed(3);
     el.querySelector(".f1-flame").style.opacity = g.flame.toFixed(3);
   }
+  const f = M.flameOf(c);
+  portFallback.style.opacity = (0.85 * f.blow).toFixed(3);
+  if (layer) {
+    const values = { uCrown: crown, uFront: f.front, uShell: f.shell, uJet: f.jet, uJetLen: f.jetLen, uHot: f.hot, uBlow: f.blow, uFade: first.x };
+    const lit = f.jet + f.shell + f.hot + f.blow > 0.002;
+    const key = lit ? JSON.stringify(values) + (still.matches ? "" : clock.toFixed(3)) : "off";
+    if (key !== lastKey) { lit ? layer.draw(values, still.matches ? 0.8 : clock) : layer.clear(); lastKey = key; }
+  }
   const d = pvAt(c);
   parts.dot.setAttribute("cx", d[0].toFixed(1));
   parts.dot.setAttribute("cy", d[1].toFixed(1));
@@ -711,11 +873,13 @@ function draw(c) {
 function tick(now) {
   const dt = last ? Math.min((now - last) / 1000, 1 / 30) : 1 / 60;
   last = now;
+  clock += dt;
+  const fading = GL.settle(first, 1, dt, 0.45, still.matches);
   if (running) { angle += speed * dt; target = angle; }
   else angle += (target - angle) * (1 - Math.exp(-dt / 0.12));
   if (!running && Math.abs(target - angle) < 0.02) angle = target;
   draw(angle);
-  const settled = !running && angle === target;
+  const settled = !running && angle === target && !fading;
   frame = visible && !settled ? requestAnimationFrame(tick) : 0;
 }
 const run = () => { if (!frame && visible) { last = 0; frame = requestAnimationFrame(tick); } };
@@ -754,10 +918,11 @@ const body2 = k.plateHtml({
   keys: [
     { mark: "lit", label: "Piston và thanh truyền: biến áp suất khí cháy thành mô-men quay" },
     { mark: "raised", label: "Hai trục cam quay bằng nửa tốc độ trục khuỷu, mở van nạp (trái) và van xả (phải)" },
+    { mark: "red", label: "Lửa: sáu tia lửa từ buồng đốt trước, mặt lửa lan ra, khí cháy nguội dần; khí nóng phụt vào cửa xả khi van xả mở" },
     { mark: "green", label: "Đồ thị áp suất – thể tích (log–log) trên máy đo, chấm sáng là thời điểm hiện tại" },
   ],
   caption: `Mỗi xi-lanh của động cơ V6 1,6 L tăng áp: đường kính 80 mm, hành trình 53 mm, ${fmtCc(M.SWEPT)} cm³, tỉ số nén ${M.CR}:1 (luật 2026). Ở ${M.RPM.toLocaleString("vi-VN")} vòng/phút một chu trình 720° chỉ mất ${(M.ms(720)).toFixed(1).replace(".", ",")} ms; hình chạy chậm khoảng ${Math.round((720 / 6.4) / (M.RPM * 6 / 1000))} lần. Áp suất là mô hình đơn giản (khí nạp ${M.BOOST} bar, đỉnh ≈ ${Math.round(M.PEAK.p)} bar), chiều dài thanh truyền ước lượng. Mặt cắt chỉ thấy một van mỗi bên; thật ra có hai van nạp và hai van xả.`,
-  body: `<div class="iso-stage" tabindex="0" role="slider" aria-label="Động cơ F1 một xi-lanh: rê chuột ngang hoặc dùng phím mũi tên để quay trục khuỷu, Space để chạy hoặc dừng" aria-valuemin="0" aria-valuemax="720" aria-valuenow="${C0}">${svg}</div>`,
+  body: `<div class="iso-stage" tabindex="0" role="slider" aria-label="Động cơ F1 một xi-lanh: rê chuột ngang hoặc dùng phím mũi tên để quay trục khuỷu, Space để chạy hoặc dừng" aria-valuemin="0" aria-valuemax="720" aria-valuenow="${C0}">${stageHtml}</div>`,
 });
 function fmtCc(mm3) {
   return (mm3 / 1000).toFixed(1).replace(".", ",");

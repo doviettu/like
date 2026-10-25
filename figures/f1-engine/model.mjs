@@ -105,3 +105,18 @@ export function gasOf(c) {
 
 export const ms = (deg, rpm = RPM) => (deg / 360) * (60000 / rpm); // thời gian thật (ms) của một góc quay
 export const pistonSpeed = (rpm = RPM) => (2 * STROKE * rpm) / 60000; // m/s, tốc độ trung bình
+
+// Ngọn lửa (cho shader): tia lửa từ buồng đốt trước, mặt lửa lan ra, khí cháy còn nóng,
+// và luồng khí nóng vào cửa xả khi van xả mở. Mọi giá trị liên tục theo góc trục khuỷu.
+export function flameOf(c) {
+  const since = wrap(c - SPARK);
+  const burned = since < 200 ? 1 - Math.exp(-5 * Math.pow(since / BURN, 3)) : 1;
+  const jet = smooth(1, 10, since) * (1 - smooth(14, 32, since));
+  const jetLen = 6 + 34 * smooth(2, 13, since);
+  const front = 4 + 58 * Math.pow(burned, 0.45);
+  const shell = smooth(3, 15, since) * (1 - smooth(0.82, 0.995, burned));
+  const hot = burned * Math.exp(-Math.max(0, since - 22) / 48);
+  const s = wrap(c - EXHAUST.open);
+  const blow = s < 260 ? smooth(0, 9, s) * Math.exp(-s / 38) : 0;
+  return { since, burned, jet, jetLen, front, shell, hot, blow };
+}
