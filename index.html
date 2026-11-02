@@ -42,6 +42,7 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 .hbtn{width:44px;height:44px;border-radius:50%;background:var(--glass);border:1px solid var(--line);
   display:grid;place-items:center;font-size:19px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .hbtn:active{transform:scale(.94)}
+@media (max-width:420px){.hbtn{width:40px;height:40px}#hudBtns{gap:5px}#counter{font-size:12px;padding:6px 10px}}
 .hbtn svg{width:22px;height:22px;fill:none;stroke:#ffe6b8;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
 /* ===== Nhãn nổi, bong bóng chữ, tên người chơi ===== */
@@ -156,6 +157,17 @@ textarea:focus,input[type=text]:focus{border-color:var(--gold2)}
 .h3{font-family:Georgia,serif;font-size:17px;color:#7a2a18;margin:6px 0}
 .preview{display:block;width:100%;max-width:340px;margin:0 auto 12px;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 
+/* Ủng hộ */
+.amts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px}
+.amt{min-height:48px;border-radius:12px;border:2px solid #e3c79a;background:#fffaf0;color:#7a2a18;font-weight:700;font-size:15px}
+.amt.on{border-color:var(--red);background:#fff0e0;box-shadow:0 0 0 3px rgba(179,38,43,.15)}
+.qrbox{width:min(260px,70vw);margin:4px auto 8px;background:#fff;border-radius:16px;padding:8px;border:2px solid #e3c79a}
+.qrbox svg{display:block;width:100%;height:auto}
+.acc{text-align:center;font-size:14px;line-height:1.5;color:#4a2a1a}
+.acc b{color:#8a1f1c}
+.linkbtn{display:block;margin:10px auto 0;color:#a32420;text-decoration:underline;font-size:14px;background:none}
+.thanks{margin:10px 0;text-align:center;font-size:13px;color:#7a5a46}
+
 /* ===== Màn chào ===== */
 #welcome{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;
   background:radial-gradient(ellipse at 50% 120%,rgba(255,160,90,.55),rgba(0,0,0,0) 60%),linear-gradient(180deg,rgba(40,30,80,.82),rgba(140,60,90,.7) 55%,rgba(70,30,40,.86));
@@ -193,6 +205,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--gold2)}
   <div id="counter">Hôm nay có <b id="cnum">…</b> người lên chùa cầu an</div>
   <div id="hudBtns">
     <button class="hbtn" id="muteBtn" aria-label="Tắt/bật tiếng"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="snd1" d="M16 9a4 4 0 0 1 0 6"/><path id="snd2" d="M18.5 6.5a8 8 0 0 1 0 11"/><path id="sndX" d="M16 9l6 6M22 9l-6 6" style="display:none"/></svg></button>
+    <button class="hbtn hidden" id="donateBtn" aria-label="Ủng hộ người làm game"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
     <button class="hbtn" id="bookBtn" aria-label="Sổ cầu an của tôi"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/></svg></button>
     <button class="hbtn" id="shareBtn" aria-label="Chia sẻ"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
     <button class="hbtn" id="helpBtn" aria-label="Hướng dẫn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7"/><path d="M12 17h.01"/></svg></button>
@@ -225,7 +238,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--gold2)}
     <button id="enterBtn" disabled>Đang mở cổng chùa…</button>
     <div id="loadErr"></div>
   </div>
-  <div class="priv">Không đăng nhập · Không thu thập dữ liệu · Không quảng cáo<br>Mọi thứ chỉ lưu trên máy của bạn</div>
+  <div class="priv">Không đăng nhập · Không thu thập dữ liệu cá nhân · Không quảng cáo<br>Mọi thứ chỉ lưu trên máy của bạn</div>
 </div>
 
 <!-- Hướng dẫn -->
@@ -270,6 +283,37 @@ const STORE_KEY = 'lenChuaCauAn_v1';
 const store = { name: '', incenseTimes: 0, sticks: 0, bestTamAn: 0, lastTamAn: 0, bells: 0, wishes: [], que: [], tutorialDone: false, muted: false };
 try { Object.assign(store, JSON.parse(localStorage.getItem(STORE_KEY) || '{}')); } catch (e) { }
 function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { } }
+
+/* =====================================================================
+   1b. CẤU HÌNH ỦNG HỘ — chủ game tự điền. Để trống hết = ẩn nút Ủng hộ.
+       Ủng hộ là cho NGƯỜI LÀM GAME (duy trì tên miền, làm lễ hội mới),
+       không phải cúng dường cho một ngôi chùa thật, không đổi được gì trong game.
+   ===================================================================== */
+const DONATE = {
+  bankBin: '',      // mã BIN NAPAS: MB 970422 · Vietcombank 970436 · Techcombank 970407 · VPBank 970432 · ACB 970416 · BIDV 970418 · VietinBank 970415 · TPBank 970423
+  accountNo: '',    // số tài khoản nhận
+  accountName: '',  // tên chủ tài khoản, IN HOA KHÔNG DẤU
+  apiBase: '',      // URL Cloudflare Worker (thư mục worker/) để nhận qua payOS và tự xác nhận, vd 'https://ungho.ten-ban.workers.dev'
+  kofi: '',         // tuỳ chọn, cho người ở nước ngoài, vd 'https://ko-fi.com/ten-ban'
+  note: 'Tiền ủng hộ dùng để duy trì tên miền và làm thêm lễ hội mới (Rằm tháng Giêng, Phật Đản, Vu Lan…).',
+};
+const DONATE_ON = !!((DONATE.bankBin && DONATE.accountNo) || DONATE.apiBase || DONATE.kofi);
+// Mã VietQR (chuẩn EMVCo/NAPAS 247) tự sinh trên máy, không gửi số tài khoản đi đâu
+const tlv = (id, v) => id + String(v.length).padStart(2, '0') + v;
+function crc16(s) { let c = 0xFFFF; for (let i = 0; i < s.length; i++) { c ^= s.charCodeAt(i) << 8; for (let j = 0; j < 8; j++) c = c & 0x8000 ? ((c << 1) ^ 0x1021) & 0xFFFF : (c << 1) & 0xFFFF; } return c.toString(16).toUpperCase().padStart(4, '0'); }
+const asciiMemo = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[đĐ]/g, 'd').replace(/[^A-Za-z0-9 ]/g, '').replace(/\s+/g, ' ').trim().toUpperCase();
+function vietQR(bin, acc, amount, memo) {
+  const cons = tlv('00', 'A000000727') + tlv('01', tlv('00', bin) + tlv('01', acc)) + tlv('02', 'QRIBFTTA');
+  let p = tlv('00', '01') + tlv('01', amount ? '12' : '11') + tlv('38', cons) + tlv('53', '704') + (amount ? tlv('54', String(amount)) : '') + tlv('58', 'VN') + (memo ? tlv('62', tlv('08', memo.slice(0, 25))) : '') + '6304';
+  return p + crc16(p);
+}
+let qrLib = null;
+function loadQR() { // thư viện vẽ mã QR, chỉ tải khi mở bảng ủng hộ
+  if (qrLib) return qrLib;
+  qrLib = new Promise((res, rej) => { const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js'; s.onload = () => res(window.qrcode); s.onerror = () => { qrLib = null; rej(new Error('qr')); }; document.head.appendChild(s); });
+  return qrLib;
+}
+async function qrSvg(text) { const q = (await loadQR())(0, 'M'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 5, margin: 3, scalable: true }); }
 
 /* Lọc từ thô tục: danh sách đơn giản, so khớp theo nguyên từ (giữ dấu tiếng Việt) */
 const BAD_WORDS = ['địt', 'đụ', 'đù', 'lồn', 'cặc', 'buồi', 'đéo', 'đĩ', 'điếm', 'đm', 'đmm', 'dm', 'dmm', 'đcm', 'dcm', 'đcmm', 'dcmm', 'vcl', 'vkl', 'vl', 'clgt', 'cl', 'cc', 'cmm', 'cmn', 'loz', 'lozz', 'djt', 'đjt', 'cứt', 'ngu', 'fuck', 'fucking', 'shit', 'bitch', 'dick', 'pussy', 'asshole',
@@ -1640,7 +1684,8 @@ function startMo() {
     pbody.innerHTML = `<div class="h2">Tâm an</div><div class="score">${score}<small>/100</small></div>
       <p class="sub" style="text-align:center;font-size:16px;margin-top:10px">${praise(score)}</p>
       <p class="note">Tĩnh tâm ${cnt.p} · Được ${cnt.g} · Lệch nhịp ${cnt.o + cnt.m}${isBest ? ' · <b>Điểm cao nhất mới!</b>' : ` · Cao nhất: ${store.bestTamAn}`}</p>
-      <div class="row" style="margin-top:12px"><button class="big alt" id="mAgain">Tụng lại</button><button class="big alt" id="mShare">Chia sẻ</button><button class="big" id="mDone">Xong</button></div>`;
+      <div class="row" style="margin-top:12px"><button class="big alt" id="mAgain">Tụng lại</button><button class="big alt" id="mShare">Chia sẻ</button><button class="big" id="mDone">Xong</button></div>${donateLink()}`;
+    bindDonate();
     $('#mAgain').onclick = () => { SND.tap(); startMo(); };
     $('#mShare').onclick = () => { SND.tap(); closePanel(false); openShare(); };
     $('#mDone').onclick = () => { SND.tap(); closePanel(false); };
@@ -1738,7 +1783,8 @@ function actQue() {
     setTimeout(() => {
       if (!G.panel) return;
       pbody.innerHTML = `<div class="h2">Quẻ của bạn</div><div class="card"><div class="t">Quẻ số</div><div class="n">${n}</div><div class="t">${title}</div><p>${QUE_LIST[i]}</p><div class="g">Mang tính giải trí</div></div>
-        <div class="row" style="margin-top:12px"><button class="big alt" id="qAgain">Xin quẻ khác</button><button class="big alt" id="qShare">Chia sẻ</button><button class="big" id="qDone">Xong</button></div>`;
+        <div class="row" style="margin-top:12px"><button class="big alt" id="qAgain">Xin quẻ khác</button><button class="big alt" id="qShare">Chia sẻ</button><button class="big" id="qDone">Xong</button></div>${donateLink()}`;
+      bindDonate();
       $('#qAgain').onclick = () => { SND.tap(); closePanel(false); setTimeout(actQue, 50); };
       $('#qShare').onclick = () => { SND.tap(); closePanel(false); openShare(); };
       $('#qDone').onclick = () => { SND.tap(); closePanel(false); };
@@ -1753,7 +1799,7 @@ function openBook() {
   const W = store.wishes, Q = store.que;
   openPanel(`<div class="h2">Sổ cầu an của tôi</div><p class="sub">${esc(store.name)} · chỉ lưu trên máy này</p>
     <div class="stats"><div class="stat"><b>${store.incenseTimes}</b><span>lần thắp hương</span></div><div class="stat"><b>${store.sticks}</b><span>nén hương</span></div>
-    <div class="stat"><b>${store.bestTamAn}</b><span>Tâm an cao nhất</span></div><div class="stat"><b>${store.bells}</b><span>tiếng chuông</span></div></div>
+    <div class="stat"><b>${store.bestTamAn}</b><span>Tâm an cao nhất</span></div><div class="stat"><b>${store.bells}</b><span>tiếng chuông</span></div></div>${store.donated ? `<p class="note">Bạn đã ủng hộ ${vnd(store.donated)} — cảm ơn bạn 🙏</p>` : ''}
     <div class="h3">Lời cầu (${W.length})</div>
     <ul class="list">${W.length ? W.map(w => `<li>${w.type === 'lua' ? '🎋' : '🏮'} ${esc(w.text)}<small>${w.type === 'lua' ? 'Dải lụa · cây bồ đề' : 'Hoa đăng · hồ sen'} · ${fmtDate(w.at)}</small></li>`).join('') : '<li>Chưa có lời cầu nào. Hãy tới cây bồ đề hoặc hồ sen nhé.</li>'}</ul>
     <div class="h3">Quẻ đã xin (${Q.length})</div>
@@ -1815,6 +1861,64 @@ async function openShare() {
   $('#shDl').onclick = () => { const a = document.createElement('a'); a.href = url; a.download = 'len-chua-cau-an.png'; document.body.appendChild(a); a.click(); a.remove(); toast('Đã tải ảnh xuống.'); };
 }
 
+
+/* =====================================================================
+   17b. ỦNG HỘ NGƯỜI LÀM GAME — VietQR tĩnh, hoặc payOS tự xác nhận qua Worker
+        Không chặn chơi, không đổi được vật phẩm/công đức, chỉ hiện khi đã cấu hình
+   ===================================================================== */
+const BANKS = { '970422': 'MB Bank', '970436': 'Vietcombank', '970407': 'Techcombank', '970432': 'VPBank', '970416': 'ACB', '970418': 'BIDV', '970415': 'VietinBank', '970423': 'TPBank', '970405': 'Agribank', '970403': 'Sacombank', '970448': 'OCB', '970441': 'VIB' };
+const vnd = n => n.toLocaleString('vi-VN') + 'đ';
+const donateLink = () => DONATE_ON ? '<button class="linkbtn" data-donate>♡ Ủng hộ người làm game</button>' : '';
+function bindDonate() { const b = pbody.querySelector('[data-donate]'); if (b) b.onclick = () => { SND.tap(); closePanel(false); openDonate(); }; }
+function openDonate() {
+  const hasBank = !!(DONATE.bankBin && DONATE.accountNo), canQR = hasBank || !!DONATE.apiBase;
+  let amount = 50000, poll = null;
+  openPanel(`<div class="h2">Ủng hộ người làm game</div>
+    <p class="sub">${esc(DONATE.note)} Hoàn toàn tự nguyện — ủng hộ không mua được gì trong game và không thay cho lễ bái hay công đức.</p>
+    ${canQR ? `<div class="amts">${[20000, 50000, 100000, 200000].map(v => `<button class="amt${v === amount ? ' on' : ''}" data-v="${v}">${v / 1000}k</button>`).join('')}</div>
+    <input type="text" id="dAmt" inputmode="numeric" maxlength="12" placeholder="Hoặc nhập số tiền tuỳ tâm (đồng)"><div class="err" id="dErr"></div>
+    <div id="dQR"></div><div class="row" id="dBtns"><button class="big" id="dGo">${DONATE.apiBase ? 'Tạo mã QR (tự xác nhận)' : 'Hiện mã VietQR'}</button></div>` : ''}
+    ${DONATE.kofi ? `<a class="linkbtn" href="${esc(DONATE.kofi)}" target="_blank" rel="noopener">Ủng hộ từ nước ngoài (Ko-fi / PayPal)</a>` : ''}
+    <div class="thanks" id="dThanks"></div>`, { onClose: () => { if (poll) clearInterval(poll); } });
+  if (DONATE.apiBase) fetch(DONATE.apiBase + '/thanks').then(r => r.json()).then(j => { if (j.names && j.names.length && G.panel) $('#dThanks').textContent = 'Cảm ơn: ' + j.names.join(' · '); }).catch(() => { });
+  if (!canQR) return;
+  const amts = [...pbody.querySelectorAll('.amt')], inp = $('#dAmt'), err = $('#dErr'), box = $('#dQR');
+  amts.forEach(b => b.onclick = () => { SND.tap(); amount = +b.dataset.v; inp.value = ''; amts.forEach(x => x.classList.toggle('on', x === b)); err.textContent = ''; });
+  inp.oninput = () => { inp.value = inp.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); amts.forEach(x => x.classList.remove('on')); err.textContent = ''; };
+  const getAmt = () => { const v = parseInt(inp.value.replace(/\D/g, ''), 10); return v || amount; };
+  $('#dGo').onclick = async () => {
+    const a = getAmt(); if (a < 10000 || a > 50000000) { err.textContent = 'Số tiền từ 10.000đ đến 50.000.000đ nhé.'; return; }
+    SND.tap(); const btn = $('#dGo'); btn.disabled = true; box.innerHTML = '<p class="note">Đang tạo mã…</p>';
+    try {
+      if (DONATE.apiBase) {
+        const r = await fetch(DONATE.apiBase + '/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: a, name: store.name }) });
+        const j = await r.json(); if (!r.ok || !j.qrCode) throw new Error(j.error || 'create');
+        box.innerHTML = `<div class="qrbox">${await qrSvg(j.qrCode)}</div><div class="acc">Số tiền <b>${vnd(a)}</b> · quét bằng app ngân hàng</div>
+          <a class="linkbtn" href="${esc(j.checkoutUrl)}" target="_blank" rel="noopener">Mở trang thanh toán payOS</a><p class="note" id="dWait">Đang chờ chuyển khoản… (tự xác nhận)</p>`;
+        let tries = 0;
+        poll = setInterval(async () => {
+          if (++tries > 300 || !G.panel) { clearInterval(poll); return; }
+          try { const s = await (await fetch(`${DONATE.apiBase}/status/${j.orderCode}`)).json();
+            if (s.status === 'PAID') { clearInterval(poll); poll = null; thank(a); }
+            else if (s.status === 'CANCELLED' || s.status === 'EXPIRED') { clearInterval(poll); $('#dWait').textContent = 'Mã đã huỷ hoặc hết hạn. Bạn có thể tạo mã mới.'; btn.disabled = false; } } catch (_) { }
+        }, 3000);
+      } else {
+        const memo = asciiMemo('UNG HO ' + (store.name || '')).slice(0, 25);
+        box.innerHTML = `<div class="qrbox">${await qrSvg(vietQR(DONATE.bankBin, DONATE.accountNo, a, memo))}</div>
+          <div class="acc">${esc(BANKS[DONATE.bankBin] || 'Ngân hàng')} · <b>${esc(DONATE.accountNo)}</b><br>${esc(DONATE.accountName)} · <b>${vnd(a)}</b><br>Nội dung: ${esc(memo)}</div>
+          <p class="note">Mở app ngân hàng → Quét mã QR. Cảm ơn bạn rất nhiều 🙏</p>`;
+        btn.disabled = false; btn.textContent = 'Đổi số tiền';
+      }
+    } catch (e) { box.innerHTML = ''; err.textContent = 'Chưa tạo được mã (kiểm tra kết nối mạng). Bạn thử lại sau nhé.'; btn.disabled = false; }
+  };
+  function thank(a) {
+    store.donated = (store.donated || 0) + a; save(); SND.chime();
+    pbody.innerHTML = `<div class="h2">Cảm ơn bạn 🙏</div><div style="text-align:center;font-size:54px">🪷</div>
+      <p class="sub" style="text-align:center">Đã nhận <b>${vnd(a)}</b>. Chúc bạn và gia đình bình an, mọi sự an lành.</p><div class="row"><button class="big" id="dDone">Xong</button></div>`;
+    $('#dDone').onclick = () => { SND.tap(); closePanel(false); };
+  }
+}
+
 /* =====================================================================
    18. HUD: đếm người, tắt tiếng, sổ, chia sẻ, hướng dẫn
    ===================================================================== */
@@ -1825,11 +1929,20 @@ function dayCount() {
 let visitors = dayCount();
 const showCount = () => $('#cnum').textContent = visitors.toLocaleString('vi-VN');
 function bumpCounter() { visitors += 1; showCount(); }
-showCount(); (function tick() { setTimeout(() => { visitors += randi(1, 3); showCount(); tick(); }, rand(4000, 9000)); })();
+let realCount = false; // có Worker thì đếm thật (mỗi máy 1 lần/ngày), không thì số mô phỏng
+showCount(); (function tick() { setTimeout(() => { if (!realCount) { visitors += randi(1, 3); showCount(); } tick(); }, rand(4000, 9000)); })();
+function syncVisitors() {
+  if (!DONATE.apiBase) return;
+  const today = new Date().toISOString().slice(0, 10); let first = false;
+  try { first = localStorage.getItem('lcca_visit') !== today; localStorage.setItem('lcca_visit', today); } catch (_) { }
+  fetch(DONATE.apiBase + '/visit', { method: first ? 'POST' : 'GET' }).then(r => r.json()).then(j => { if (j.count > 0) { realCount = true; visitors = j.count; showCount(); } }).catch(() => { });
+}
 function syncMute() { $('#snd1').style.display = $('#snd2').style.display = store.muted ? 'none' : ''; $('#sndX').style.display = store.muted ? '' : 'none'; }
 $('#muteBtn').addEventListener('click', () => { store.muted = !store.muted; save(); SND.setMuted(store.muted); syncMute(); toast(store.muted ? 'Đã tắt tiếng' : 'Đã bật tiếng', 1400); });
 $('#bookBtn').addEventListener('click', () => { if (canAct()) { SND.tap(); openBook(); } });
 $('#shareBtn').addEventListener('click', () => { if (canAct()) { SND.tap(); openShare(); } });
+$('#donateBtn').classList.toggle('hidden', !DONATE_ON);
+$('#donateBtn').addEventListener('click', () => { if (canAct()) { SND.tap(); openDonate(); } });
 $('#helpBtn').addEventListener('click', () => { if (canAct()) { SND.tap(); showTut(0); } });
 syncMute();
 
@@ -1858,7 +1971,7 @@ enterBtn.addEventListener('click', () => {
   let n = nameIn.value.replace(/\s+/g, ' ').trim().slice(0, 24);
   if (n && hasBad(n)) { $('#loadErr').textContent = 'Tên có từ chưa phù hợp, bạn chọn tên khác nhé.'; return; }
   store.name = n || 'Phật tử'; save();
-  SND.init(); nameIn.blur();
+  SND.init(); nameIn.blur(); syncVisitors();
   $('#welcome').classList.add('fade'); setTimeout(() => $('#welcome').classList.add('hidden'), 650);
   G.mode = 'play'; cam.focus = null; cam.yaw = 0; updateUIVis(); joyHome();
   if (!store.tutorialDone) showTut(0);
@@ -1912,7 +2025,7 @@ window.__ready = true;
 enterBtn.disabled = false; enterBtn.textContent = 'Vào chùa';
 $('#loadErr').textContent = '';
 // Gỡ lỗi/kiểm thử: truy cập trạng thái từ console
-window.__game = { G, player, store, SPOTS, cam, PG, sky_, actIncense, actBell, actMo, actWish, actQue, openShare, openBook, makeShareImage, renderer };
+window.__game = { DONATE, openDonate, vietQR, G, player, store, SPOTS, cam, PG, sky_, actIncense, actBell, actMo, actWish, actQue, openShare, openBook, makeShareImage, renderer };
 </script>
 </body>
 </html>
