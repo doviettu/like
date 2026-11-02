@@ -167,6 +167,16 @@ textarea:focus,input[type=text]:focus{border-color:var(--gold2)}
 .acc b{color:#8a1f1c}
 .linkbtn{display:block;margin:10px auto 0;color:#a32420;text-decoration:underline;font-size:14px;background:none}
 .thanks{margin:10px 0;text-align:center;font-size:13px;color:#7a5a46}
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.tier{border:2px solid #e3c79a;border-radius:14px;background:#fffaf0;padding:8px 4px;color:#4a2a1a;text-align:center;line-height:1.25}
+.tier .ti{display:block;font-size:22px}.tier b{display:block;font-size:14px;color:#8a1f1c}.tier span:last-child{font-size:12px;color:#7a5a46}
+.tier.on{border-color:var(--red);background:#fff0e0;box-shadow:0 0 0 3px rgba(179,38,43,.15)}
+.perk{text-align:center;font-size:13px;color:#6a3a22;margin:2px 0 10px;min-height:18px}
+.lbl2{display:block;font-size:13px;color:#7a5a46;margin:8px 2px 4px}
+.chk{display:flex;align-items:center;gap:8px;font-size:14px;color:#4a2a1a;margin:8px 2px}
+.chk input{width:20px;height:20px;accent-color:#b3262b}
+.honor h4{margin:12px 0 4px;font-size:15px}.honor p{margin:0;font-size:14px;line-height:1.6;color:#4a2a1a}
+.honor small{color:#9a7a62}
 
 /* ===== Màn chào ===== */
 #welcome{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;
@@ -205,7 +215,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--gold2)}
   <div id="counter">Hôm nay có <b id="cnum">…</b> người lên chùa cầu an</div>
   <div id="hudBtns">
     <button class="hbtn" id="muteBtn" aria-label="Tắt/bật tiếng"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="snd1" d="M16 9a4 4 0 0 1 0 6"/><path id="snd2" d="M18.5 6.5a8 8 0 0 1 0 11"/><path id="sndX" d="M16 9l6 6M22 9l-6 6" style="display:none"/></svg></button>
-    <button class="hbtn hidden" id="donateBtn" aria-label="Ủng hộ người làm game"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
+    <button class="hbtn hidden" id="donateBtn" aria-label="Bồ đề tâm – phát tâm"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
     <button class="hbtn" id="bookBtn" aria-label="Sổ cầu an của tôi"><svg viewBox="0 0 24 24"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/><path d="M9 8h6"/></svg></button>
     <button class="hbtn" id="shareBtn" aria-label="Chia sẻ"><svg viewBox="0 0 24 24"><path d="M12 3v12"/><path d="M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg></button>
     <button class="hbtn" id="helpBtn" aria-label="Hướng dẫn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7"/><path d="M12 17h.01"/></svg></button>
@@ -285,18 +295,37 @@ try { Object.assign(store, JSON.parse(localStorage.getItem(STORE_KEY) || '{}'));
 function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); } catch (e) { } }
 
 /* =====================================================================
-   1b. CẤU HÌNH ỦNG HỘ — chủ game tự điền. Để trống hết = ẩn nút Ủng hộ.
-       Ủng hộ là cho NGƯỜI LÀM GAME (duy trì tên miền, làm lễ hội mới),
-       không phải cúng dường cho một ngôi chùa thật, không đổi được gì trong game.
+   1b. CẤU HÌNH "BỒ ĐỀ TÂM" (phát tâm ủng hộ) — chủ game tự điền.
+       Để trống tài khoản/apiBase/kofi = ẩn toàn bộ phần phát tâm và bảng công đức.
+       recipientType:
+         'chua'         → CHỈ chọn khi tài khoản nhận đúng là của một ngôi chùa thật và chùa đã đồng ý.
+                          Lời mời ghi "cúng dường Tam Bảo, duy trì hương khói <templeName>".
+         'nguoilamgame' → (mặc định) tài khoản cá nhân của người làm game. Lời mời ghi rõ
+                          "duy trì hương khói chùa ảo An Lạc" và tên người nhận, để không ai hiểu lầm.
    ===================================================================== */
 const DONATE = {
+  recipientType: 'nguoilamgame',
+  templeName: '',   // tên chùa thật khi recipientType = 'chua', vd 'Chùa ... (Phường ..., TP ...)'
   bankBin: '',      // mã BIN NAPAS: MB 970422 · Vietcombank 970436 · Techcombank 970407 · VPBank 970432 · ACB 970416 · BIDV 970418 · VietinBank 970415 · TPBank 970423
   accountNo: '',    // số tài khoản nhận
   accountName: '',  // tên chủ tài khoản, IN HOA KHÔNG DẤU
-  apiBase: '',      // URL Cloudflare Worker (thư mục worker/) để nhận qua payOS và tự xác nhận, vd 'https://ungho.ten-ban.workers.dev'
-  kofi: '',         // tuỳ chọn, cho người ở nước ngoài, vd 'https://ko-fi.com/ten-ban'
-  note: 'Tiền ủng hộ dùng để duy trì tên miền và làm thêm lễ hội mới (Rằm tháng Giêng, Phật Đản, Vu Lan…).',
+  apiBase: '',      // URL Cloudflare Worker (thư mục worker/) để nhận qua payOS, tự xác nhận và có bảng công đức chung
+  kofi: '',         // tuỳ chọn, cho người ở nước ngoài
+  memo: 'BO DE TAM',// đầu nội dung chuyển khoản (không dấu); tên ghi danh nối phía sau, tối đa 25 ký tự
+  honorRoll: [],    // ghi danh thủ công (khi dùng VietQR tĩnh), vd { name: 'Gia đình ông Nguyễn Văn A', tier: 3 }
 };
+// Các gói phát tâm — mỗi gói một cách ghi danh khác nhau trên bảng công đức (chỉ là ghi danh, không đổi được gì trong game)
+const TIERS = [
+  { id: 1, name: 'Nén hương', amount: 20000, ic: '🙏', color: '#7a4a2a', perk: 'Ghi danh hàng Nén hương' },
+  { id: 2, name: 'Ngọn đèn', amount: 50000, ic: '🕯️', color: '#b0620f', perk: 'Ghi danh kèm ngọn đèn sáng' },
+  { id: 3, name: 'Đoá sen', amount: 100000, ic: '🪷', color: '#c2456e', perk: 'Ghi danh chữ hồng sen' },
+  { id: 4, name: 'Cành bồ đề', amount: 200000, ic: '🌿', color: '#2f7a4a', perk: 'Ghi danh chữ xanh bồ đề, hàng trên' },
+  { id: 5, name: 'Chuông đồng', amount: 500000, ic: '🔔', color: '#b8860b', perk: 'Ghi danh chữ vàng, hàng đầu bảng' },
+];
+const TIER0 = { id: 0, name: 'Tuỳ tâm', amount: 10000, ic: '🤍', color: '#6b5a4a', perk: 'Ghi danh hàng Tuỳ tâm' };
+const tierOf = a => { let t = TIER0; for (const x of TIERS) if (a >= x.amount) t = x; return t; };
+const tierById = id => TIERS.find(t => t.id === id) || TIER0;
+const IS_REAL_TEMPLE = DONATE.recipientType === 'chua' && !!DONATE.templeName;
 const DONATE_ON = !!((DONATE.bankBin && DONATE.accountNo) || DONATE.apiBase || DONATE.kofi);
 // Mã VietQR (chuẩn EMVCo/NAPAS 247) tự sinh trên máy, không gửi số tài khoản đi đâu
 const tlv = (id, v) => id + String(v.length).padStart(2, '0') + v;
@@ -835,6 +864,19 @@ function queKiosk(x, z) {
   colB(x - 0.82, x + 0.82, z - 0.62, z + 0.2);
 }
 queKiosk(QUE.x, QUE.z);
+/* --- 5.8b Bảng công đức (chỉ dựng khi đã cấu hình phát tâm) --- */
+const HONOR = { x: -9.3, z: -6.5 };
+let honorMesh = null;
+if (DONATE_ON) {
+  const x = HONOR.x, z = HONOR.z;
+  box(x, 0, z, 0.8, 0.2, 3.3, '#a99c88');
+  for (const s of [-1, 1]) { cyl(x, 0.2, z + s * 1.48, 0.09, 0.11, 2.75, '#7b2a1f', 8); sph(x, 2.98, z + s * 1.48, 0.1, GOLD); }
+  box(x - 0.06, 0.95, z, 0.1, 1.82, 2.82, '#4a1410');
+  box(x, 2.78, z, 0.62, 0.12, 3.4, '#9c3a2c'); box(x, 2.9, z, 0.36, 0.1, 3.1, '#8a2e22');
+  honorMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.7, 1.74), new THREE.MeshLambertMaterial({ color: '#ffffff', emissive: '#ffffff', emissiveIntensity: 0.35 }));
+  honorMesh.position.set(x + 0.005, 1.86, z); honorMesh.rotation.y = Math.PI / 2; scene.add(honorMesh);
+  colB(x - 0.45, x + 0.45, z - 1.7, z + 1.7);
+}
 const MO = { x: 0, z: -15.0 };
 cyl(MO.x, 0, MO.z, 0.36, 0.38, 0.14, '#d9922c', 14);
 cyl(MO.x + 0.62, 0, MO.z - 0.5, 0.22, 0.22, 0.06, '#a32a22', 10);
@@ -1421,6 +1463,7 @@ const SPOTS = [
   { id: 'bode', name: 'Cây bồ đề', btn: 'Treo lụa cầu an', ic: '🎋', x: TREE.x, z: TREE.z, r: 4.4, my: 9.6, run: () => actWish('lua') },
   { id: 'ho', name: 'Hồ sen', btn: 'Thả hoa đăng', ic: '🏮', x: POND.cx, z: POND.cz, box: [POND.x0, POND.x1, POND.z0, POND.z1], r: 1.9, my: 1.5, run: () => actWish('den') },
   { id: 'que', name: 'Xin quẻ', btn: 'Xin quẻ đầu năm', ic: '🎴', x: QUE.x, z: QUE.z, r: 3.3, my: 3.7, run: () => actQue() },
+  ...(DONATE_ON ? [{ id: 'congduc', name: 'Bảng công đức', btn: 'Xem bảng công đức', ic: '📜', x: HONOR.x + 0.8, z: HONOR.z, r: 2.9, my: 3.5, run: () => openHonor() }] : []),
 ];
 function spotDist(s) {
   if (s.box) { const [x0, x1, z0, z1] = s.box, dx = Math.max(x0 - player.x, 0, player.x - x1), dz = Math.max(z0 - player.z, 0, player.z - z1); return Math.hypot(dx, dz); }
@@ -1799,7 +1842,7 @@ function openBook() {
   const W = store.wishes, Q = store.que;
   openPanel(`<div class="h2">Sổ cầu an của tôi</div><p class="sub">${esc(store.name)} · chỉ lưu trên máy này</p>
     <div class="stats"><div class="stat"><b>${store.incenseTimes}</b><span>lần thắp hương</span></div><div class="stat"><b>${store.sticks}</b><span>nén hương</span></div>
-    <div class="stat"><b>${store.bestTamAn}</b><span>Tâm an cao nhất</span></div><div class="stat"><b>${store.bells}</b><span>tiếng chuông</span></div></div>${store.donated ? `<p class="note">Bạn đã ủng hộ ${vnd(store.donated)} — cảm ơn bạn 🙏</p>` : ''}
+    <div class="stat"><b>${store.bestTamAn}</b><span>Tâm an cao nhất</span></div><div class="stat"><b>${store.bells}</b><span>tiếng chuông</span></div></div>${store.donated ? `<p class="note">Bạn đã phát tâm ${vnd(store.donated)} — tuỳ hỷ công đức 🙏</p>` : ''}
     <div class="h3">Lời cầu (${W.length})</div>
     <ul class="list">${W.length ? W.map(w => `<li>${w.type === 'lua' ? '🎋' : '🏮'} ${esc(w.text)}<small>${w.type === 'lua' ? 'Dải lụa · cây bồ đề' : 'Hoa đăng · hồ sen'} · ${fmtDate(w.at)}</small></li>`).join('') : '<li>Chưa có lời cầu nào. Hãy tới cây bồ đề hoặc hồ sen nhé.</li>'}</ul>
     <div class="h3">Quẻ đã xin (${Q.length})</div>
@@ -1863,61 +1906,132 @@ async function openShare() {
 
 
 /* =====================================================================
-   17b. ỦNG HỘ NGƯỜI LÀM GAME — VietQR tĩnh, hoặc payOS tự xác nhận qua Worker
-        Không chặn chơi, không đổi được vật phẩm/công đức, chỉ hiện khi đã cấu hình
+   17b. BỒ ĐỀ TÂM — phát tâm theo gói, ghi danh bảng công đức
+        VietQR tĩnh (tự sinh trên máy) hoặc payOS tự xác nhận qua Worker.
+        Không chặn chơi, không đổi được gì trong game, chỉ hiện khi đã cấu hình.
    ===================================================================== */
 const BANKS = { '970422': 'MB Bank', '970436': 'Vietcombank', '970407': 'Techcombank', '970432': 'VPBank', '970416': 'ACB', '970418': 'BIDV', '970415': 'VietinBank', '970423': 'TPBank', '970405': 'Agribank', '970403': 'Sacombank', '970448': 'OCB', '970441': 'VIB' };
 const vnd = n => n.toLocaleString('vi-VN') + 'đ';
-const donateLink = () => DONATE_ON ? '<button class="linkbtn" data-donate>♡ Ủng hộ người làm game</button>' : '';
+const donateLink = () => DONATE_ON ? '<button class="linkbtn" data-donate>🪷 Phát tâm Bồ đề</button>' : '';
 function bindDonate() { const b = pbody.querySelector('[data-donate]'); if (b) b.onclick = () => { SND.tap(); closePanel(false); openDonate(); }; }
-function openDonate() {
+const donateIntro = () => IS_REAL_TEMPLE
+  ? `Phát tâm cúng dường Tam Bảo, duy trì hương khói ${esc(DONATE.templeName)}.`
+  : 'Phát tâm duy trì hương khói chùa ảo An Lạc: tên miền, máy chủ và làm thêm lễ hội. Chùa An Lạc trong game là chùa ảo.';
+const recipientLine = () => DONATE.accountName ? `Người nhận: <b>${esc(DONATE.accountName)}</b>${IS_REAL_TEMPLE ? '' : ' (người làm game)'}` : '';
+const ANON = 'Phật tử ẩn danh';
+
+// Danh sách ghi danh: thủ công (cấu hình) + bảng chung (Worker, đã xác nhận) + trên máy này (tự khai, chưa xác nhận)
+let honorRemote = [];
+function honorList() {
+  return [...DONATE.honorRoll.map(h => ({ n: String(h.name || ANON).slice(0, 30), t: h.tier | 0, local: false })),
+    ...honorRemote.map(h => ({ n: h.n || ANON, t: h.t | 0, local: false })),
+    ...(store.honorLocal || []).map(h => ({ n: h.n, t: h.t | 0, local: true }))];
+}
+function fetchHonor() {
+  if (!DONATE.apiBase) return Promise.resolve();
+  return fetch(DONATE.apiBase + '/honor').then(r => r.json()).then(j => { honorRemote = Array.isArray(j.list) ? j.list.slice(0, 200) : []; drawHonorBoard(); }).catch(() => { });
+}
+function drawHonorBoard() { // vẽ lại tấm bảng 3D trong sân (giải phóng texture cũ)
+  if (!honorMesh) return;
+  const list = honorList();
+  const tex = canvasTex(1024, 660, (g, w, h) => {
+    g.fillStyle = '#fbeed2'; g.fillRect(0, 0, w, h);
+    g.strokeStyle = '#a32420'; g.lineWidth = 14; g.strokeRect(7, 7, w - 14, h - 14); g.strokeStyle = '#d9a441'; g.lineWidth = 4; g.strokeRect(24, 24, w - 48, h - 48);
+    g.textAlign = 'center'; g.fillStyle = '#8a1f1c'; g.font = 'bold 84px Georgia,serif'; g.fillText('BẢNG CÔNG ĐỨC', w / 2, 112);
+    g.font = 'italic 34px Georgia,serif'; g.fillStyle = '#7a4a2a'; g.fillText('Bồ đề tâm · ' + (IS_REAL_TEMPLE ? DONATE.templeName : 'chùa ảo An Lạc'), w / 2, 162);
+    let y = 222; const maxY = h - 64;
+    if (!list.length) { g.font = '30px Georgia,serif'; g.fillStyle = '#6b5a4a'; g.fillText('Chưa có ghi danh — mỗi tấm lòng đều quý.', w / 2, h / 2 + 40); }
+    for (const t of [...TIERS].reverse().concat([TIER0])) {
+      const names = list.filter(x => x.t === t.id); if (!names.length || y > maxY) continue;
+      const fs = t.id >= 5 ? 52 : t.id >= 4 ? 46 : t.id >= 3 ? 42 : 38;
+      g.font = `bold 30px system-ui,Arial,sans-serif`; g.fillStyle = t.color; g.fillText(`${t.ic} ${t.name.toUpperCase()}`, w / 2, y); y += fs + 4;
+      g.font = `${t.id >= 4 ? 'bold ' : ''}${fs}px Georgia,serif`;
+      const lines = wrapText(g, names.map(x => x.n + (x.local ? '*' : '')).join('  ·  '), w - 90);
+      for (const l of lines) { if (y > maxY) { g.fillText('…', w / 2, y); y += fs; break; } g.fillText(l, w / 2, y); y += fs + 8; }
+      y += 12;
+    }
+    if (list.some(x => x.local)) { g.font = '24px system-ui,Arial,sans-serif'; g.fillStyle = '#9a7a62'; g.fillText('* ghi danh trên máy bạn, chờ người nhận xác nhận', w / 2, h - 38); }
+  });
+  const old = honorMesh.material.map; honorMesh.material.map = tex; honorMesh.material.emissiveMap = tex; honorMesh.material.needsUpdate = true; if (old) old.dispose();
+}
+function honorHtml() {
+  const list = honorList();
+  if (!list.length) return '<p class="note">Chưa có ghi danh. Mỗi tấm lòng đều quý.</p>';
+  return '<div class="honor">' + [...TIERS].reverse().concat([TIER0]).map(t => {
+    const names = list.filter(x => x.t === t.id); if (!names.length) return '';
+    return `<h4 style="color:${t.color}">${t.ic} ${t.name} <small>· ${t.perk.toLowerCase()}</small></h4><p style="color:${t.color};font-weight:${t.id >= 4 ? 700 : 400}">${names.map(x => esc(x.n) + (x.local ? ' <small>(trên máy bạn)</small>' : '')).join(' · ')}</p>`;
+  }).join('') + '</div>';
+}
+function openHonor() {
+  const render = () => `<div class="h2">Bảng công đức</div><p class="sub">Bồ đề tâm · ${IS_REAL_TEMPLE ? esc(DONATE.templeName) : 'chùa ảo An Lạc'}. Công đức ở tâm, không ở số tiền — mọi hoạt động trong chùa đều miễn phí.</p>
+    <div id="hList">${honorHtml()}</div><div class="row" style="margin-top:12px"><button class="big" id="hGo">🪷 Phát tâm Bồ đề</button></div>`;
+  openPanel(render());
+  $('#hGo').onclick = () => { SND.tap(); closePanel(false); openDonate(); };
+  fetchHonor().then(() => { const el = $('#hList'); if (G.panel && el) el.innerHTML = honorHtml(); });
+}
+function openDonate(preTier) {
   const hasBank = !!(DONATE.bankBin && DONATE.accountNo), canQR = hasBank || !!DONATE.apiBase;
-  let amount = 50000, poll = null;
-  openPanel(`<div class="h2">Ủng hộ người làm game</div>
-    <p class="sub">${esc(DONATE.note)} Hoàn toàn tự nguyện — ủng hộ không mua được gì trong game và không thay cho lễ bái hay công đức.</p>
-    ${canQR ? `<div class="amts">${[20000, 50000, 100000, 200000].map(v => `<button class="amt${v === amount ? ' on' : ''}" data-v="${v}">${v / 1000}k</button>`).join('')}</div>
-    <input type="text" id="dAmt" inputmode="numeric" maxlength="12" placeholder="Hoặc nhập số tiền tuỳ tâm (đồng)"><div class="err" id="dErr"></div>
-    <div id="dQR"></div><div class="row" id="dBtns"><button class="big" id="dGo">${DONATE.apiBase ? 'Tạo mã QR (tự xác nhận)' : 'Hiện mã VietQR'}</button></div>` : ''}
-    ${DONATE.kofi ? `<a class="linkbtn" href="${esc(DONATE.kofi)}" target="_blank" rel="noopener">Ủng hộ từ nước ngoài (Ko-fi / PayPal)</a>` : ''}
-    <div class="thanks" id="dThanks"></div>`, { onClose: () => { if (poll) clearInterval(poll); } });
-  if (DONATE.apiBase) fetch(DONATE.apiBase + '/thanks').then(r => r.json()).then(j => { if (j.names && j.names.length && G.panel) $('#dThanks').textContent = 'Cảm ơn: ' + j.names.join(' · '); }).catch(() => { });
+  let tier = tierById(preTier || 2), poll = null;
+  openPanel(`<div class="h2">Bồ đề tâm</div>
+    <p class="sub">${donateIntro()} Hoàn toàn tự nguyện — mọi hoạt động trong chùa vẫn miễn phí. Công đức ở tâm, không ở số tiền.</p>
+    ${canQR ? `<div class="tiers">${TIERS.map(t => `<button class="tier" data-t="${t.id}"><span class="ti">${t.ic}</span><b>${t.name}</b><span>${vnd(t.amount)}</span></button>`).join('')}<button class="tier" data-t="0"><span class="ti">${TIER0.ic}</span><b>Tuỳ tâm</b><span>từ 10.000đ</span></button></div>
+    <div class="perk" id="dPerk"></div>
+    <input type="text" id="dAmt" class="hidden" inputmode="numeric" maxlength="12" placeholder="Số tiền tuỳ tâm (đồng)">
+    <label class="lbl2" for="dName">Tên ghi danh</label><input type="text" id="dName" maxlength="30" value="${esc(store.name && store.name !== 'Phật tử' ? store.name : '')}" placeholder="Vd: Gia đình ông bà Nguyễn Văn A">
+    <label class="chk"><input type="checkbox" id="dAnon"> Ẩn danh (ghi "${ANON}")</label>
+    <div class="err" id="dErr"></div><div id="dQR"></div>
+    <div class="row" id="dBtns"><button class="big" id="dGo">${DONATE.apiBase ? 'Tạo mã QR phát tâm' : 'Hiện mã VietQR'}</button></div>` : ''}
+    ${DONATE.kofi ? `<a class="linkbtn" href="${esc(DONATE.kofi)}" target="_blank" rel="noopener">Phát tâm từ nước ngoài (Ko-fi / PayPal)</a>` : ''}
+    <button class="linkbtn" id="dHonor">📜 Xem bảng công đức</button>`, { onClose: () => { if (poll) clearInterval(poll); } });
+  $('#dHonor').onclick = () => { SND.tap(); closePanel(false); openHonor(); };
   if (!canQR) return;
-  const amts = [...pbody.querySelectorAll('.amt')], inp = $('#dAmt'), err = $('#dErr'), box = $('#dQR');
-  amts.forEach(b => b.onclick = () => { SND.tap(); amount = +b.dataset.v; inp.value = ''; amts.forEach(x => x.classList.toggle('on', x === b)); err.textContent = ''; });
-  inp.oninput = () => { inp.value = inp.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); amts.forEach(x => x.classList.remove('on')); err.textContent = ''; };
-  const getAmt = () => { const v = parseInt(inp.value.replace(/\D/g, ''), 10); return v || amount; };
+  const cards = [...pbody.querySelectorAll('.tier')], inp = $('#dAmt'), err = $('#dErr'), box = $('#dQR'), perk = $('#dPerk');
+  const sel = () => { cards.forEach(c => c.classList.toggle('on', +c.dataset.t === tier.id)); inp.classList.toggle('hidden', tier.id !== 0); perk.textContent = tier.id ? `${tier.ic} ${tier.perk}` : 'Số tiền tuỳ tâm — ghi danh theo mức tương ứng'; };
+  sel();
+  cards.forEach(c => c.onclick = () => { SND.tap(); tier = tierById(+c.dataset.t); err.textContent = ''; box.innerHTML = ''; $('#dGo').disabled = false; sel(); if (!tier.id) inp.focus(); });
+  inp.oninput = () => { inp.value = inp.value.replace(/\D/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, '.'); err.textContent = ''; };
+  const getAmt = () => tier.id ? tier.amount : (parseInt(inp.value.replace(/\D/g, ''), 10) || 0);
   $('#dGo').onclick = async () => {
     const a = getAmt(); if (a < 10000 || a > 50000000) { err.textContent = 'Số tiền từ 10.000đ đến 50.000.000đ nhé.'; return; }
+    const anon = $('#dAnon').checked, name = anon ? '' : $('#dName').value.replace(/\s+/g, ' ').trim().slice(0, 30);
+    if (name && hasBad(name)) { err.textContent = 'Tên ghi danh có từ chưa phù hợp, bạn sửa lại giúp nhé.'; return; }
+    const t = tierOf(a);
     SND.tap(); const btn = $('#dGo'); btn.disabled = true; box.innerHTML = '<p class="note">Đang tạo mã…</p>';
     try {
       if (DONATE.apiBase) {
-        const r = await fetch(DONATE.apiBase + '/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: a, name: store.name }) });
+        const r = await fetch(DONATE.apiBase + '/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ amount: a, name }) });
         const j = await r.json(); if (!r.ok || !j.qrCode) throw new Error(j.error || 'create');
-        box.innerHTML = `<div class="qrbox">${await qrSvg(j.qrCode)}</div><div class="acc">Số tiền <b>${vnd(a)}</b> · quét bằng app ngân hàng</div>
-          <a class="linkbtn" href="${esc(j.checkoutUrl)}" target="_blank" rel="noopener">Mở trang thanh toán payOS</a><p class="note" id="dWait">Đang chờ chuyển khoản… (tự xác nhận)</p>`;
+        box.innerHTML = `<div class="qrbox">${await qrSvg(j.qrCode)}</div><div class="acc">${t.ic} ${t.name} · <b>${vnd(a)}</b><br>${recipientLine()}<br>Quét bằng app ngân hàng</div>
+          <a class="linkbtn" href="${esc(j.checkoutUrl)}" target="_blank" rel="noopener">Mở trang thanh toán payOS</a><p class="note" id="dWait">Đang chờ chuyển khoản… (tự xác nhận và ghi danh)</p>`;
         let tries = 0;
         poll = setInterval(async () => {
           if (++tries > 300 || !G.panel) { clearInterval(poll); return; }
           try { const s = await (await fetch(`${DONATE.apiBase}/status/${j.orderCode}`)).json();
-            if (s.status === 'PAID') { clearInterval(poll); poll = null; thank(a); }
+            if (s.status === 'PAID') { clearInterval(poll); poll = null; await fetchHonor(); thank(a, name, t, false); }
             else if (s.status === 'CANCELLED' || s.status === 'EXPIRED') { clearInterval(poll); $('#dWait').textContent = 'Mã đã huỷ hoặc hết hạn. Bạn có thể tạo mã mới.'; btn.disabled = false; } } catch (_) { }
         }, 3000);
       } else {
-        const memo = asciiMemo('UNG HO ' + (store.name || '')).slice(0, 25);
+        const memo = asciiMemo(`${DONATE.memo} ${name || 'AN DANH'}`).slice(0, 25);
         box.innerHTML = `<div class="qrbox">${await qrSvg(vietQR(DONATE.bankBin, DONATE.accountNo, a, memo))}</div>
-          <div class="acc">${esc(BANKS[DONATE.bankBin] || 'Ngân hàng')} · <b>${esc(DONATE.accountNo)}</b><br>${esc(DONATE.accountName)} · <b>${vnd(a)}</b><br>Nội dung: ${esc(memo)}</div>
-          <p class="note">Mở app ngân hàng → Quét mã QR. Cảm ơn bạn rất nhiều 🙏</p>`;
-        btn.disabled = false; btn.textContent = 'Đổi số tiền';
+          <div class="acc">${t.ic} ${t.name} · <b>${vnd(a)}</b><br>${esc(BANKS[DONATE.bankBin] || 'Ngân hàng')} · <b>${esc(DONATE.accountNo)}</b><br>${recipientLine()}<br>Nội dung: ${esc(memo)}</div>
+          <p class="note">Mở app ngân hàng → Quét mã QR.</p><div class="row"><button class="big alt" id="dClaim">Con đã chuyển khoản — ghi danh</button></div>`;
+        btn.disabled = false; btn.textContent = 'Tạo lại mã';
+        $('#dClaim').onclick = () => {
+          SND.tap(); store.honorLocal = [{ n: name || ANON, t: t.id, at: Date.now() }, ...(store.honorLocal || [])].slice(0, 20); save(); drawHonorBoard(); thank(a, name, t, true);
+        };
       }
     } catch (e) { box.innerHTML = ''; err.textContent = 'Chưa tạo được mã (kiểm tra kết nối mạng). Bạn thử lại sau nhé.'; btn.disabled = false; }
   };
-  function thank(a) {
-    store.donated = (store.donated || 0) + a; save(); SND.chime();
-    pbody.innerHTML = `<div class="h2">Cảm ơn bạn 🙏</div><div style="text-align:center;font-size:54px">🪷</div>
-      <p class="sub" style="text-align:center">Đã nhận <b>${vnd(a)}</b>. Chúc bạn và gia đình bình an, mọi sự an lành.</p><div class="row"><button class="big" id="dDone">Xong</button></div>`;
+  function thank(a, name, t, local) {
+    store.donated = (store.donated || 0) + a; save(); SND.chime(); bumpCounter();
+    pbody.innerHTML = `<div class="h2">Tuỳ hỷ công đức 🙏</div><div style="text-align:center;font-size:54px">${t.ic}</div>
+      <p class="sub" style="text-align:center">${local ? 'Cảm ơn tấm lòng' : 'Đã nhận'} <b>${vnd(a)}</b>.<br><b>${esc(name || ANON)}</b> được ghi danh hàng <b style="color:${t.color}">${t.name}</b> trên bảng công đức${local ? ' (trên máy bạn; bảng chung cập nhật khi người nhận xác nhận)' : ''}.<br>Nguyện bạn và gia đình bình an, mọi sự an lành.</p>
+      <div class="row"><button class="big alt" id="dSee">📜 Xem bảng công đức</button><button class="big" id="dDone">Xong</button></div>`;
+    $('#dSee').onclick = () => { SND.tap(); closePanel(false); openHonor(); };
     $('#dDone').onclick = () => { SND.tap(); closePanel(false); };
   }
 }
+drawHonorBoard(); fetchHonor();
 
 /* =====================================================================
    18. HUD: đếm người, tắt tiếng, sổ, chia sẻ, hướng dẫn
@@ -2025,7 +2139,7 @@ window.__ready = true;
 enterBtn.disabled = false; enterBtn.textContent = 'Vào chùa';
 $('#loadErr').textContent = '';
 // Gỡ lỗi/kiểm thử: truy cập trạng thái từ console
-window.__game = { DONATE, openDonate, vietQR, G, player, store, SPOTS, cam, PG, sky_, actIncense, actBell, actMo, actWish, actQue, openShare, openBook, makeShareImage, renderer };
+window.__game = { DONATE, openDonate, openHonor, honorList, vietQR, G, player, store, SPOTS, cam, PG, sky_, actIncense, actBell, actMo, actWish, actQue, openShare, openBook, makeShareImage, renderer };
 </script>
 </body>
 </html>
