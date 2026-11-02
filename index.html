@@ -305,10 +305,10 @@ function save() { try { localStorage.setItem(STORE_KEY, JSON.stringify(store)); 
    ===================================================================== */
 const DONATE = {
   recipientType: 'nguoilamgame',
-  templeName: '',   // tên chùa thật khi recipientType = 'chua', vd 'Chùa ... (Phường ..., TP ...)'
-  bankBin: '',      // mã BIN NAPAS: MB 970422 · Vietcombank 970436 · Techcombank 970407 · VPBank 970432 · ACB 970416 · BIDV 970418 · VietinBank 970415 · TPBank 970423
-  accountNo: '',    // số tài khoản nhận
-  accountName: '',  // tên chủ tài khoản, IN HOA KHÔNG DẤU
+  templeName: 'Bồ đề tâm game', // 'chua': tên chùa thật · 'nguoilamgame': tên dự án hiện cạnh "chùa ảo An Lạc"
+  bankBin: '970422', // MB Bank — mã BIN NAPAS: MB 970422 · Vietcombank 970436 · Techcombank 970407 · VPBank 970432 · ACB 970416 · BIDV 970418 · VietinBank 970415 · TPBank 970423
+  accountNo: '0890149089999', // số tài khoản nhận
+  accountName: 'DO VIET TU', // tên chủ tài khoản, IN HOA KHÔNG DẤU
   apiBase: '',      // URL Cloudflare Worker (thư mục worker/) để nhận qua payOS, tự xác nhận và có bảng công đức chung
   kofi: '',         // tuỳ chọn, cho người ở nước ngoài
   memo: 'BO DE TAM',// đầu nội dung chuyển khoản (không dấu); tên ghi danh nối phía sau, tối đa 25 ký tự
@@ -1916,7 +1916,7 @@ const donateLink = () => DONATE_ON ? '<button class="linkbtn" data-donate>🪷 P
 function bindDonate() { const b = pbody.querySelector('[data-donate]'); if (b) b.onclick = () => { SND.tap(); closePanel(false); openDonate(); }; }
 const donateIntro = () => IS_REAL_TEMPLE
   ? `Phát tâm cúng dường Tam Bảo, duy trì hương khói ${esc(DONATE.templeName)}.`
-  : 'Phát tâm duy trì hương khói chùa ảo An Lạc: tên miền, máy chủ và làm thêm lễ hội. Chùa An Lạc trong game là chùa ảo.';
+  : `Phát tâm duy trì hương khói chùa ảo An Lạc${DONATE.templeName ? ' (' + esc(DONATE.templeName) + ')' : ''}: tên miền, máy chủ và làm thêm lễ hội. Chùa An Lạc trong game là chùa ảo.`;
 const recipientLine = () => DONATE.accountName ? `Người nhận: <b>${esc(DONATE.accountName)}</b>${IS_REAL_TEMPLE ? '' : ' (người làm game)'}` : '';
 const ANON = 'Phật tử ẩn danh';
 
@@ -1938,7 +1938,7 @@ function drawHonorBoard() { // vẽ lại tấm bảng 3D trong sân (giải ph�
     g.fillStyle = '#fbeed2'; g.fillRect(0, 0, w, h);
     g.strokeStyle = '#a32420'; g.lineWidth = 14; g.strokeRect(7, 7, w - 14, h - 14); g.strokeStyle = '#d9a441'; g.lineWidth = 4; g.strokeRect(24, 24, w - 48, h - 48);
     g.textAlign = 'center'; g.fillStyle = '#8a1f1c'; g.font = 'bold 84px Georgia,serif'; g.fillText('BẢNG CÔNG ĐỨC', w / 2, 112);
-    g.font = 'italic 34px Georgia,serif'; g.fillStyle = '#7a4a2a'; g.fillText('Bồ đề tâm · ' + (IS_REAL_TEMPLE ? DONATE.templeName : 'chùa ảo An Lạc'), w / 2, 162);
+    g.font = 'italic 34px Georgia,serif'; g.fillStyle = '#7a4a2a'; g.fillText(IS_REAL_TEMPLE ? 'Bồ đề tâm · ' + DONATE.templeName : (DONATE.templeName || 'Bồ đề tâm') + ' · chùa ảo An Lạc', w / 2, 162);
     let y = 222; const maxY = h - 64;
     if (!list.length) { g.font = '30px Georgia,serif'; g.fillStyle = '#6b5a4a'; g.fillText('Chưa có ghi danh — mỗi tấm lòng đều quý.', w / 2, h / 2 + 40); }
     for (const t of [...TIERS].reverse().concat([TIER0])) {
@@ -1963,7 +1963,7 @@ function honorHtml() {
   }).join('') + '</div>';
 }
 function openHonor() {
-  const render = () => `<div class="h2">Bảng công đức</div><p class="sub">Bồ đề tâm · ${IS_REAL_TEMPLE ? esc(DONATE.templeName) : 'chùa ảo An Lạc'}. Công đức ở tâm, không ở số tiền — mọi hoạt động trong chùa đều miễn phí.</p>
+  const render = () => `<div class="h2">Bảng công đức</div><p class="sub">${IS_REAL_TEMPLE ? 'Bồ đề tâm · ' + esc(DONATE.templeName) : esc(DONATE.templeName || 'Bồ đề tâm') + ' · chùa ảo An Lạc'}. Công đức ở tâm, không ở số tiền — mọi hoạt động trong chùa đều miễn phí.</p>
     <div id="hList">${honorHtml()}</div><div class="row" style="margin-top:12px"><button class="big" id="hGo">🪷 Phát tâm Bồ đề</button></div>`;
   openPanel(render());
   $('#hGo').onclick = () => { SND.tap(); closePanel(false); openDonate(); };
