@@ -194,6 +194,7 @@ input[type=search]:focus{border-color:var(--gold2)}
 .loi p{margin:0;font-family:Georgia,serif;font-size:16px;line-height:1.45}.loi small{display:block;margin-top:4px;font-size:11px;opacity:.75}
 .list.lib li.bk{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px}.list.lib li.rd{background:#f7f1e3}
 .list.lib .bt{flex:1;min-width:0}.list.lib .bt b{display:block;font-size:14px}.list.lib .bt i{display:block;font-size:12px;color:#6a4a32;margin-top:2px}
+.list.lib .bt a.ba{display:inline-block;margin-top:4px;font-size:12px;color:#a32420;text-decoration:underline}
 .list.lib .bf{flex:none;width:40px;height:40px;border-radius:10px;background:#fff3dc;border:1px solid #e3c79a;font-size:20px;color:#c98a1a;line-height:1}
 .list.lib .bo{flex:none;padding:10px 12px;border-radius:10px;background:linear-gradient(180deg,#d8443a,#a32420);color:#fff3d6;font-weight:700;font-size:14px;text-decoration:none;white-space:nowrap}
 a.big{display:flex;align-items:center;justify-content:center;text-decoration:none;font-weight:700;text-align:center}
@@ -3191,11 +3192,23 @@ const libNorm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, '
 const LIB_SEEN = new Set(); // mỗi cuốn chỉ tính tu dưỡng một lần mỗi phiên
 function libState() { if (!store.lib || !Array.isArray(store.lib.read)) store.lib = { read: [], fav: [] }; return store.lib; }
 function libUrl(id) { return 'https://drive.google.com/drive/folders/' + id; }
+// Nơi mở sách, theo thứ tự ưu tiên: kho sách riêng (R2, chỉ những cuốn được phép) → nguồn chính thống → Google Drive cộng đồng
+const LIB_SRC = {"1uNAOF-v_ZqR-LduLDsJ7Rlazki0WfHgy":["https://vi.wikisource.org/wiki/%C4%90%E1%BA%A1o_%C4%90%E1%BB%A9c_kinh","Wikisource tiếng Việt",1],"1Rh-dbqUPtVR9jObnV5ZUGOKDl8QEYRc4":["https://vi.wikisource.org/wiki/%C4%90%E1%BA%A1o_%C4%90%E1%BB%A9c_kinh","Wikisource tiếng Việt",1],"10LPfHv5ahIS0w1NGOBYuFOWkr7oayrFR":["https://vi.wikisource.org/wiki/%C4%90%E1%BA%A1o_%C4%90%E1%BB%A9c_kinh","Wikisource tiếng Việt",1],"1WobRKHo6ehUsarEyLcCA63OvV_j8wWjN":["https://vi.wikisource.org/wiki/%C4%90%E1%BA%A1o_%C4%90%E1%BB%A9c_kinh","Wikisource tiếng Việt",1],"1oFcLRAUWbZy5KK1NZZXcLVSpnoagUhC0":["https://vi.wikisource.org/wiki/%C4%90%E1%BA%A1o_%C4%90%E1%BB%A9c_kinh","Wikisource tiếng Việt",1],"1v-XDKLYy4UAKpZv1sJuHXbnh4EM_eerN":["https://vi.wikisource.org/wiki/%C3%82m_ph%C3%B9_kinh","Wikisource tiếng Việt",1],"1LRpyeGqYC-gE8p7knGfELwodgP95dUJx":["https://vi.wikisource.org/wiki/Kinh_D%E1%BB%8Bch","Wikisource tiếng Việt (bản dịch Ngô Tất Tố)",1],"1GNm98PBzu-CDCCRTHd2LGLibmI7GFQvM":["https://vi.wikisource.org/wiki/Kinh_D%E1%BB%8Bch","Wikisource tiếng Việt (bản dịch Ngô Tất Tố)",1],"14WelGr8fRTzSVfGyy5vm9X5bQ2LwXpJv":["https://vi.wikisource.org/wiki/Kinh_D%E1%BB%8Bch","Wikisource tiếng Việt (bản dịch Ngô Tất Tố)",1],"17XWvXq65BlNb6mCFpU1Bx2ZM1kSoeWpz":["https://vi.wikisource.org/wiki/Lu%E1%BA%ADn_ng%E1%BB%AF","Wikisource tiếng Việt (Luận ngữ)",1]}; // id thư mục → [url, tên nguồn, alt]; alt = 1: bản khác (dịch giả khác / nguyên văn) — hiện thành link phụ, không thay nút Đọc
+const SACH_BASE = /github\.io$/.test(location.hostname) ? 'https://bodetam.doviettudn.workers.dev' : /^https?:$/.test(location.protocol) ? '' : null;
+let LIB_OWN = null;
+function libLoadOwn() {
+  if (LIB_OWN || SACH_BASE === null) return Promise.resolve(); LIB_OWN = new Set();
+  return fetch(SACH_BASE + '/sach/danh-sach').then(r => r.ok ? r.json() : { files: [] }).then(j => { (j.files || []).forEach(f => LIB_OWN.add(f)); }).catch(() => { });
+}
+function libLink(id) {
+  for (const ext of ['pdf', 'epub']) if (LIB_OWN && LIB_OWN.has(id + '.' + ext)) return [SACH_BASE + '/sach/' + id + '.' + ext, 'Kho sách của đền'];
+  const s = LIB_SRC[id]; return s && !s[2] ? [s[0], s[1]] : [libUrl(id), 'Google Drive cộng đồng'];
+}
 function libRow(b) {
   const L = libState(), [t, id, c] = b, read = L.read.includes(id), fav = L.fav.includes(id), cn = (KINH_LIB.cats.find(k => k[0] === c) || [, ''])[1];
-  const goi = LIB_GOI.find(g => g[0].toLowerCase() === t.toLowerCase());
-  return `<li class="bk${read ? ' rd' : ''}"><div class="bt"><b>${esc(t)}</b><small>${esc(cn)}${read ? ' · ✓ đã mở' : ''}</small>${goi ? `<i>${esc(goi[1])}</i>` : ''}</div>
-    <button class="bf" data-f="${id}" aria-label="${fav ? 'Bỏ khỏi tủ sách' : 'Thêm vào tủ sách'}">${fav ? '★' : '☆'}</button><a class="bo" data-o="${id}" href="${libUrl(id)}" target="_blank" rel="noopener">Đọc ↗</a></li>`;
+  const goi = LIB_GOI.find(g => g[0].toLowerCase() === t.toLowerCase()), lk = libLink(id);
+  return `<li class="bk${read ? ' rd' : ''}"><div class="bt"><b>${esc(t)}</b><small>${esc(cn)}${read ? ' · ✓ đã mở' : ''} · ${esc(lk[1])}</small>${goi ? `<i>${esc(goi[1])}</i>` : ''}${LIB_SRC[id] && LIB_SRC[id][2] ? `<a class="ba" href="${esc(LIB_SRC[id][0])}" target="_blank" rel="noopener">📖 Bản tự do: ${esc(LIB_SRC[id][1])} ↗</a>` : ''}${lk[0] !== libUrl(id) ? `<a class="ba" href="${libUrl(id)}" target="_blank" rel="noopener">Bản dự phòng trên Drive ↗</a>` : ''}</div>
+    <button class="bf" data-f="${id}" aria-label="${fav ? 'Bỏ khỏi tủ sách' : 'Thêm vào tủ sách'}">${fav ? '★' : '☆'}</button><a class="bo" data-o="${id}" href="${esc(lk[0])}" target="_blank" rel="noopener">Đọc ↗</a></li>`;
 }
 function openLibrary(cat) {
   const L = libState(), day = Math.floor(Date.now() / 864e5), loi = LIB_LOI[day % LIB_LOI.length];
@@ -3208,14 +3221,15 @@ function openLibrary(cat) {
   };
   const listHtml = () => { const bs = books(); return bs.length ? bs.map(libRow).join('') : `<li>${q ? 'Không tìm thấy cuốn nào. Thử từ khác, hoặc mở toàn bộ thư viện bên dưới.' : 'Tủ sách còn trống. Bấm ☆ để giữ cuốn mình muốn đọc.'}</li>`; };
   openPanel(`<div class="h2">📚 Thư các</div>
-    <p class="sub">${KINH_LIB.books.length} đầu sách Đạo gia, Kinh Dịch, Nho học · đã mở <b id="lbN">${L.read.length}</b> cuốn. Sách mở ở thẻ mới trên Google Drive (bản PDF/EPUB).</p>
+    <p class="sub">${KINH_LIB.books.length} đầu sách Đạo gia, Kinh Dịch, Nho học · đã mở <b id="lbN">${L.read.length}</b> cuốn. Sách mở ở thẻ mới — ưu tiên kho sách của đền, rồi nguồn chính thống, sau cùng là thư viện cộng đồng trên Google Drive.</p>
     <div class="loi"><p>“${esc(loi[0])}”</p><small>— ${esc(loi[1])} · lời nhắc hôm nay</small></div>
     <input type="search" id="lbQ" placeholder="🔍 Tìm tên kinh, sách…" maxlength="40" autocomplete="off">
     <div class="chips" id="lbC">${[['goi', '⭐ Gợi ý'], ...KINH_LIB.cats, ['mine', '📌 Tủ sách của tôi']].map(([k, n]) => `<button class="chip${k === cur ? ' on' : ''}" data-c="${k}">${esc(n)}</button>`).join('')}</div>
     <ul class="list lib" id="lbL">${listHtml()}</ul>
     <div class="row"><button class="big alt" id="lbR">🎲 Gợi ý một cuốn</button><a class="big alt" id="lbAll" href="${LIB_ROOT}" target="_blank" rel="noopener">Toàn bộ thư viện ↗</a></div>
-    <p class="note">Danh mục dẫn tới thư viện sách cộng đồng trên Google Drive. Bản quyền thuộc tác giả, dịch giả và nhà xuất bản — xin đọc để học hỏi, không dùng vào việc thương mại. Đọc chậm, hiểu sâu, rồi đem vào đời sống.</p>`, { cls: 'libp' });
+    <p class="note">Bản quyền thuộc tác giả, dịch giả và nhà xuất bản — xin đọc để học hỏi, không dùng vào việc thương mại. Đọc chậm, hiểu sâu, rồi đem vào đời sống.</p>`, { cls: 'libp' });
   const ul = $('#lbL'), redraw = () => { ul.innerHTML = listHtml(); };
+  libLoadOwn().then(() => { if (G.panel && $('#lbL') === ul) redraw(); });
   $('#lbQ').addEventListener('input', e => { q = e.target.value.trim(); pbody.querySelectorAll('#lbC .chip').forEach(c => c.classList.toggle('on', !q && c.dataset.c === cur)); redraw(); });
   $('#lbC').onclick = e => { const b = e.target.closest('[data-c]'); if (!b) return; SND.tap(); cur = b.dataset.c; q = ''; $('#lbQ').value = ''; pbody.querySelectorAll('#lbC .chip').forEach(c => c.classList.toggle('on', c === b)); redraw(); };
   ul.onclick = e => {
