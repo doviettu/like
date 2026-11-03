@@ -216,6 +216,7 @@ a.big{display:flex;align-items:center;justify-content:center;text-decoration:non
 #enterBtn{width:100%;margin-top:12px;height:60px;border-radius:30px;font-size:20px;font-weight:700;color:#fff3d6;
   background:linear-gradient(180deg,#d8443a,#9d1f1d);border:2px solid var(--gold);box-shadow:0 6px 22px rgba(160,30,20,.5)}
 #enterBtn:disabled{opacity:.6;filter:grayscale(.3)}
+#welcome .xlink{display:block;margin-top:12px;font-size:14px;color:#ffd9a0;text-decoration:underline}
 #welcome .priv{font-size:11px;color:rgba(255,236,210,.75);margin-top:14px;line-height:1.5}
 #loadErr{color:#ffd0c0;font-size:13px;margin-top:10px}
 
@@ -277,6 +278,7 @@ a.big{display:flex;align-items:center;justify-content:center;text-decoration:non
     <button id="enterBtn" disabled>Đang mở cổng chùa…</button>
     <div id="loadErr"></div>
   </div>
+  <a class="xlink" href="den/">🏮 Ghé thăm Đền Thanh Vân — gieo quẻ Dịch, xin chữ, thưởng trà →</a>
   <div class="priv">Không đăng nhập · Không thu thập dữ liệu cá nhân · Không quảng cáo<br>Mọi thứ chỉ lưu trên máy của bạn</div>
 </div>
 
@@ -2260,6 +2262,7 @@ function openBook() {
     <div class="row"><button class="big" id="bkShare">Chia sẻ</button><button class="big alt" id="bkClear">Xoá sổ</button></div>
     <div class="row" style="margin-top:10px"><button class="big alt" id="bkLook">👤 Đổi dáng người</button><button class="big alt" id="bkQuest">📿 Hành trì</button></div>
     <div class="row" style="margin-top:10px"><button class="big alt" id="bkLib">📚 Tủ kinh của tôi (${libState().fav.length + libState().read.filter(i => !libState().fav.includes(i)).length})</button></div>
+    <div class="row" style="margin-top:10px"><a class="big alt" href="den/">🏮 Sang Đền Thanh Vân</a></div>
     ${ONLINE.url ? `<div class="row" style="margin-top:10px"><button class="big alt" id="bkNet">🌐 Chùa trực tuyến: ${store.online === false ? 'Đang tắt' : 'Đang bật'}</button></div><p class="note">Khi bật, người khác thấy dáng và vị trí của bạn (ẩn danh, không lưu lại). Không có chat tự do.</p>` : ''}
     <div class="h3" style="margin-top:14px">Đồ hoạ</div>
     <div class="row">${[['auto', 'Tự động'], ['cao', 'Cao'], ['vua', 'Vừa'], ['nhe', 'Nhẹ']].map(([v, t]) => `<button class="big alt" data-gfx="${v}" style="min-width:70px;min-height:48px;font-size:15px${(store.gfx || 'auto') === v ? ';border-color:#b3262b;background:#fff0e0' : ''}">${t}</button>`).join('')}</div>
