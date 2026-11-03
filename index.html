@@ -229,7 +229,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--gold2)}
 
 <!-- HUD -->
 <div id="hud" class="hidden">
-  <div id="hudLeft"><div id="counter">Hôm nay có <b id="cnum">…</b> người lên chùa cầu an</div><div class="pill" id="lunarPill"></div><button class="pill" id="questPill"></button></div>
+  <div id="hudLeft"><div id="counter">Hôm nay có <b id="cnum">…</b> người lên chùa cầu an</div><div class="pill" id="lunarPill"></div><button class="pill" id="questPill"></button><button class="pill hidden" id="netPill"></button></div>
   <div id="hudBtns">
     <button class="hbtn" id="muteBtn" aria-label="Tắt/bật tiếng"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="snd1" d="M16 9a4 4 0 0 1 0 6"/><path id="snd2" d="M18.5 6.5a8 8 0 0 1 0 11"/><path id="sndX" d="M16 9l6 6M22 9l-6 6" style="display:none"/></svg></button>
     <button class="hbtn hidden" id="donateBtn" aria-label="Bồ đề tâm – phát tâm"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
@@ -241,7 +241,7 @@ textarea:focus,input[type=text]:focus{border-color:var(--gold2)}
 <div id="labels"></div>
 <div id="bubbles"></div>
 <div id="joyZone" class="hidden"><div id="joyBase"><div id="joyKnob"></div></div></div>
-<div id="emotes" class="hidden"><button data-e="chap" aria-label="Chắp tay">🙏</button><button data-e="cui" aria-label="Cúi chào">🙇</button><button data-e="vay" aria-label="Vẫy tay">👋</button><button data-e="thien" aria-label="Ngồi thiền">🧘</button></div>
+<div id="emotes" class="hidden"><button data-e="chap" aria-label="Chắp tay">🙏</button><button data-e="cui" aria-label="Cúi chào">🙇</button><button data-e="vay" aria-label="Vẫy tay">👋</button><button data-e="thien" aria-label="Ngồi thiền">🧘</button><button id="emoteSay" class="hidden" aria-label="Lời chào">💬</button></div>
 <button id="actBtn" class="hidden"><span class="ic"></span><span class="tx"></span></button>
 <div id="hint" class="hidden"></div>
 <div id="toast"></div>
@@ -344,6 +344,9 @@ const TIER0 = { id: 0, name: 'Tuỳ tâm', amount: 10000, ic: '🤍', color: '#6
 const tierOf = a => { let t = TIER0; for (const x of TIERS) if (a >= x.amount) t = x; return t; };
 const tierById = id => TIERS.find(t => t.id === id) || TIER0;
 const IS_REAL_TEMPLE = DONATE.recipientType === 'chua' && !!DONATE.templeName;
+/* 1c. CHÙA TRỰC TUYẾN — dán URL máy chủ phòng chùa sau khi triển khai (docs/HUONG-DAN-CLOUDFLARE.md).
+   Để trống = chơi một mình với khách hành hương AI. */
+const ONLINE = { url: '' }; // vd 'wss://lenchua-phong.ten-ban.workers.dev/room/an-lac'
 const DONATE_ON = !!((DONATE.bankBin && DONATE.accountNo) || DONATE.apiBase || DONATE.kofi);
 // Mã VietQR (chuẩn EMVCo/NAPAS 247) tự sinh trên máy, không gửi số tài khoản đi đâu
 const tlv = (id, v) => id + String(v.length).padStart(2, '0') + v;
@@ -2207,9 +2210,11 @@ function openBook() {
     <ul class="list">${Q.length ? Q.map(q => `<li>🎴 <b>Quẻ số ${q.n}</b> · ${esc(q.title || '')}<br>${esc(q.text)}<small>${fmtDate(q.at)} · Mang tính giải trí</small></li>`).join('') : '<li>Chưa xin quẻ nào. Quầy xin xăm ở bên phải chính điện.</li>'}</ul>
     <div class="row"><button class="big" id="bkShare">Chia sẻ</button><button class="big alt" id="bkClear">Xoá sổ</button></div>
     <div class="row" style="margin-top:10px"><button class="big alt" id="bkLook">👤 Đổi dáng người</button><button class="big alt" id="bkQuest">📿 Hành trì</button></div>
+    ${ONLINE.url ? `<div class="row" style="margin-top:10px"><button class="big alt" id="bkNet">🌐 Chùa trực tuyến: ${store.online === false ? 'Đang tắt' : 'Đang bật'}</button></div><p class="note">Khi bật, người khác thấy dáng và vị trí của bạn (ẩn danh, không lưu lại). Không có chat tự do.</p>` : ''}
     <div class="h3" style="margin-top:14px">Đồ hoạ</div>
     <div class="row">${[['auto', 'Tự động'], ['cao', 'Cao'], ['vua', 'Vừa'], ['nhe', 'Nhẹ']].map(([v, t]) => `<button class="big alt" data-gfx="${v}" style="min-width:70px;min-height:48px;font-size:15px${(store.gfx || 'auto') === v ? ';border-color:#b3262b;background:#fff0e0' : ''}">${t}</button>`).join('')}</div>
     <p class="note">Đang dùng: ${{ cao: 'Cao (vầng sáng + bóng đổ)', vua: 'Vừa (vầng sáng)', nhe: 'Nhẹ' }[GFX.level]}. Đổi mức sẽ tải lại trang.</p>`);
+  if ($('#bkNet')) $('#bkNet').onclick = () => { SND.tap(); netToggle(store.online === false); closePanel(false); toast(store.online === false ? 'Đã tắt chùa trực tuyến — lễ chùa một mình.' : 'Đã bật chùa trực tuyến 🌐', 2200); };
   $('#bkLook').onclick = () => { SND.tap(); closePanel(false); openLook(); }; $('#bkQuest').onclick = () => { SND.tap(); closePanel(false); openQuests(); };
   pbody.querySelectorAll('[data-gfx]').forEach(b => b.onclick = () => { store.gfx = b.dataset.gfx === 'auto' ? undefined : b.dataset.gfx; save(); location.reload(); });
   $('#bkShare').onclick = () => { SND.tap(); closePanel(false); openShare(); };
@@ -2722,7 +2727,7 @@ $('#questPill').addEventListener('click', () => { if (canAct()) { SND.tap(); ope
 document.querySelectorAll('#emotes [data-e]').forEach(b => b.addEventListener('click', () => doEmote(b.dataset.e)));
 addEventListener('keydown', e => { if (isField(e)) return; const m = { Digit1: 'chap', Digit2: 'cui', Digit3: 'vay', Digit4: 'thien' }[e.code]; if (m) doEmote(m); });
 refreshQuestPill();
-function updateExtras(dt) { updateEmote(dt); updateNhieu(); updateLitter(); updatePenance(dt); $('#emotes').classList.toggle('hidden', !canAct()); }
+function updateExtras(dt) { updateEmote(dt); updateNhieu(); updateLitter(); updatePenance(dt); updateOnline(dt); $('#emotes').classList.toggle('hidden', !canAct()); }
 
 
 /* =====================================================================
@@ -2854,6 +2859,120 @@ qev = function (ev) {
 const _hintBase = nextHint;
 nextHint = function () { return QS.pen ? `Sám hối: ngồi thiền, tụng kinh hoặc làm một việc thiện` : _hintBase(); };
 
+
+/* =====================================================================
+   19d. CHÙA TRỰC TUYẾN — thấy người chơi khác (máy chủ: worker/phong)
+   Không chat tự do: chỉ cử chỉ, câu soạn sẵn, tặng hoa sen; tên chỉ hiện khi hai bên cùng tặng nhau.
+   Có thể ẩn hoặc báo cáo một người; tắt hẳn trong Sổ cầu an.
+   ===================================================================== */
+const PHRASES = ['A Di Đà Phật 🙏', 'Chào bạn, chúc an lành', 'Cảm ơn bạn', 'Đi cùng mình nhé', 'Cùng lễ Phật nhé', 'Chúc bạn bình an'];
+const NET = { ws: null, id: null, peers: new Map(), room: 0, retry: 1, wait: 0, sendT: 0, last: null };
+const netEnabled = () => !!ONLINE.url && store.online !== false;
+function netSend(o) { if (NET.ws && NET.ws.readyState === 1) NET.ws.send(JSON.stringify(o)); }
+function netConnect() {
+  if (!netEnabled() || NET.ws || G.mode !== 'play') return;
+  let ws; try { ws = new WebSocket(ONLINE.url + (NET.room ? '-' + NET.room : '')); } catch (_) { return; }
+  NET.ws = ws;
+  ws.onopen = () => { NET.retry = 1; netSend({ t: 'hi', name: store.name, look: player.look, x: player.x, z: player.z, yaw: player.yaw }); };
+  ws.onmessage = e => { let m; try { m = JSON.parse(e.data); } catch (_) { return; } netMsg(m); };
+  ws.onclose = e => {
+    NET.ws = null; NET.id = null; for (const id of [...NET.peers.keys()]) removePeer(id); refreshNet();
+    if (e.code === 4001 && NET.room < 5) { NET.room++; NET.wait = 0.3; return; }               // phòng đầy → sang phòng kế
+    if (e.code === 4003) { store.online = false; save(); toast('Bạn đã được mời rời phòng chung. Vẫn có thể lễ chùa một mình 🙏', 4000); return; }
+    NET.wait = Math.min(30, 2 * NET.retry++);
+  };
+}
+function addPeer(m) {
+  if (NET.peers.has(m.id) || m.id === NET.id) return;
+  const c = makeChibi(m.look || {}); scene.add(c.root);
+  const lbl = document.createElement('div'); lbl.className = 'lbl'; lbl.style.opacity = '0'; labelsEl.appendChild(lbl);
+  NET.peers.set(m.id, { id: m.id, c, lbl, x: m.x, z: m.z, tx: m.x, tz: m.z, yaw: m.yaw, tyaw: m.yaw, a: m.a || 0, name: m.name || '', bond: !!m.name, gifted: false, giftedMe: false, muted: false,
+    emote: null, et: 0, walkPh: 0, speed: 0, sit: 0, pray: 0, bow: 0, wave: 0, headY: 1.6, look: m.look || {} });
+}
+function removePeer(id) {
+  const p = NET.peers.get(id); if (!p) return;
+  p.c.root.removeFromParent(); p.c.root.traverse(o => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose(); } }); p.lbl.remove(); NET.peers.delete(id);
+  for (const b of bubbles) if (b.p === p) { b.p = null; b.el.classList.remove('on'); }
+}
+function netMsg(m) {
+  const p = m.id && NET.peers.get(m.id);
+  switch (m.t) {
+    case 'welcome': NET.id = m.id; m.peers.forEach(addPeer); refreshNet(); if (m.peers.length) toast(`Đang có ${m.peers.length} Phật tử khác cùng lễ chùa 🙏`, 2600); break;
+    case 'join': addPeer(m); refreshNet(); break;
+    case 'leave': removePeer(m.id); refreshNet(); break;
+    case 'p': if (p) { p.tx = m.x; p.tz = m.z; p.tyaw = m.yaw; p.a = m.a; } break;
+    case 'look': if (p) { const keep = { ...p }; removePeer(m.id); addPeer({ ...m, x: keep.x, z: keep.z, yaw: keep.yaw, a: keep.a, name: keep.name }); Object.assign(NET.peers.get(m.id), { bond: keep.bond, gifted: keep.gifted, giftedMe: keep.giftedMe, muted: keep.muted }); } break;
+    case 'e': if (p) { p.emote = m.e; p.et = m.e === 'thien' ? 1e9 : 2.4; } break;
+    case 'say': if (p && !p.muted) { const b = bubbles.find(x => !x.p || x.p === p); if (b) { b.p = p; b.t = 3.6; b.el.textContent = PHRASES[m.k] || PHRASES[0]; b.el.classList.add('on'); } } break;
+    case 'gift': if (p && !p.muted) { p.giftedMe = true; SND.chime(); toast('Một Phật tử tặng bạn một đoá sen 🪷<br><small>Lại gần và tặng lại để kết duyên, thấy tên nhau.</small>', 4200); } break;
+    case 'bond': if (p) { p.bond = true; p.name = m.name || 'Phật tử'; SND.chime(); toast(`Kết duyên với <b>${esc(p.name)}</b> 🪷 Giờ hai bạn thấy tên nhau.`, 3600); } break;
+  }
+}
+function animRemote(p, dt) {
+  const c = p.c, mv = clamp(p.speed / 2.5, 0, 1);
+  if (p.et > 0) { p.et -= dt; if (p.et <= 0) p.emote = null; }
+  const e = p.emote, st = p.a;
+  p.sit = damp(p.sit, (st === 2 || e === 'thien') ? 1 : 0, 7, dt); p.pray = damp(p.pray, (st === 3 || e === 'chap' || e === 'cui') ? 1 : (e === 'thien' ? 0.35 : 0), 9, dt);
+  p.bow = damp(p.bow, (st === 4 || e === 'cui') ? 0.55 : 0, 8, dt); p.wave = damp(p.wave, (st === 5 || e === 'vay') ? 1 : 0, 8, dt);
+  p.walkPh += dt * (4 + p.speed * 3.2); const sw = Math.sin(p.walkPh) * mv, gy = heightAt(p.x, p.z);
+  c.root.position.set(p.x, gy + Math.abs(Math.sin(p.walkPh)) * 0.05 * mv - p.sit * 0.13, p.z); c.root.rotation.y = p.yaw;
+  c.legL.rotation.x = lerp(sw * 0.7, -1.45, p.sit); c.legR.rotation.x = lerp(-sw * 0.7, -1.45, p.sit); c.legL.rotation.z = p.sit * 0.35; c.legR.rotation.z = -p.sit * 0.35;
+  c.upper.rotation.x = p.bow * 0.75 + mv * 0.06 + c.stoop;
+  c.armL.rotation.x = lerp(-sw * 0.6, -1.25, p.pray); c.armR.rotation.x = lerp(sw * 0.6, -1.25, p.pray); c.armL.rotation.z = lerp(-0.08, 0.55, p.pray); c.armR.rotation.z = lerp(0.08, -0.55, p.pray);
+  if (p.wave > 0.01) { c.armR.rotation.x = lerp(c.armR.rotation.x, -0.3, p.wave); c.armR.rotation.z = lerp(c.armR.rotation.z, 2.5 + Math.sin(T * 11) * 0.28, p.wave); }
+  p.headY = gy + 1.62 - p.sit * 0.2;
+}
+// điểm hành động động: lại gần một người để tặng hoa sen / chào
+const PEER_SPOT = { id: 'peer', btn: 'Tặng hoa sen', ic: '🪷', x: 0, z: 0, r: 2.2, peer: null, active: () => !!PEER_SPOT.peer,
+  run: () => { const p = PEER_SPOT.peer; if (!p) return; if (p.bond) { openPhrases(); return; } if (p.gifted) { toast('Đã tặng sen. Chờ người ấy tặng lại để kết duyên 🪷', 2600); return; }
+    p.gifted = true; netSend({ t: 'gift', to: p.id }); doEmote('chap'); toast(p.giftedMe ? 'Bạn tặng lại đoá sen…' : 'Bạn tặng một đoá sen 🪷 — nếu người ấy tặng lại, hai bạn sẽ kết duyên.', 3000); } };
+DYN_SPOTS.push(PEER_SPOT);
+function openPhrases() {
+  openPanel(`<div class="h2">Lời chào</div><p class="sub">Chỉ dùng câu soạn sẵn để chốn chùa luôn hiền hoà.</p><div class="row">${PHRASES.map((t, i) => `<button class="big alt" data-k="${i}" style="min-width:45%;min-height:52px;font-size:15px">${t}</button>`).join('')}</div>`);
+  pbody.querySelectorAll('[data-k]').forEach(b => b.onclick = () => { SND.tap(); netSend({ t: 'say', k: +b.dataset.k }); closePanel(false); toast('Bạn: ' + PHRASES[+b.dataset.k], 1800); });
+}
+function openPeers() {
+  const list = [...NET.peers.values()].sort((a, b) => Math.hypot(a.x - player.x, a.z - player.z) - Math.hypot(b.x - player.x, b.z - player.z));
+  openPanel(`<div class="h2">Cùng lễ chùa</div><p class="sub">Tên chỉ hiện khi hai bạn cùng tặng nhau hoa sen. Có thể ẩn người khác hoặc báo cáo nếu thấy không phù hợp.</p>
+    <ul class="list">${list.length ? list.map(p => `<li style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span>${p.bond ? '🪷 ' + esc(p.name) : 'Phật tử #' + p.id.slice(0, 4)}<small>cách ${Math.round(Math.hypot(p.x - player.x, p.z - player.z))} m${p.giftedMe && !p.bond ? ' · đã tặng bạn sen' : ''}</small></span>
+      <span><button class="chip" data-mute="${p.id}">${p.muted ? 'Hiện' : 'Ẩn'}</button> <button class="chip" data-rep="${p.id}">Báo cáo</button></span></li>`).join('') : '<li>Chưa có ai khác trong phòng lúc này.</li>'}</ul>
+    <div class="row"><button class="big alt" id="pPhr">💬 Gửi lời chào</button></div>`);
+  pbody.querySelectorAll('[data-mute]').forEach(b => b.onclick = () => { const p = NET.peers.get(b.dataset.mute); if (p) { p.muted = !p.muted; b.textContent = p.muted ? 'Hiện' : 'Ẩn'; } });
+  pbody.querySelectorAll('[data-rep]').forEach(b => b.onclick = () => { if (b.dataset.armed) { netSend({ t: 'report', id: b.dataset.rep }); const p = NET.peers.get(b.dataset.rep); if (p) p.muted = true; b.textContent = 'Đã báo cáo'; b.disabled = true; } else { b.dataset.armed = 1; b.textContent = 'Chạm lần nữa'; } });
+  $('#pPhr').onclick = () => { SND.tap(); closePanel(false); openPhrases(); };
+}
+function refreshNet() { const el = $('#netPill'); if (!el) return; const on = !!NET.id; el.classList.toggle('hidden', !on); if (on) el.textContent = `👥 ${NET.peers.size + 1} Phật tử đang lễ chùa`; $('#emoteSay').classList.toggle('hidden', !on); }
+$('#netPill').addEventListener('click', () => { if (canAct()) { SND.tap(); openPeers(); } });
+$('#emoteSay').addEventListener('click', () => { if (canAct()) { SND.tap(); openPhrases(); } });
+// gửi cử chỉ & đổi dáng cho người khác thấy
+const _emoteBase = doEmote; doEmote = function (type) { _emoteBase(type); if (canAct() || emote) netSend({ t: 'e', e: type }); };
+const _lookBase = setLook; setLook = function (look) { _lookBase(look); netSend({ t: 'look', look: player.look }); };
+const _pv2 = new THREE.Vector3();
+function updateOnline(dt) {
+  if (netEnabled() && !NET.ws && G.mode === 'play') { NET.wait -= dt; if (NET.wait <= 0) { NET.wait = 5; netConnect(); } }
+  if (NET.id) { // gửi vị trí ~6 lần/giây khi có thay đổi
+    NET.sendT -= dt;
+    const a = player.sit > 0.5 ? 2 : player.bow > 0.3 ? 4 : player.pray > 0.5 ? 3 : player.wave > 0.3 ? 5 : player.speed > 0.3 ? 1 : 0;
+    const L = NET.last, moved = !L || Math.abs(L.x - player.x) > 0.04 || Math.abs(L.z - player.z) > 0.04 || Math.abs(L.yaw - player.yaw) > 0.05 || L.a !== a;
+    if (NET.sendT <= 0 && (moved || NET.sendT < -25)) { NET.sendT = 0.16; NET.last = { x: player.x, z: player.z, yaw: player.yaw, a }; netSend({ t: 'p', x: player.x, z: player.z, yaw: player.yaw, a }); }
+  }
+  // người chơi khác: nội suy vị trí, chỉ vẽ 12 người gần nhất, gắn nhãn
+  const list = [...NET.peers.values()];
+  for (const p of list) { const ox = p.x, oz = p.z; p.x = damp(p.x, p.tx, 8, dt); p.z = damp(p.z, p.tz, 8, dt); p.yaw = angDamp(p.yaw, p.tyaw, 10, dt); p.speed = Math.hypot(p.x - ox, p.z - oz) / Math.max(dt, 1e-3); p.d = Math.hypot(p.x - player.x, p.z - player.z); }
+  list.sort((a, b) => a.d - b.d);
+  let near = null;
+  list.forEach((p, i) => {
+    const vis = i < 12 && !p.muted; p.c.root.visible = vis;
+    if (vis) animRemote(p, dt);
+    if (vis && !near && p.d < 2.2) near = p;
+    const sp = vis && p.d < 18 && !G.panel ? screenPos(p.x, p.headY + 0.15, p.z) : null;
+    p.lbl.textContent = p.bond ? '🪷 ' + p.name : 'Phật tử'; placeEl(p.lbl, sp, !!sp);
+  });
+  PEER_SPOT.peer = near; if (near) { PEER_SPOT.x = near.x; PEER_SPOT.z = near.z; PEER_SPOT.btn = near.bond ? 'Gửi lời chào' : near.gifted ? 'Đã tặng sen' : 'Tặng hoa sen'; PEER_SPOT.ic = near.bond ? '💬' : '🪷';
+    if (nearSpot === PEER_SPOT) { actBtn.querySelector('.ic').textContent = PEER_SPOT.ic; actBtn.querySelector('.tx').textContent = PEER_SPOT.btn; } }
+}
+function netToggle(on) { store.online = on; save(); if (!on && NET.ws) { try { NET.ws.close(1000); } catch (_) { } } else if (on) { NET.wait = 0; NET.room = 0; } }
+
 /* =====================================================================
    20. VÒNG LẶP CHÍNH (+ tự giảm độ phân giải nếu máy yếu)
    ===================================================================== */
@@ -2922,7 +3041,7 @@ $('#loadErr').textContent = '';
   } catch (e) { console.info('Không nạp được vầng sáng (bloom)', e); FX.composer = null; }
 })();
 // Gỡ lỗi/kiểm thử: truy cập trạng thái từ console
-window.__game = { get qevF() { return qev; }, DYN_SPOTS, CQ, PEN, openReal, REAL, QS, LUNAR, openLook, openQuests, doEmote, setLook, NHIEU, actLePhat, actThien, actHoaHong, startNhieu, litterMeshes, FX, GFX, HALL, heightAt, sun, DONATE, openDonate, openHonor, honorList, vietQR, G, player, store, SPOTS, cam, PG, sky_, actIncense, actBell, actMo, actWish, actQue, openShare, openBook, makeShareImage, renderer };
+window.__game = { NET, netMsg, get qevF() { return qev; }, DYN_SPOTS, CQ, PEN, openReal, REAL, QS, LUNAR, openLook, openQuests, doEmote, setLook, NHIEU, actLePhat, actThien, actHoaHong, startNhieu, litterMeshes, FX, GFX, HALL, heightAt, sun, DONATE, openDonate, openHonor, honorList, vietQR, G, player, store, SPOTS, cam, PG, sky_, actIncense, actBell, actMo, actWish, actQue, openShare, openBook, makeShareImage, renderer };
 </script>
 </body>
 </html>
