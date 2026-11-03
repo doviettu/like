@@ -20,7 +20,7 @@ const hex = v => /^#[0-9a-fA-F]{6}$/.test(v) ? v : null;
 const oneOf = (v, list, d) => list.includes(v) ? v : d;
 export function cleanLook(l = {}) {
   return { style: oneOf(l.style, STYLES, 'lam'), color: hex(l.color) || '#7f9fba', hair: oneOf(l.hair, HAIRS, 'bui'), hairColor: hex(l.hairColor) || '#1d1512', skin: hex(l.skin) || '#f3cba5',
-    age: oneOf(l.age, AGES, 'lon'), acc: oneOf(l.acc, ACCS, 'none'), face: oneOf(l.face, FACES, 'hien'), rose: oneOf(l.rose, ROSES, null) };
+    age: oneOf(l.age, AGES, 'lon'), acc: oneOf(l.acc, ACCS, 'none'), face: oneOf(l.face, FACES, 'hien'), rose: oneOf(l.rose, ROSES, null), aura: Math.max(1, Math.min(10, Math.floor(Number(l.aura)) || 1)) };
 }
 const num = (v, lo, hi) => Math.max(lo, Math.min(hi, Number(v) || 0));
 const r2 = v => Math.round(v * 100) / 100;

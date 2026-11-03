@@ -90,6 +90,9 @@ button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
   color:rgba(255,236,200,.8);background:rgba(30,16,24,.45);padding:5px 12px;border-radius:999px;pointer-events:none;white-space:nowrap}
 
 /* ===== Thông báo nhỏ ===== */
+#cdPop{position:fixed;left:50%;top:calc(118px + var(--sat));transform:translate(-50%,8px);z-index:39;padding:6px 14px;border-radius:999px;background:linear-gradient(180deg,rgba(255,226,150,.95),rgba(230,170,60,.95));color:#5a2a08;font-weight:700;font-size:14px;box-shadow:0 0 18px rgba(255,200,90,.8);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s}
+#cdPop.on{opacity:1;transform:translate(-50%,0)}
+#cdPill{background:linear-gradient(180deg,rgba(120,70,10,.75),rgba(80,40,6,.75));color:#ffe4a0}
 #toast{position:fixed;left:50%;top:calc(64px + var(--sat));transform:translate(-50%,-10px);z-index:40;max-width:88vw;
   background:rgba(255,246,228,.96);color:#4a2416;padding:10px 16px;border-radius:14px;font-size:15px;text-align:center;
   box-shadow:0 6px 24px rgba(0,0,0,.3);opacity:0;transition:opacity .35s,transform .35s;pointer-events:none}
@@ -242,7 +245,7 @@ a.big{display:flex;align-items:center;justify-content:center;text-decoration:non
 
 <!-- HUD -->
 <div id="hud" class="hidden">
-  <div id="hudLeft"><div id="counter">Hôm nay có <b id="cnum">…</b> người lên chùa cầu an</div><div class="pill" id="lunarPill"></div><button class="pill" id="questPill"></button><button class="pill hidden" id="netPill"></button></div>
+  <div id="hudLeft"><div id="counter">Hôm nay có <b id="cnum">…</b> người lên chùa cầu an</div><div class="pill" id="lunarPill"></div><button class="pill" id="questPill"></button><button class="pill" id="cdPill"></button><button class="pill hidden" id="netPill"></button></div>
   <div id="hudBtns">
     <button class="hbtn" id="muteBtn" aria-label="Tắt/bật tiếng"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z"/><path id="snd1" d="M16 9a4 4 0 0 1 0 6"/><path id="snd2" d="M18.5 6.5a8 8 0 0 1 0 11"/><path id="sndX" d="M16 9l6 6M22 9l-6 6" style="display:none"/></svg></button>
     <button class="hbtn hidden" id="donateBtn" aria-label="Bồ đề tâm – phát tâm"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/></svg></button>
@@ -1914,7 +1917,7 @@ function placeEl(el, p, show) { if (!p || !show) { el.style.opacity = '0'; retur
 function updateLabels() {
   const play = G.mode === 'play';
   SPOTS.forEach((s, i) => placeEl(spotLabels[i], screenPos(s.x, s.my + 0.45, s.z), play && s.d > s.r && s.d < 20 && !G.panel));
-  nameTag.textContent = store.name || '';
+  nameTag.textContent = store.name ? cdTag(player.look.aura) + store.name : '';
   placeEl(nameTag, screenPos(player.x, 1.58 - player.sit * 0.2, player.z), play && !G.panel && store.name);
 }
 // Bong bóng lời nói — CHỈ gán cho khách AI, không bao giờ cho người chơi
@@ -2783,7 +2786,7 @@ document.querySelectorAll('#emotes [data-e]').forEach(b => b.addEventListener('c
 addEventListener('keydown', e => { if (isField(e)) return; const m = { Digit1: 'chap', Digit2: 'cui', Digit3: 'vay', Digit4: 'thien' }[e.code]; if (m) doEmote(m); });
 refreshQuestPill();
 let uiKey = '';
-function updateExtras(dt) { updateEmote(dt); updateNhieu(); updateLitter(); updatePenance(dt); updateOnline(dt);
+function updateExtras(dt) { updateEmote(dt); updateAuras(dt); updateNhieu(); updateLitter(); updatePenance(dt); updateOnline(dt);
   const k = `${canAct()}|${!!nearSpot}|${G.mode}`; if (k !== uiKey) { uiKey = k; updateUIVis(); $('#emotes').classList.toggle('hidden', !canAct()); } } // luôn khớp trạng thái nút với trạng thái game
 
 
@@ -2948,7 +2951,7 @@ function addPeer(m) {
 }
 function removePeer(id) {
   const p = NET.peers.get(id); if (!p) return;
-  p.c.root.removeFromParent(); p.c.root.traverse(o => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose(); } }); p.lbl.remove(); NET.peers.delete(id);
+  p.c.root.removeFromParent(); p.c.root.traverse(o => { if (o.isMesh) { o.geometry.dispose(); o.material.dispose(); } }); if (p.aura) p.aura.dispose(); p.lbl.remove(); NET.peers.delete(id);
   for (const b of bubbles) if (b.p === p) { b.p = null; b.el.classList.remove('on'); }
 }
 function netMsg(m) {
@@ -3023,7 +3026,7 @@ function updateOnline(dt) {
     if (vis) animRemote(p, dt);
     if (vis && !near && p.d < 2.2) near = p;
     const sp = vis && p.d < 18 && !G.panel ? screenPos(p.x, p.headY + 0.15, p.z) : null;
-    p.lbl.textContent = p.bond ? '🪷 ' + p.name : 'Phật tử'; placeEl(p.lbl, sp, !!sp);
+    p.lbl.textContent = cdTag(p.look && p.look.aura) + (p.bond ? '🪷 ' + p.name : 'Phật tử'); placeEl(p.lbl, sp, !!sp);
   });
   PEER_SPOT.peer = near; if (near) { PEER_SPOT.x = near.x; PEER_SPOT.z = near.z; PEER_SPOT.btn = near.bond ? 'Gửi lời chào' : near.gifted ? 'Đã tặng sen' : 'Tặng hoa sen'; PEER_SPOT.ic = near.bond ? '💬' : '🪷';
     if (nearSpot === PEER_SPOT) { actBtn.querySelector('.ic').textContent = PEER_SPOT.ic; actBtn.querySelector('.tx').textContent = PEER_SPOT.btn; } }
@@ -3128,6 +3131,126 @@ function openLibrary(cat) {
 }
 
 /* =====================================================================
+   19e. CÔNG ĐỨC & Phật quang — điểm tu tập cộng dồn theo lịch sử, lên bậc; bậc càng cao vòng sáng càng rực
+   - Điểm chỉ đến từ VIỆC LÀM (lễ, tu tập, công quả, việc thiện). Phát tâm bằng tiền KHÔNG cộng điểm.
+   - Mỗi việc trong ngày: 3 lần đầu tính trọn, lần 4–10 tính 1 điểm, sau đó thôi (tránh "cày" điểm).
+   - Lần đầu mở bản mới: tính bù điểm theo lịch sử đã lưu trong máy (hương, chuông, lời cầu, chuỗi nhiệm vụ…).
+   ===================================================================== */
+const CD_CFG = { quang: 'Phật quang', mandala: 'sen', titles: ["Sơ tâm", "Hướng thiện", "Thiện tâm", "Tín tâm", "Tinh tấn", "Tịnh tâm", "Hỷ xả", "An lạc", "Trí tuệ", "Bồ đề tâm"] };
+const CD_LV = [0, 30, 80, 160, 280, 450, 700, 1000, 1400, 2000];
+const CD_PTS = { incense: 5, bell: 3, mo: 4, wish: 3, den: 3, lephat: 5, nhieu: 8, thien: 10, rac: 4, quet: 4, lautuong: 4, tuoi: 4, kinh: 5, chao: 1, chao_cong: 2, que: 1, hoahong: 4, doi: 6, chu: 3, tra: 4 };
+const CD_AURA = ['Chưa có vòng sáng', 'Vầng sáng dịu dưới chân', 'Thêm vầng hào quang', 'Hào quang sáng hơn', 'Tia sáng toả quanh thân', 'Vòng hoa sen dưới chân', 'Tia sáng lớn, rực hơn', 'Ánh sáng lan rộng', 'Quang minh trắng vàng', 'Rực rỡ trọn vẹn'];
+const cdLevel = p => { let l = 0; for (const t of CD_LV) if (p >= t) l++; return l; };
+const cdTitle = lv => CD_CFG.titles[Math.max(1, Math.min(10, lv | 0)) - 1];
+const cdTag = lv => (lv | 0) >= 2 ? `[${cdTitle(lv)}] ` : '';
+const chainsFull = () => CHAINS.filter(c => chainDone(c).every(Boolean)).length;
+function cdState() {
+  if (!store.cd || typeof store.cd.pts !== 'number') { // tính bù theo lịch sử tu tập đã lưu
+    const W = store.wishes || [], Q = store.que || [], L = store.lib || {};
+    const pts = (store.incenseTimes | 0) * 4 + (store.bells | 0) * 2 + W.length * 3 + Q.length + ((L.read || []).length) * 4 + ((store.chu || []).length) * 3 + (store.tra | 0) * 4
+      + Math.round((store.bestTamAn | 0) / 5) + ((QS.journal || []).length) * 2 + chainsFull() * 20;
+    store.cd = { pts, day: '', n: {}, seeded: pts }; save();
+  }
+  return store.cd;
+}
+const cdLv = () => cdLevel(cdState().pts);
+// ---- Hình ảnh: vầng sáng, tia sáng, vòng dưới chân (dùng chung kết cấu, vật liệu riêng từng người) ----
+const CD_TEX = (() => {
+  const glow = canvasTex(256, 256, (g, w) => { const c = w / 2, rg = g.createRadialGradient(c, c, 4, c, c, c);
+    rg.addColorStop(0, 'rgba(255,250,225,1)'); rg.addColorStop(0.25, 'rgba(255,225,150,.75)'); rg.addColorStop(0.6, 'rgba(255,190,90,.22)'); rg.addColorStop(1, 'rgba(255,170,60,0)');
+    g.fillStyle = rg; g.fillRect(0, 0, w, w); g.strokeStyle = 'rgba(255,236,170,.9)'; g.lineWidth = 5; g.beginPath(); g.arc(c, c, c * 0.62, 0, 7); g.stroke(); });
+  const rays = canvasTex(512, 512, (g, w) => { const c = w / 2; g.translate(c, c);
+    for (let i = 0; i < 36; i++) { const a = i / 36 * Math.PI * 2, L = c * (i % 2 ? 0.72 : 0.98), wd = i % 2 ? 0.035 : 0.06;
+      const gr = g.createLinearGradient(0, 0, Math.cos(a) * L, Math.sin(a) * L); gr.addColorStop(0, 'rgba(255,240,190,.95)'); gr.addColorStop(1, 'rgba(255,200,90,0)');
+      g.fillStyle = gr; g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(a - wd) * L, Math.sin(a - wd) * L); g.lineTo(Math.cos(a + wd) * L, Math.sin(a + wd) * L); g.closePath(); g.fill(); } });
+  const foot = canvasTex(256, 256, (g, w) => { const c = w / 2, rg = g.createRadialGradient(c, c, c * 0.3, c, c, c);
+    rg.addColorStop(0, 'rgba(255,220,140,0)'); rg.addColorStop(0.62, 'rgba(255,220,140,.75)'); rg.addColorStop(0.75, 'rgba(255,200,110,.35)'); rg.addColorStop(1, 'rgba(255,180,80,0)'); g.fillStyle = rg; g.fillRect(0, 0, w, w); });
+  const mandala = canvasTex(512, 512, (g, w) => { const c = w / 2; g.translate(c, c); g.strokeStyle = 'rgba(255,225,150,.95)'; g.fillStyle = 'rgba(255,225,150,.95)';
+    for (const [r, lw] of [[240, 6], [222, 2], [150, 4], [60, 3]]) { g.lineWidth = lw; g.beginPath(); g.arc(0, 0, r, 0, 7); g.stroke(); }
+    if (CD_CFG.mandala === 'batquai') { ['111', '110', '101', '100', '011', '010', '001', '000'].forEach((t, k) => { g.save(); g.rotate(k / 8 * Math.PI * 2);
+        for (let l = 0; l < 3; l++) { const y = -(162 + l * 18); if (t[l] === '1') g.fillRect(-42, y, 84, 11); else { g.fillRect(-42, y, 35, 11); g.fillRect(7, y, 35, 11); } } g.restore(); });
+      g.lineWidth = 3; g.beginPath(); g.arc(0, 0, 60, 0, 7); g.stroke(); g.beginPath(); g.arc(0, -30, 30, -Math.PI / 2, Math.PI / 2); g.arc(0, 30, 30, -Math.PI / 2, Math.PI / 2, true); g.stroke(); }
+    else { for (let k = 0; k < 8; k++) { g.save(); g.rotate(k / 8 * Math.PI * 2); g.lineWidth = 4; g.beginPath(); g.moveTo(0, -64); g.quadraticCurveTo(52, -110, 0, -146); g.quadraticCurveTo(-52, -110, 0, -64); g.stroke();
+        g.lineWidth = 2; g.beginPath(); g.moveTo(0, -150); g.lineTo(0, -218); g.stroke(); g.beginPath(); g.arc(0, -186, 7, 0, 7); g.fill(); g.restore(); }
+      for (let k = 0; k < 16; k++) { g.save(); g.rotate((k + 0.5) / 16 * Math.PI * 2); g.lineWidth = 3; g.beginPath(); g.moveTo(-14, -158); g.quadraticCurveTo(0, -205, 14, -158); g.stroke(); g.restore(); } }
+  });
+  return { glow, rays, foot, mandala };
+})();
+const cdAdd = { blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, fog: false };
+function makeAura() {
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: CD_TEX.glow, ...cdAdd })), rays = new THREE.Sprite(new THREE.SpriteMaterial({ map: CD_TEX.rays, ...cdAdd }));
+  const plane = (tex) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ map: tex, side: THREE.DoubleSide, ...cdAdd })); m.rotation.x = -Math.PI / 2; m.renderOrder = 3; return m; };
+  const foot = plane(CD_TEX.foot), mand = plane(CD_TEX.mandala);
+  for (const o of [glow, rays, foot, mand]) { o.visible = false; o.frustumCulled = false; scene.add(o); }
+  return { glow, rays, foot, mand, pulse: 0, rot: Math.random() * 6, ph: Math.random() * 6,
+    hide() { glow.visible = rays.visible = foot.visible = mand.visible = false; },
+    update(x, z, sc, sit, lv, dt) {
+      if (lv < 2) { this.hide(); return; }
+      const k = (lv - 1) / 9, P = 1 + 0.06 * Math.sin(T * 2.2 + this.ph) + this.pulse * 0.6; this.pulse = Math.max(0, this.pulse - dt * 0.7); this.rot += dt * (0.18 + 0.12 * k);
+      const cy = (0.86 - sit * 0.3) * sc, dx = camera.position.x - x, dz = camera.position.z - z, d = Math.hypot(dx, dz) || 1, bx = x - dx / d * 0.32, bz = z - dz / d * 0.32;
+      const col = lv >= 9 ? 0xfff6dc : 0xffd88a;
+      foot.visible = true; foot.position.set(x, 0.035 + (typeof heightAt === 'function' ? heightAt(x, z) : 0), z); foot.scale.setScalar((1.2 + 0.7 * k) * sc * P); foot.material.opacity = 0.3 + 0.4 * k; foot.material.color.setHex(col);
+      glow.visible = lv >= 3; glow.position.set(bx, cy + 0.12 * sc, bz); glow.scale.setScalar((0.9 + 1.3 * k) * sc * P); glow.material.opacity = 0.35 + 0.5 * k; glow.material.color.setHex(col);
+      rays.visible = lv >= 5; rays.position.set(bx, cy, bz); rays.scale.setScalar((1.5 + 2.2 * k) * sc * P); rays.material.rotation = this.rot; rays.material.opacity = 0.22 + 0.5 * k; rays.material.color.setHex(col);
+      mand.visible = lv >= 6; mand.position.set(x, foot.position.y + 0.005, z); mand.scale.setScalar((1.7 + 1.5 * k) * sc); mand.rotation.z = this.rot * 0.35; mand.material.opacity = 0.25 + 0.45 * k; mand.material.color.setHex(col);
+    },
+    dispose() { for (const o of [glow, rays, foot, mand]) { o.removeFromParent(); o.material.dispose(); if (o.geometry && !o.isSprite) o.geometry.dispose(); } }
+  };
+}
+const AURA_ME = makeAura();
+const AURA_PG = (GFX.level === 'nhe' ? [] : PG.slice(0, Math.min(PG.length, 5))).map((p, i) => ({ p, a: makeAura(), lv: [4, 5, 3, 6, 7][i] }));
+player.look.aura = cdLv();
+// ---- Cộng điểm khi làm xong một việc ----
+const cdPop = document.createElement('div'); cdPop.id = 'cdPop'; document.body.appendChild(cdPop);
+let cdPopT = 0;
+function cdGain(n, why) {
+  if (n <= 0) return; const s = cdState(), before = cdLevel(s.pts); s.pts += n; save();
+  cdPop.textContent = `+${n} công đức${why ? ' · ' + why : ''}`; cdPop.classList.add('on'); cdPopT = 1.8;
+  const after = cdLevel(s.pts); refreshCdPill();
+  if (after > before) { AURA_ME.pulse = 1.2; player.look.aura = after; if (typeof netSend === 'function') netSend({ t: 'look', look: player.look });
+    SND.chime(); SND.bell({ f0: 523, vol: 0.22, dur: 3.5 }); journal(`Lên bậc ${after} · ${cdTitle(after)} (${s.pts} điểm công đức)`);
+    setTimeout(() => toast(`🌟 Lên <b>bậc ${after} · ${cdTitle(after)}</b><br><small>${CD_AURA[after - 1]}</small>`, 4200), 1400); }
+}
+const _qevCd = qev;
+qev = function (ev) {
+  const s = cdState(), day = todayKey(); if (s.day !== day) { s.day = day; s.n = {}; }
+  const c0 = chainsFull(), d0 = (dailyList().done || []).length;
+  _qevCd(ev);
+  const k = s.n[ev] = (s.n[ev] | 0) + 1, base = CD_PTS[ev] ?? 2;
+  let n = k <= 3 ? base : k <= 10 ? 1 : 0;
+  if (ev === 'mo') n += Math.round((store.lastTamAn | 0) / 20);
+  const cb = (chainsFull() - c0) * 20, d = dailyList(), db = d0 < d.list.length && d.done.length === d.list.length ? 10 : 0;
+  cdGain(n + cb + db, cb ? 'trọn chuỗi nhiệm vụ' : db ? 'trọn gợi ý hôm nay' : '');
+};
+// ---- Bảng công đức của tôi ----
+function refreshCdPill() { const el = $('#cdPill'); if (!el) return; const lv = cdLv(); el.textContent = `✨ Bậc ${lv} · ${cdTitle(lv)}`; }
+function openMerit() {
+  const s = cdState(), lv = cdLevel(s.pts), next = CD_LV[lv], prev = CD_LV[lv - 1], pct = next ? Math.round((s.pts - prev) / (next - prev) * 100) : 100;
+  openPanel(`<div class="h2">✨ Công đức & ${CD_CFG.quang}</div>
+    <div class="card"><div class="t">Bậc ${lv} / 10</div><div class="n" style="font-size:30px">${cdTitle(lv)}</div><div class="t" style="text-transform:none;letter-spacing:0">${s.pts} điểm công đức · ${CD_AURA[lv - 1]}</div>
+    <div class="bar" style="margin:12px 4px 2px;background:rgba(255,255,255,.18)"><i style="width:${pct}%"></i></div><div class="g">${next ? `Còn ${next - s.pts} điểm nữa lên bậc ${lv + 1} · ${cdTitle(lv + 1)}` : 'Đã trọn mười bậc — ánh sáng ở trong tâm 🙏'}</div></div>
+    <div class="h3">Mười bậc tu tập</div>
+    <ul class="list">${CD_CFG.titles.map((t, i) => `<li style="${i + 1 === lv ? 'border-color:var(--gold2);background:#fff3d6' : i + 1 > lv ? 'opacity:.6' : ''}">${i + 1 <= lv ? '✨' : '🔒'} <b>Bậc ${i + 1} · ${t}</b><small>${CD_LV[i]} điểm · ${CD_AURA[i]}</small></li>`).join('')}</ul>
+    <div class="h3">Tích công đức thế nào?</div>
+    <p class="note">Lễ bái, tụng đọc, tĩnh tâm, công quả, đọc sách, việc thiện ngoài đời… mỗi việc đều thêm điểm; trọn một chuỗi nhiệm vụ +20, trọn ba gợi ý trong ngày +10. Mỗi việc trong ngày tính trọn 3 lần đầu, sau đó ít dần — tu tập đều đặn quý hơn làm thật nhiều.<br>
+    <b>Công đức không mua được:</b> phát tâm ủng hộ không cộng điểm. Điểm chỉ lưu trên máy này; vòng sáng hiện cho người khác thấy khi chơi trực tuyến.${s.seeded ? `<br>Đã tính bù ${s.seeded} điểm theo lịch sử tu tập trước đây.` : ''}</p>`);
+}
+$('#cdPill') && ($('#cdPill').onclick = () => { if (canAct()) { SND.tap(); openMerit(); } });
+refreshCdPill();
+// ---- Cập nhật mỗi khung hình ----
+function updateAuras(dt) {
+  if (cdPopT > 0) { cdPopT -= dt; if (cdPopT <= 0) cdPop.classList.remove('on'); }
+  const play = G.mode === 'play';
+  if (play) AURA_ME.update(player.x, player.z, 1, player.sit || 0, player.look.aura | 0, dt); else AURA_ME.hide();
+  for (const q of AURA_PG) { const p = q.p; if (play && p.state !== undefined) q.a.update(p.x, p.z, p.scale || 1, p.sit || 0, q.lv, dt); else q.a.hide(); }
+  if (typeof NET !== 'undefined') for (const p of NET.peers.values()) {
+    if (!p.aura) p.aura = makeAura();
+    const lv = (p.look && p.look.aura) | 0;
+    if (play && p.c && p.c.root.visible) p.aura.update(p.x, p.z, 1, p.sit || 0, lv, dt); else p.aura.hide();
+  }
+}
+
+/* =====================================================================
    20. VÒNG LẶP CHÍNH (+ tự giảm độ phân giải nếu máy yếu)
    ===================================================================== */
 let T = 0, last = performance.now(), perfAcc = 0, perfN = 0, perfT = 0;
@@ -3195,7 +3318,7 @@ $('#loadErr').textContent = '';
   } catch (e) { console.info('Không nạp được vầng sáng (bloom)', e); FX.composer = null; }
 })();
 // Gỡ lỗi/kiểm thử: truy cập trạng thái từ console
-window.__game = { openLibrary, KINH_LIB, NET, netMsg, get qevF() { return qev; }, DYN_SPOTS, CQ, PEN, openReal, REAL, QS, LUNAR, openLook, openQuests, doEmote, setLook, NHIEU, actLePhat, actThien, actHoaHong, startNhieu, litterMeshes, FX, GFX, HALL, heightAt, sun, DONATE, openDonate, openHonor, honorList, vietQR, G, player, store, SPOTS, cam, PG, sky_, actIncense, actBell, actMo, actWish, actQue, openShare, openBook, makeShareImage, renderer };
+window.__game = { openMerit, cdState, cdGain, AURA_ME, openLibrary, KINH_LIB, NET, netMsg, get qevF() { return qev; }, DYN_SPOTS, CQ, PEN, openReal, REAL, QS, LUNAR, openLook, openQuests, doEmote, setLook, NHIEU, actLePhat, actThien, actHoaHong, startNhieu, litterMeshes, FX, GFX, HALL, heightAt, sun, DONATE, openDonate, openHonor, honorList, vietQR, G, player, store, SPOTS, cam, PG, sky_, actIncense, actBell, actMo, actWish, actQue, openShare, openBook, makeShareImage, renderer };
 </script>
 </body>
 </html>
