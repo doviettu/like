@@ -179,6 +179,17 @@ textarea:focus,input[type=text]:focus{border-color:var(--gold2)}
 .qrbox svg{display:block;width:100%;height:auto}
 .acc{text-align:center;font-size:14px;line-height:1.5;color:#4a2a1a}
 .acc b{color:#8a1f1c}
+/* Tàng kinh các */
+input[type=search]{width:100%;font:inherit;font-size:16px;color:var(--ink);background:#fffdf7;border:2px solid #e3c79a;border-radius:14px;padding:11px 12px;outline:none;margin:8px 0 2px;user-select:text;-webkit-user-select:text;-webkit-appearance:none}
+input[type=search]:focus{border-color:var(--gold2)}
+.loi{background:linear-gradient(180deg,#7f1916,#5c120f);color:#fff1d2;border:2px solid var(--gold);border-radius:14px;padding:10px 14px;margin:6px 0}
+.loi p{margin:0;font-family:Georgia,serif;font-size:16px;line-height:1.45}.loi small{display:block;margin-top:4px;font-size:11px;opacity:.75}
+.list.lib li.bk{display:flex;align-items:center;gap:8px;padding:8px 8px 8px 12px}.list.lib li.rd{background:#f7f1e3}
+.list.lib .bt{flex:1;min-width:0}.list.lib .bt b{display:block;font-size:14px}.list.lib .bt i{display:block;font-size:12px;color:#6a4a32;margin-top:2px}
+.list.lib .bf{flex:none;width:40px;height:40px;border-radius:10px;background:#fff3dc;border:1px solid #e3c79a;font-size:20px;color:#c98a1a;line-height:1}
+.list.lib .bo{flex:none;padding:10px 12px;border-radius:10px;background:linear-gradient(180deg,#d8443a,#a32420);color:#fff3d6;font-weight:700;font-size:14px;text-decoration:none;white-space:nowrap}
+a.big{display:flex;align-items:center;justify-content:center;text-decoration:none;font-weight:700;text-align:center}
+#panel.libp .chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}#panel.libp .chip{flex:none;white-space:nowrap}
 .linkbtn{display:block;margin:10px auto 0;color:#a32420;text-decoration:underline;font-size:14px;background:none}
 .thanks{margin:10px 0;text-align:center;font-size:13px;color:#7a5a46}
 .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
@@ -1013,6 +1024,38 @@ const LANTERN_POS = []; // điểm treo đèn
   LANTERN_POS.push(V(QUE.x, 2.38, QUE.z + 0.9 - 0.02));
 }
 
+/* --- 5.9b Tàng kinh các — gác hai tầng cất kinh sách, mặt trước mở ra lối đi --- */
+const TK = { x: 14.3, z: 15.6 };
+function tangKinh(x, z) {
+  const W = 2.5, D = 2.1, WOOD = '#5a2a18', SHELF = '#4a2214';
+  box(x, 0, z, 5.8, 0.4, 5.0, '#a99c88'); box(x - 3.1, 0, z, 0.5, 0.2, 2.4, '#b3a690');
+  for (const sx of [-1, 1]) for (const sz of [-1, 1]) { cyl(x + sx * W, 0.4, z + sz * D, 0.15, 0.18, 2.85, '#7b2a1f', 8); cyl(x + sx * W, 0.4, z + sz * D, 0.25, 0.27, 0.14, '#8d8272', 8); }
+  box(x + W, 0.4, z, 0.16, 2.85, 2 * D, WOOD); // vách sau
+  for (const s of [-1, 1]) { box(x + 0.6, 0.4, z + s * D, 2 * W - 1.2, 2.85, 0.16, WOOD); // vách hông, có cửa sổ chấn song
+    box(x + 0.6, 1.5, z + s * (D + 0.02), 1.4, 0.9, 0.06, '#e3c891'); for (let i = 0; i < 6; i++) box(x + 0.6 - 0.6 + i * 0.24, 1.5, z + s * (D + 0.06), 0.05, 0.9, 0.05, '#6a2418'); }
+  for (const s of [-1, 1]) { box(x, 3.2, z + s * D, 2 * W + 0.3, 0.22, 0.24, '#6a2418'); box(x + s * W, 3.2, z, 0.24, 0.22, 2 * D + 0.3, '#6a2418'); }
+  for (let k = -1; k <= 1; k++) { // ba kệ kinh sát vách sau, gáy sách quay ra cửa
+    const zc = z + k * 1.32; box(x + W - 0.42, 0.4, zc, 0.6, 2.55, 1.18, SHELF);
+    for (let t = 0; t < 4; t++) { const y = 0.52 + t * 0.6; box(x + W - 0.66, y - 0.04, zc, 0.12, 0.04, 1.1, '#6a3420');
+      if (t === 3) { for (let i = 0; i < 4; i++) cyl(x + W - 0.6, y + 0.1 + (i % 2) * 0.17, zc - 0.36 + i * 0.24, 0.08, 0.08, 0.44, pick(['#e6dcc8', '#f0dcae', '#d9c08a']), 8, { r: [Math.PI / 2, 0, 0] }); continue; }
+      for (let i = 0; i < 7; i++) box(x + W - 0.6, y, zc - 0.48 + i * 0.16, 0.4, rand(0.3, 0.44), 0.13, pick(['#c9a050', '#9c3a2c', '#e6dcc8', '#3d6a8a', '#d9922c', '#7a8a4a'])); }
+  }
+  box(x - 0.5, 0.4, z, 0.9, 0.4, 1.4, '#6a2418'); box(x - 0.5, 0.8, z, 1.0, 0.05, 1.55, '#8c2f22'); // kỷ đọc kinh
+  for (const s of [-1, 1]) box(x - 0.5, 0.87, z + s * 0.17, 0.42, 0.025, 0.32, '#f6ead0', { r: [s * 0.14, 0, 0] });
+  box(x - 0.5, 0.86, z, 0.44, 0.03, 0.04, '#9c3a2c');
+  cyl(x - 0.5, 0.85, z + 0.62, 0.07, 0.09, 0.06, GOLD, 8); cyl(x - 0.5, 0.91, z + 0.62, 0.02, 0.02, 0.18, '#f4ead2', 6);
+  for (const s of [-1, 1]) box(x - 1.45, 0.4, z + s * 0.55, 0.42, 0.06, 0.42, '#c98a3a'); // bồ đoàn
+  roof(x, 3.3, z, 3.45, 3.0, 1.0, 0.45);
+  box(x, 3.9, z, 3.0, 0.8, 2.5, '#e3c891');
+  for (let i = 0; i < 5; i++) box(x - 1.52, 3.97, z - 1.0 + i * 0.5, 0.05, 0.66, 0.05, '#6a2418');
+  roof(x, 4.65, z, 2.35, 2.05, 1.0, 0.4, { orb: true });
+  sign('TÀNG KINH CÁC', x - W - 0.14, 2.93, z, 2.7, 0.42, -Math.PI / 2);
+  colB(x - 2.95, x + 2.95, z - 2.55, z + 2.55);
+  camB(x - 3.5, 3.1, z - 3.0, x + 3.5, 6.2, z + 3.0);
+  for (const s of [-1, 1]) LANTERN_POS.push(V(x - W - 0.02, 2.82, z + s * 1.35));
+}
+tangKinh(TK.x, TK.z);
+
 /* --- 5.10 Cây cối, tháp, chậu cảnh, núi xa --- */
 function palm(x, z, h = 5.5) {
   beam(V(x, 0, z), V(x + 0.2, h, z + 0.1), 0.13, 0.1, '#8a7a62', 6);
@@ -1617,6 +1660,7 @@ const POIS = [
   { type: 'look', w: 1.6, gen: () => { const side = randi(0, 3), m = 0.9; return side === 0 ? { x: POND.x0 - m, z: rand(POND.z0, POND.z1) } : side === 1 ? { x: rand(POND.x0, POND.x1), z: POND.z1 + m } : side === 2 ? { x: rand(POND.x0, POND.x1), z: POND.z0 - m } : { x: POND.x1 + m, z: rand(POND.z0, POND.z1) }; }, face: [POND.cx, POND.cz] },
   { type: 'look', w: 1, gen: () => ringPt(BELL.x, BELL.z, rand(2.8, 3.4)), face: [BELL.x, BELL.z] },
   { type: 'pray', w: 0.8, gen: () => ({ x: QUE.x + rand(-1, 1), z: QUE.z + rand(1.4, 2.2) }), face: [QUE.x, QUE.z] },
+  { type: 'look', w: 0.7, gen: () => ({ x: TK.x - 3.5 + rand(-0.3, 0.3), z: TK.z + rand(-1.7, 1.7) }), face: [TK.x, TK.z] }, // ghé Tàng kinh các
   { type: 'idle', w: 2.2, gen: () => freePoint(-19, 19, -15, 21), face: null },
   { type: 'idle', w: 1, gen: () => freePoint(-14, 14, 26, 36), face: null },
 ];
@@ -1825,6 +1869,7 @@ const SPOTS = [
   { id: 'lephat', name: 'Lễ Phật', btn: 'Lễ Phật ba lạy', ic: '🙇', x: 0, z: -19.8, r: 1.5, my: HALL.F + 1.9, run: () => actLePhat() },
   { id: 'nhieu', name: 'Lối đi nhiễu', btn: 'Đi nhiễu quanh cây', ic: '👣', x: TREE.x, z: TREE.z + 4.9, r: 1.3, my: 1.6, run: () => startNhieu() },
   { id: 'thien', name: 'Ngồi thiền', btn: 'Ngồi thiền', ic: '🧘', x: 6.5, z: 6, r: 1.6, my: 1.5, run: () => actThien() },
+  { id: 'kinh', name: 'Tàng kinh các', btn: 'Vào Tàng kinh các', ic: '📚', x: TK.x - 3.6, z: TK.z, r: 2.0, my: 3.6, run: () => openLibrary() },
   { id: 'hoahong', name: 'Bông hồng cài áo', btn: 'Cài hoa hồng', ic: '🌹', x: -8, z: 18.7, r: 1.7, my: 1.5, run: () => actHoaHong() },
   ...(DONATE_ON ? [{ id: 'congduc', name: 'Bảng công đức', btn: 'Xem bảng công đức', ic: '📜', x: HONOR.x + 0.8, z: HONOR.z, r: 2.9, my: 3.5, run: () => openHonor() }] : []),
 ];
@@ -2214,12 +2259,13 @@ function openBook() {
     <ul class="list">${Q.length ? Q.map(q => `<li>🎴 <b>Quẻ số ${q.n}</b> · ${esc(q.title || '')}<br>${esc(q.text)}<small>${fmtDate(q.at)} · Mang tính giải trí</small></li>`).join('') : '<li>Chưa xin quẻ nào. Quầy xin xăm ở bên phải chính điện.</li>'}</ul>
     <div class="row"><button class="big" id="bkShare">Chia sẻ</button><button class="big alt" id="bkClear">Xoá sổ</button></div>
     <div class="row" style="margin-top:10px"><button class="big alt" id="bkLook">👤 Đổi dáng người</button><button class="big alt" id="bkQuest">📿 Hành trì</button></div>
+    <div class="row" style="margin-top:10px"><button class="big alt" id="bkLib">📚 Tủ kinh của tôi (${libState().fav.length + libState().read.filter(i => !libState().fav.includes(i)).length})</button></div>
     ${ONLINE.url ? `<div class="row" style="margin-top:10px"><button class="big alt" id="bkNet">🌐 Chùa trực tuyến: ${store.online === false ? 'Đang tắt' : 'Đang bật'}</button></div><p class="note">Khi bật, người khác thấy dáng và vị trí của bạn (ẩn danh, không lưu lại). Không có chat tự do.</p>` : ''}
     <div class="h3" style="margin-top:14px">Đồ hoạ</div>
     <div class="row">${[['auto', 'Tự động'], ['cao', 'Cao'], ['vua', 'Vừa'], ['nhe', 'Nhẹ']].map(([v, t]) => `<button class="big alt" data-gfx="${v}" style="min-width:70px;min-height:48px;font-size:15px${(store.gfx || 'auto') === v ? ';border-color:#b3262b;background:#fff0e0' : ''}">${t}</button>`).join('')}</div>
     <p class="note">Đang dùng: ${{ cao: 'Cao (vầng sáng + bóng đổ)', vua: 'Vừa (vầng sáng)', nhe: 'Nhẹ' }[GFX.level]}. Đổi mức sẽ tải lại trang.</p>`);
   if ($('#bkNet')) $('#bkNet').onclick = () => { SND.tap(); netToggle(store.online === false); closePanel(false); toast(store.online === false ? 'Đã tắt chùa trực tuyến — lễ chùa một mình.' : 'Đã bật chùa trực tuyến 🌐', 2200); };
-  $('#bkLook').onclick = () => { SND.tap(); closePanel(false); openLook(); }; $('#bkQuest').onclick = () => { SND.tap(); closePanel(false); openQuests(); };
+  $('#bkLook').onclick = () => { SND.tap(); closePanel(false); openLook(); }; $('#bkQuest').onclick = () => { SND.tap(); closePanel(false); openQuests(); }; $('#bkLib').onclick = () => { SND.tap(); closePanel(false); openLibrary('mine'); };
   pbody.querySelectorAll('[data-gfx]').forEach(b => b.onclick = () => { store.gfx = b.dataset.gfx === 'auto' ? undefined : b.dataset.gfx; save(); location.reload(); });
   $('#bkShare').onclick = () => { SND.tap(); closePanel(false); openShare(); };
   let armed = false;
@@ -2522,13 +2568,14 @@ const lunarText = () => `${LNOW.d === 1 ? 'Mùng 1' : LNOW.d === 15 ? 'Rằm' : 
 
 // --- Nhiệm vụ hành trì ---
 const QEV = { incense: 'Thắp hương', bell: 'Thỉnh chuông', mo: 'Gõ mõ tụng kinh', wish: 'Viết lời cầu an', den: 'Thả hoa đăng xuống hồ sen', lephat: 'Lễ Phật ba lạy trong chính điện',
-  nhieu: 'Đi nhiễu ba vòng quanh cây bồ đề', thien: 'Ngồi thiền bên hồ sen', rac: 'Nhặt một món rác — bảo hộ sự sống', hoahong: 'Cài hoa hồng báo hiếu', chao: 'Cúi chào hoặc chắp tay với một khách hành hương', chao_cong: 'Chắp tay chào trước cổng tam quan', que: 'Rút thẻ ở quầy' };
+  nhieu: 'Đi nhiễu ba vòng quanh cây bồ đề', thien: 'Ngồi thiền bên hồ sen', rac: 'Nhặt một món rác — bảo hộ sự sống', hoahong: 'Cài hoa hồng báo hiếu', kinh: 'Đọc một cuốn kinh sách ở Tàng kinh các', chao: 'Cúi chào hoặc chắp tay với một khách hành hương', chao_cong: 'Chắp tay chào trước cổng tam quan', que: 'Rút thẻ ở quầy' };
 const CHAINS = [
   { id: 'dau', title: 'Lần đầu lên chùa', note: 'Một vòng lễ chùa như người Phật tử: chào cổng, dâng hương, lễ Phật, đi nhiễu, ngồi thiền, gửi lời cầu.', steps: ['chao_cong', 'incense', 'lephat', 'nhieu', 'thien', 'wish'], end: 'Bạn đã đi trọn một vòng lễ chùa. Mong sự an tĩnh này theo bạn về nhà.' },
   { id: 'tet', season: 'tet', yearly: true, title: 'Tết lên chùa đầu năm', note: 'Đầu năm lên chùa để lòng thanh thản, cầu bình an cho cả nhà.', steps: ['incense', 'bell', 'wish'], end: 'Một năm mới khởi đầu bằng sự tĩnh tại. Năm mới an lành!' },
   { id: 'ramgieng', season: 'ramgieng', yearly: true, title: 'Rằm tháng Giêng cầu an', note: '"Lễ quanh năm không bằng rằm tháng Giêng" — cầu an bằng lễ Phật, tụng kinh, thả hoa đăng.', steps: ['lephat', 'mo', 'den'], end: 'Cầu an trọn vẹn. Bình an bắt đầu từ chính tâm mình.' },
   { id: 'phatdan', season: 'phatdan', yearly: true, title: 'Mừng Phật Đản sanh', note: 'Tưởng niệm ngày Đức Phật đản sinh: lễ Phật, ngồi thiền, thả hoa đăng.', steps: ['lephat', 'thien', 'den'], end: 'Mừng ngày Phật đản sanh. Nguyện ánh sáng trí tuệ soi đường.' },
   { id: 'vulan', season: 'vulan', yearly: true, title: 'Vu Lan báo hiếu', note: 'Mùa báo hiếu: cài hoa hồng, viết lời tri ân cha mẹ, thả hoa đăng.', steps: ['hoahong', 'wish', 'den'], end: 'Lòng biết ơn là món quà quý nhất dâng lên cha mẹ.' },
+  { id: 'vantu', title: 'Văn – Tư – Tu', note: 'Học Phật qua ba bước: đọc kinh (văn), tụng và suy ngẫm (tư), ngồi thiền đem vào thân tâm (tu).', steps: ['kinh', 'mo', 'thien'], end: 'Đọc – ngẫm – hành: hiểu đến đâu, sống đến đó. Tàng kinh các luôn mở cửa chờ bạn.' },
   { id: 'song', title: 'Bảo hộ sự sống', note: 'Thay cho mua vật phóng sinh: giữ hồ sen và sân chùa sạch để mọi sự sống được yên.', steps: ['rac', 'rac', 'rac'], end: 'Hồ sen trong lành hơn nhờ bạn. Bảo hộ sự sống là phóng sinh ý nghĩa nhất.' },
 ];
 const chainKey = c => c.yearly ? c.id + '_' + LNOW.y : c.id;
@@ -2538,7 +2585,7 @@ function dailyList() {
   const day = todayKey();
   if (!QS.daily || QS.daily.day !== day) {
     let h = 0; for (const ch of day) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
-    const pool = ['incense', 'bell', 'mo', 'thien', 'nhieu', 'lephat', 'rac', 'chao', 'wish', 'quet', 'lautuong', 'tuoi'], pickd = [];
+    const pool = ['incense', 'bell', 'mo', 'thien', 'nhieu', 'lephat', 'rac', 'chao', 'wish', 'quet', 'lautuong', 'tuoi', 'kinh'], pickd = [];
     while (pickd.length < 3) { h = (h * 1103515245 + 12345) >>> 0; const e = pool[h % pool.length]; if (!pickd.includes(e)) pickd.push(e); }
     QS.daily = { day, list: pickd, done: [] }; save();
   }
@@ -2554,7 +2601,7 @@ function qev(ev) { // gọi khi người chơi làm xong một việc
   }
   const d = dailyList();
   if (d.list.includes(ev) && !d.done.includes(ev)) { d.done.push(ev); if (d.done.length === d.list.length) { journal('Ba gợi ý hôm nay đã trọn. Một ngày an lạc.'); lines.push('🌿 Ba gợi ý hôm nay đã trọn — một ngày an lạc.'); } }
-  if (QEV[ev] && !['chao', 'que'].includes(ev)) journal(QEV[ev]);
+  if (QEV[ev] && !['chao', 'que', 'kinh'].includes(ev)) journal(QEV[ev]);
   save(); refreshQuestPill();
   if (lines.length) setTimeout(() => toast(lines.join('<br>'), 3800), 900);
 }
@@ -2980,6 +3027,90 @@ function updateOnline(dt) {
 function netToggle(on) { store.online = on; save(); if (!on && NET.ws) { try { NET.ws.close(1000); } catch (_) { } } else if (on) { NET.wait = 0; NET.room = 0; } }
 
 /* =====================================================================
+   19c. TÀNG KINH CÁC — thư viện kinh sách (mở trên Google Drive thư viện cộng đồng)
+   Danh mục lấy từ thư mục Drive công khai; game chỉ lưu danh mục & đường dẫn, không chép nội dung sách.
+   ===================================================================== */
+const LIB_ROOT = 'https://drive.google.com/drive/folders/1VbpbVymXXPDv0A5239L9hEnsHXiDrZG2';
+const KINH_LIB = {"cats":[["nhapmon","🌱 Nhập môn"],["nikaya","📜 Kinh Nam truyền"],["daithua","🪷 Kinh Đại thừa"],["tinhdo","🙏 Tịnh độ"],["thien","🧘 Thiền"],["su","🏯 Đức Phật & chư Tổ"],["doi","☀️ Phật pháp trong đời"]],"books":[["Phật Học Phổ Thông","1JQeV1Y9Xa4QAIHzr37YJ32xFBXv4l8J5","nhapmon"],["Phật Học Căn Bản","1pNckfvjw03k3Wkp0pR6hsUAAZwzRe847","nhapmon"],["Phật Học Cơ Bản","1RkKDZiXOiyAoEVc6IAx_CZxLY0jTSKeu","nhapmon"],["Phật Học Chỉ Nam","1Epqettee6lhpYnfF3AcegLBvskcXGW1q","nhapmon"],["Đức Phật Đã Dạy Những Gì","171bt2ZfigIhatiABHrCYwmQUrkLLLhec","nhapmon"],["Những Điều Phật Đã Dạy","1O45gIFBsFO2TjdqPeUFNTFklwcWmZeBk","nhapmon"],["Những Lời Phật Dạy","1VGGXqWUDuJR2ZN2dcHxyPEHkZhhdePkL","nhapmon"],["Để Hiểu Đạo Phật","1UHVu3FVpAjaZ5uhFXumuvXp7vSDJr2ll","nhapmon"],["Nền Tảng của Đạo Phật","1P6X5CdazVRBPHuU-5fx-Pp0_doc2gdFK","nhapmon"],["Cốt Tủy của Đạo Phật","198YC_GdFHwNgvZeIBI0BgeJzlQiJhp6p","nhapmon"],["Kinh Phật cho Người Mới Bắt Đầu","1aM3yuZqtd5k7S3JyJa3tAagISplCZ4Lz","nhapmon"],["Kinh Phật cho Người tại Gia","1d_hpOLUpjJBqviDX14JuMAbSuBJ-gSQN","nhapmon"],["Phật Pháp cho Mọi Người","1320oOdV_kehC61EWZv7ZvOxxmbf35yNN","nhapmon"],["Vấn Đáp Phật Giáo","14rO8zKxcNLrM9CotOqgaHPv3f0wVs2ni","nhapmon"],["Học Phật Quần Nghi","1rMvr5_R9fmxQkEp1Kt0xx73ghQ8VpuIw","nhapmon"],["Một Hướng Dẫn Đầy Đủ về Con Đường Phật Pháp","1C0VliW5QWXZkSnYFmg67pIznbMrc6GR9","nhapmon"],["Phật Điển Phổ Thông - Dẫn Vào Tuệ Giác Phật","12mc9rEbpPFXZbgKgnsQFmupcYphYvmw5","nhapmon"],["Đức Phật và Phật Pháp","18Q3Ayb_QdS-tmLIeOS4zeJflC34-_4HY","nhapmon"],["Phật Giáo","1pJE7q2VI0FdPuaNhMN7SIGcCqbKab2N3","nhapmon"],["Phật Học Tinh Hoa","1Zp2DIgbKnNnySZTc4hgaUHwB94tUl3jc","nhapmon"],["Tu Học Phật Pháp - Nguồn Mạch của Hạnh Phúc Nhất Thời và Vĩnh Cửu","1rpwJd8_k4QLHhIZx3Alm13XFpvUdVIHz","nhapmon"],["Văn Khuyến Phát Bồ Đề Tâm","1y-RQD7-M1tGRRGaUIHKCg_CkeNfNGqX4","nhapmon"],["Tìm Hiểu Phước Bố Thí","1GdCswabUieqxiz8hXlmnItR8E0kVfZvC","nhapmon"],["Hạnh Hiếu trong Đạo Phật","1HyHJXjBZ81yPCz3qFt3T77Qm_YpOw9-b","nhapmon"],["Nghi Lễ Phật Giáo","1GjQffn1Q8DCk3e4lg26SqLUBoqim6im7","nhapmon"],["Những Nét Văn Hóa Đạo Phật","1Wj-IgS0r3PJuzmA07ZAGCPlj1U8ZtufH","nhapmon"],["Hoa Sen với Đạo Phật","1eyMIyCcnh5cieIhuvMwtMGvO3gnKwnfW","nhapmon"],["Phật Học Đức Dục","1kTMz17VhHUZoFgziWJNPpFo76poe37-G","nhapmon"],["Con Đường Giáo Dục Phật Giáo","1UxJ51YBI_YD5goOVqmDcNPb8Y3jBH8ck","nhapmon"],["Kinh Trường Bộ - Tập 1","1ati-SJ-uvRDlJWIiDS4ZvdFdKCxnumyq","nikaya"],["Kinh Trường Bộ - Tập 2","1FMnMOu9-OOOcDlzNi3g04rE2PLkgj_OA","nikaya"],["Kinh Trường Bộ - Tập 3","14lEtdVba69g7nngbo-wDPBjvvaoFGmVS","nikaya"],["Kinh Trung Bộ - Tập 1","11w7Gmev3nGKwoA2xgg7ro03GtIWtmMb0","nikaya"],["Kinh Trung Bộ - Tập 2","1DacNk1kibNzzCC-OsysnW5tgM3ONhTq5","nikaya"],["Kinh Trung Bộ - Tập 3","1MzMcFpDhIS3DqOOob9unB6MLPxdOQbvY","nikaya"],["Kinh Tương Ưng Bộ - Tập 1","1Gl1ZsvS924INMQRW3WVbVloRUNEhee0K","nikaya"],["Kinh Tương Ưng Bộ - Tập 2","16dPhDpX0PA689mXREcDgY7N9RmKkqnN-","nikaya"],["Kinh Tương Ưng Bộ - Tập 3","1XVajKVr4Ia7RxhHPBW183xtbDaHIPrgL","nikaya"],["Kinh Tương Ưng Bộ - Tập 4","1fS4ED3pUksUuUl7DYmA1O0HzMJzw0K6b","nikaya"],["Kinh Tương Ưng Bộ - Tập 5","1lTfiRGiShpvkSIm6M5IAb7AhVW16WHyO","nikaya"],["Kinh Tăng Chi Bộ - Tập 1","1MeUyEV8DM8IgVa-1vEVuSEe64ofPZ7zI","nikaya"],["Kinh Tăng Chi Bộ - Tập 2","183IXeVzN_urZ7-Ctz38z2_dmcJ85v4G6","nikaya"],["Kinh Tăng Chi Bộ - Tập 3","1O2xM2avcjAv41oH2igpeHLH9-_B776nd","nikaya"],["Kinh Tăng Chi Bộ - Tập 4","18ulTt-JhDvWdoMbsu2GyqBOYZgk-A9Vb","nikaya"],["Kinh Tăng Chi Bộ - Tập 5","1sAnUq3WBOOhWUyyqICd4VIqZIuRodUvy","nikaya"],["Kinh Tiểu Bộ - Tập 1","1ZRXvbBPUkGHLC3tlF6IwP7FGJ90UR1XT","nikaya"],["Kinh Tiểu Bộ - Tập 2","13-AWlSEV6DBAayyOh1hAteALsWEXr5EU","nikaya"],["Kinh Tiểu Bộ - Tập 3","1_vyafUl1Mr-tAfUlVIpIVXQklk6080oO","nikaya"],["Kinh Tiểu Bộ - Tập 4","1wSewTNH-L0-8KWpfOkjwHO52VgxzJo0Z","nikaya"],["Kinh Tiểu Bộ - Tập 5","1gJucnxGGeK5HXEGTHznTa5DdFXaRZiTw","nikaya"],["Kinh Tiểu Bộ - Tập 6","1Ogd9zSYKES8LsGgHeLuLxTcRo7p36KTY","nikaya"],["Kinh Tiểu Bộ - Tập 7","1zz1SoDF_GtvYLVX535srbQ9-fy8AtObm","nikaya"],["Kinh Tiểu Bộ - Tập 8","1ue_3mmWmzXutS71QfoS7GEyNzPiHu3OX","nikaya"],["Kinh Tiểu Bộ - Tập 9","1iq_IpTXYUU5EHjBUil75fGWscTvCyxri","nikaya"],["Kinh Tiểu Bộ - Tập 10","1ZzIRAG6sfFTmrGEGG55uKDBYBvyp_M3o","nikaya"],["Tích Truyện Pháp Cú","1drc3-gh7kg33-Y-T9ssE0oSdk2InXVT3","nikaya"],["Kinh Tứ Niệm Xứ","1GHVQ89pNkU1S6dQYJoEo_gw_Oxqp3lHB","nikaya"],["Kinh Quán Niệm Hơi Thở","1d-eWppbhLM54A3UGNzv2r-q0kdYQrRrD","nikaya"],["Kinh Người Áo Trắng","1E3b6fjtPhgAfiuUHEa34T2q6_gNUcd6W","nikaya"],["Im Lặng Sấm Sét - Kinh Người Bắt Rắn","1T98547LVM-Uy5d0ialugkg098--Rqw_s","nikaya"],["Kinh Thiện Sanh Giáo Thọ Thi Ca La Việt","1vEHEvj68U8unmUE7GypswsznsF0jiF6Q","nikaya"],["Giảng Giải Kinh Chuyển Pháp Luân","1OasI_z4-D_iJuZCvEX2IiOyrnUtn4RfE","nikaya"],["Tìm Hiểu Trung Bộ Kinh","1QX7q4D__GFoNz9zEK2qYel49srxQFa6Z","nikaya"],["Mi Tiên Vấn Đáp","13J2N6T3xdULjKasj0IPSRgDqd4niQOUf","nikaya"],["Thanh Tịnh Đạo","1UV3-FbFqqNch9BfNyFB9BJF2a46k_i7F","nikaya"],["Thất Giác Chi","15d5OvPP3HQn1Rj_pjtuEUSB8IqGcPRBg","nikaya"],["Phật Giáo Nguyên Thủy - Pháp Duyên Sanh","1UmJAngO0P1J_2rh1fi3PmGUOSalbaU1k","nikaya"],["Thời Khóa Tu Tập Thời Đức Phật","1Wea-kmTagN-dKL9kP8Ml_3pXLflB690S","nikaya"],["Kinh Pháp Hoa","1KKsPvWyiWdJVBvo5EA5tlwQKijxtz1Uw","daithua"],["Kinh Diệu Pháp Liên Hoa","1vEgXpGZplpbCvviRsqGDFW49WEZrx5F_","daithua"],["Pháp Hoa Kinh Thông Nghĩa","1xEu5mFc8vNlhj7E6JaKnqGk_oo8tdslf","daithua"],["Kinh Pháp Hoa Giảng Giải","1TigH5Vh763ZcVTY794PSueDH9RzD5vRy","daithua"],["Giảng Giải Kinh Diệu Pháp Liên Hoa","15EcgKjUDsVhi4zmw1Cdklw5hOcjYKmEs","daithua"],["Pháp Hoa Huyền Nghĩa","1qSWPvRLeazcBAvnAhRWuv5EKiTFW6eHR","daithua"],["Kinh Kim Cang","16pFXuUeNAz8V1vyMebiXL_1n8mKPkyJn","daithua"],["Kinh Kim Cương","1HnLPKY-WsVStfEi0X5tIOaoJv1Dr71ET","daithua"],["Kinh Kim Cang - Gươm Báu Cắt Đứt Phiền Não","1GcgdJ7Bp2yqSOvc-pnuzir7aAWmLkIkF","daithua"],["Kinh Hoa Nghiêm","19UTyS1d2MaHB8nL001fU7eyszWXtb5Z2","daithua"],["Kinh Hoa Nghiêm Giản Giải","1MxveejozhYI00r8TgMMBixAqvH_UV9iJ","daithua"],["Tìm Hiểu Kinh Hoa Nghiêm","1Vi710-ZjEah-JcCg45qFveq2gj0FYQow","daithua"],["Kinh Thủ Lăng Nghiêm Giảng Giải","1gH1aCKCkJ7LEOPnb39U904cIcEeU_B8n","daithua"],["Lược Giảng Kinh Lăng Nghiêm","1uZeLT_1K0P0sIYu_Es0jzgOyvSLxZ5TC","daithua"],["Kinh Lăng Già","1RbQiB-TTZ06mmhViR1_zP9ngx9J0pURA","daithua"],["Kinh Duy Ma Cật","16u_UDz3sGDEfSU9A6dsfrvvMzbQQIgOK","daithua"],["Kinh Duy Ma Cật Giảng Giải","1jFjx32Wtud_V4rsL4QYQHgTrZkbdwUaf","daithua"],["Kinh Viên Giác","11MAVA5rWk34hS6pTtU4SazK-TbnduJhw","daithua"],["Kinh Viên Giác Giảng Giải","1pisSES6PUCEofEE8zVRMHBd7Z_NMf83H","daithua"],["Kinh Đại Bát Niết Bàn","1Ybbh82UPbyiESpIj5iyMvPhhQuvzTi-d","daithua"],["Tổng Quan Kinh Đại Bát Niết Bàn","1501gETjidNpTjGZyOsyoCPVzdgQHXFCw","daithua"],["Kinh Đại Phương Tiện Phật Báo Ân","1H9EmNG9sWMLHceM9woWi8myZbSvHd1up","daithua"],["Lược Giải Kinh Đại Bảo Tích","1R3vtxNbpJ65XqU2Qld0p_GPLhkgDPSEu","daithua"],["Kinh Phương Quảng Đại Trang Nghiêm","1lbYMtjc055ERclS7hmlcGpKJDT0CzvDI","daithua"],["Kinh Dược Sư Bổn Nguyện Công Đức","1Tsc5IlIS1O7WjS7hloiMPsgHvkojZXHR","daithua"],["Kinh Địa Tạng Bồ Tát Bổn Nguyện","1mUfZpboH2bwU4ZwC5Rx1ISLPVU5OY-Sl","daithua"],["Địa Tạng Vương Bồ Tát Bổn Nguyện Kinh","1dddJ4Ecgwh4KBkAhXJOFMBEWbkNV5VzI","daithua"],["Kinh Địa Tạng Bồ Tát Bổn Nguyện Giảng Thuật","1mhngFD2fKXrC25vOzJc0MoC0wQ8fdEWE","daithua"],["Kinh Diên Mệnh Địa Tạng Bồ Tát","1mKelJNjyWvA5O3yqcPhSWDtVMxgTp_4I","daithua"],["Kinh Quán Thế Âm Đại Bi Tâm Đà La Ni","1m1FMhm76CljsKmT_-5-GBFzRxafy5HW2","daithua"],["Đại Bi Chú Giảng Giải","18ifeamQz2NdUAmr5KgQS4fHR7NdRuoIk","daithua"],["Kinh Hiền Nhân","1Z77hQGees4lmJijImAKj6qUUAQZ0NHkA","daithua"],["Kinh Pháp Ấn","1GREFimG3JEQKxRoI8Awt_3L-gXiQFIXW","daithua"],["Kinh Sám Hối","1NGztGdsDRleKYoHCTX8ksid5vth5KZgE","daithua"],["Từ Bi Thủy Sám Pháp","1WbKkjaUWRsBDPyP3nFrFks97Eg98G4eh","daithua"],["Kinh Tụng Hằng Ngày","1jbdZYTIi25X_DdsV__zuvfRmU6IElFwT","daithua"],["Chư Kinh Tập Yếu","1VTpAQj0xwosGxtuV2losoFp6CcLsf7LG","daithua"],["Tứ Đại Pháp Kinh","1OGYGhbXqv_rlEkVGnZf-nHHRwui7b-OR","daithua"],["Thành Duy Thức Luận Giảng Giải","1KjOD22GomWmdGNaXX82No-SQnb-KkVxM","daithua"],["Đại Thừa Tuyệt Đối Luận","16lp2-mFTByjEe2GbC7PHKDxD8fW2HsOP","daithua"],["Luận Phật Thừa Tông Yếu","1vuyF51wvc3r7QBBbBYGUgU8ttAkE03HQ","daithua"],["Khái Niệm Tánh Không trong Phật Giáo","1aW4j2IfjiQovsfoobKuAdX0TlnpkNZVl","daithua"],["Tánh Không trong Truyền Thống Phật Giáo Tây Tạng","1igFhWs0cJ8lyQJWx5nNVS7c_zHPJw2FT","daithua"],["Tam Tạng Pháp Số","1L_3Nufja8ZapHhxSjC8ZD5uOL3_3Takt","daithua"],["Kinh A Di Đà","15jWg0AKcw5og7e3PVoHJTT1HgSqJvrVX","tinhdo"],["Giảng Giải Kinh Phật Thuyết A Di Đà","1mzDACl1IRkqku3wkPAFQ1ySrONadOqI4","tinhdo"],["Trí Quảng Toàn Tập - Lược Giải Kinh A Di Đà","1svsd3KajhHQTuIZhC9fJbuf65kO_sCiJ","tinhdo"],["Kinh Vô Lượng Thọ","1y2iMaspGSyT22cak3gQnPHIEH3ub91_l","tinhdo"],["Đại Thừa Vô Lượng Thọ Kinh","1WK76MN3XvCtmvswrl-y5Q_BdThzUDpp1","tinhdo"],["Phật Thuyết Đại Thừa Vô Lượng Thọ Trang Nghiêm Thanh Tịnh Bình Đẳng Giác Kinh","1JxNJLf-fpjn_wxNaSvOOXMoQIpn8L9pd","tinhdo"],["Kinh Quán Vô Lượng Thọ Phật","17N61EZMbr3bBiYebKIm7p5bSdtdGPS_p","tinhdo"],["Tịnh Độ Ngũ Kinh","1j3ytwg6xzA9ckqhS0TLIj7fAakF5JZQx","tinhdo"],["Tịnh Độ Thập Nghi Luận","1tM3u5x0bocUj3QMK9A-8OqPtA70VinjV","tinhdo"],["Tịnh Độ Vấn Đáp","1VAy0rTIUdBwt9sdieiA7NIA7KRLM0JDH","tinhdo"],["Tịnh Độ Quyết Nghi","1npolc_ZQrAwUVYSK9uHdzQHHSD3sD--J","tinhdo"],["Tịnh Độ Hoặc Vấn","1v89zS4Gm7miIbV8-dAX8Hl4vdPqpZV8c","tinhdo"],["Tịnh Độ Cảnh Ngữ","10xvoWo4t-D0r5Z2KewGlEwpZCOGZTYcu","tinhdo"],["Tịnh Độ Vựng Ngữ","1vXFlxXNZ2cyI-OMhp7BsBR4RuQnNjpu-","tinhdo"],["Vãng Sanh Tịnh Độ Luận Giảng Yếu","10v_slVrkbDIycOS4Y0vepSRdyaFFgsZd","tinhdo"],["Thiết Lập Tịnh Độ","1oZKIYbMzg2jD3ZHkMJjeLAJasdGRN07u","tinhdo"],["Niệm Phật Thập Yếu","1RRA-ddSn6zyx92umRdDqWssOwb3EzxuV","tinhdo"],["Khuyên Người Niệm Phật - Tập 1","1yhKZYVKhWZIj5E33bEIQvOfwyqHs1yMN","tinhdo"],["Khuyên Người Niệm Phật - Tập 2","1_UcNxA8Kmn6McijSi_hjy7D42Aw2OwmX","tinhdo"],["Khuyên Người Niệm Phật - Tập 3","1M6bPk5s_7hwSgl4PNtTi__0l0SDnKxAP","tinhdo"],["Khuyên Người Niệm Phật - Tập 4","1qDjTNNygKh_iJbEIuUay99V_0fhnBfaT","tinhdo"],["Phật Pháp và Pháp Môn Trì Danh Niệm Phật","1rZWyAeDntaSIIBrlLh0cuncn07Oc3h6q","tinhdo"],["Hoa Nghiêm Niệm Phật Tam Muội","1F24GP97HF-mgm_y5JYcdmMnIOV1IosXb","tinhdo"],["Niệm Phật Sám Pháp","1gADgPbg8SSJ5qIydVb4XU0gJDDnwquAa","tinhdo"],["Thơ Nhắc Nhở Người Niệm Phật","1dESPaxlNf6yDD-n6VootdV_MS2uwX7EY","tinhdo"],["Tuyển Trạch Bổn Nguyện Niệm Phật Tập","17B6m95_dOKYCTqnd61SvMe71bdiPoEO4","tinhdo"],["Tuyết Hư Lão Nhân Tịnh Độ Tuyển Tập","1HVcHP0RuZKXf3RnGVT0pT1Ah2yhkRTtq","tinhdo"],["Ấn Quang Đại Sư Gia Ngôn Lục","17n51f-u8KMPRCqdvgl2eXUB-hLL_SVlp","tinhdo"],["Ấn Quang Đại Sư Văn Sao Bảo Thân Tiết Dục Pháp Ngữ","1wY62tp2jtQAVpIpIUw1O1cbhAfXVyV7-","tinhdo"],["Thế Giới Cực Lạc","1hYO3-9La5DReohSUW0seJ3C6huZbBKTH","tinhdo"],["Đường về Cực Lạc","1c-fbSPLkyUMIAbiR67WFNlkLIfAY5Of8","tinhdo"],["Pháp Bảo Đàn Kinh","1z-g3hNgtnOj2HTlq3bZzNC5DMhRl0PH9","thien"],["Lược Giảng Kinh Pháp Bảo Đàn","1B2pVBYixBF3NC5_51CoE3I5rKAykSDnq","thien"],["Đốn Ngộ Nhập Đạo Yếu Môn","1oTaLmQRlUxq40o7E5Ukjp6oQ9KCHEN8_","thien"],["Thiền Đốn Ngộ","1A-ufurKbJtCuHlwa5dHjRwWiDtts6Mnu","thien"],["Tham Thiền Yếu Chỉ","1wO8QNVzzlJ2fmbCZOkrbu17gILneHvpx","thien"],["Đường Lối Thực Hành Tham Tổ Sư Thiền","1V_jMnlqmf1-KJRbzSmMfmyY51-jVq4qC","thien"],["Trung Phong Pháp Ngữ","1izt4s5B2Rni7-J_MfUc6oQeCEZjcfSt8","thien"],["Thiền Tông Vĩnh Gia Tập","1g5fcrTojswNHBN4qEmAb2tyFxcbKG5OL","thien"],["Thiền Tông Trực Chỉ","1y8RtiE8ypim9oYeatXn44EabV1Ge4YFj","thien"],["Thiền Tông Bản Hạnh","1s0zcFBA_u2-BwdEMvEujdQZYSVzk4NN5","thien"],["Tọa Thiền Dụng Tâm Ký","1zi7lfV-mJdnySrIfN8ep116HRTEjq-_p","thien"],["Tọa Thiền Thông Minh Pháp","10w9VzOxdMuHmAoSbZisbrd4KiglaE4KO","thien"],["Tâm Bất Sinh","1ajqzEXueeFM0rD3fNoOWKE7QQj1SegRd","thien"],["Thiền Tâm Sơ Tâm","1fqcOQH2LJchmw7w1D9t6OcpkAfyJ6KQ1","thien"],["Thiền Căn Bản","16yfSAoeDrup7E3zlyz0LddZgs8xZBoWR","thien"],["Thiền Thực Hành","1qH2LZDvm2-NZ_8FtKS-N7HkybcM67Vph","thien"],["Thiền Định","1HeyVjDScrbjtvelmLYt3FgvTtLG8TRIz","thien"],["Thiền Hành Yếu Chỉ","1wDGGgQcHsgdnzt2KwkuRiTaJwNqTvcvQ","thien"],["Thở và Thiền","1YXboc2yMeS2JNlWpmyMh1UVXxxhpQJAT","thien"],["Sống Thiền","1cIEI58x37N-S3HE2GcMMfigVgd99zVyH","thien"],["Vào Thiền","11hFdBBZ2D8RTk1K0NICJ8uyk_cx07-n_","thien"],["Trái Tim Thiền Tập","1TA6WbzQV6n6DT8L3eHcIWRjSNe_jRHWN","thien"],["Thiền Tập cho Người Bận Rộn","1r345uUORqZ5vHJsjHBpzG7LH5Uu9-xjJ","thien"],["Hướng Dẫn Thiền Phật Giáo","1LEHJHJzcsM6AhZTwGYt8hSZ-KWyvkz0l","thien"],["Kinh Nghiệm Thiền Quán","1yZl8qKaNKPW-GIU8tjQsvCtPsqhBJhwG","thien"],["Trong Con Mắt Thiền Quán","1bF3gGCIjU-3UScLumklD1imNA4BcuqVu","thien"],["Thiền và Giải Thoát","1jbNSYWilfhZCH_6vAgBJARw8B7ARMrUX","thien"],["Phật Pháp với Thiền Tông","16AA8MGuK-slIDq0TGauc9-5Y-tUOlnBZ","thien"],["Xuân trong Cửa Thiền","1-B5Q8oPrbZoKa11wEqnfs-zSdtuyrjsx","thien"],["Thi Kệ về Tâm","1lFqiKJ7DBtlExbOkFoI41B15HB_5G4xS","thien"],["Tương Lai Thiền Học Việt Nam","1AaLZrVsP1fVVbMMNUNHBYi1nZuaCoINa","thien"],["Đại Ấn Thiền Xóa Tan Bóng Tối của Vô Minh","1LQw15s4ySVY-vPt-KEkywJQkjAamwE4F","thien"],["Thiền Thư Tây Tạng","1i1DqGv-Mokzf3pnSM9t_RgiOiQFSwvdN","thien"],["Đường Xưa Mây Trắng","1TqdCyZBMuZqpIZdeA4xrwKo0ABuHSjon","su"],["Cuộc Đời Đức Phật","1fw3CQbMkVZzUCxJgwH_JXmBFnjjfFlCn","su"],["Lược Truyện Đức Phật Thích Ca","198KKd-AY6_5n3LQ2fDFR7C0xtjuED-R-","su"],["Truyện Phật Thích Ca","1rfMFCVs7hZeh3ZUQXHK1uOhMKYzFqjiq","su"],["Đức Phật Thích Ca - Phần 1","1NDPoDbZ7Rjev5mi18bB9GE5tY6CpU-fa","su"],["Đức Phật Thích Ca - Phần 2","1S5bqcSW4wLEYnOZLMNMTdl3z_Yg-qUba","su"],["Đức Phật Thích Ca - Phần 3","1Eb1lly593AhJHv4OMj7IGkbzSyEaLkgI","su"],["Luận Giảng Vấn Đáp về Tiến Trình Tu Chứng và Thành Đạo của Đức Phật","1r7Vb5qeHGqTPiHXwWVWddziV8ItifDAH","su"],["Thập Đại Đệ Tử Phật","1mRmL55egzIU4eJN5pot-jXbBxgLREvof","su"],["Mười Tôn Giả - Đại Đệ Tử của Đức Phật","1gDIrIlPFhYCnoKFDlA7YigSfFRryGAPa","su"],["Con Gái Đức Phật","1uw0VLif_2_X2Me1wzkCJWi0hLIH-jTAa","su"],["Theo Dấu Chân Phật","1rIB76g9c0bHwuUV_Ovl1CnPFbqYjuwfc","su"],["Ấn Độ và Phật Thích Ca","10t1LO2LegH-hd-fEk5SHahSzvbtK7HZ2","su"],["Đại Đường Tây Vức Ký","1NYVW0XFrS0cDhTaUMEo8a7XBHsGPifHj","su"],["Truyền Thuyết về Bồ Tát Quán Thế Âm","17fQMGr_akrcNs7S0y-xLvciDz7wGNzVm","su"],["Tín Ngưỡng - Quán Thế Âm Bồ Tát tại Việt Nam","1BOqc4WIw_ZdgLLb0dbQ4Dhbw7ToxhO1c","su"],["Sự Tích Phật A Di Đà và Bảy Vị Bồ Tát","1nxR3jUPLBbbKLztznrHy2atbFi0kcdM0","su"],["Tóm Lược Cấp Bậc của Các Vị Bồ Tát","1Oniq4QdR9-iaIRYS9btfkIRZIwEKZEnR","su"],["Truyện Cổ Phật Giáo","17LfgD52uLT3MZdKeyxgyaQXzPeYX8jPI","su"],["Đạo Ca Milarepa","1UKVDGG2W7PX5WY3OC37PApwZmZuv14dX","su"],["Quyển 8 Cuộc Đời và Ngộ Đạo của 36 Vị Tổ Sư Thiền Tông","12PPsa-7A-hAXdrQjBluGeVqtYqsrMqlq","su"],["Thiền Sư Việt Nam","1YbscX02xgRPTFcZ6ImU3M2dewnr4kdqt","su"],["Thiền Sư Trung Hoa","1XqTt7csAYS9r2Fg7TM6qHqIpYWukbuyf","su"],["Thiền Sư Khương Tăng Hội","1SX6N_vk9aK1icaHiFSk91fpgQ9rxiwm2","su"],["Trần Nhân Tông - Đức Vua Sáng Tỏ Một Dòng Thiền","1x1nxTVJmCCNLY-y1MEHrFi6ioldgB8sA","su"],["Việt Nam Phật Giáo Sử Luận","12CRHr0sGtBz41WKHkkoXVnvJwgwQ9jCG","su"],["Đại Cương Lịch Sử Phật Giáo Thế Giới","13pF7lqbiSVTO1rw9QOjWZHFEaYXWH1vk","su"],["Các Tông Phái Đạo Phật","10_pmVyM6Ooi7GJ9stYXPHc_W7Iz0ffbe","su"],["Phật Giáo Nam Tông tại Vùng Nam Bộ","19QMgKty6ESjwUetn309ZQC0Kg0gxJj8J","su"],["Về Mái Chùa Xưa","1x3Y5kzCSLGfTybzSx-NZI3QjOYgYOh0M","su"],["Đại Thừa và Sự Liên Hệ với Tiểu Thừa","1LQhHAe5eWfOKE_p3Gt4HOplccM9WTpBO","su"],["Nền Tảng Phật Học Thiên Thai Tông","1NBnILIokvb5-aAyyDFtGShTXaOS3SEK-","su"],["Đạo Phật Áp Dụng Vào Đời Sống Hàng Ngày","1hhbvLsFOEt3skgRephi7rmt1yOgedR2Y","doi"],["Đạo Phật Đi Vào Cuộc Đời","1BYvaMzBXm2hXmE2nNSoAmNtZxCCKzwyy","doi"],["Phật Giáo với Nhân Sinh","1s8a6saqsth9S7wgUHEJjfucWKaqKjCci","doi"],["Đạo Phật của Tuổi Trẻ","1XQ_wsXznQGjer0a94gszyPVdtG3iYr_M","doi"],["Đạo Phật Ngày Nay","1bBCegOXs4CuUbWjN1hoD95vDIQtUg9zb","doi"],["Đạo Phật qua Nhận Thức Mới","1d_2VVyPA0Gz_31hHfaoREWed_JFbqWxb","doi"],["Thương Yêu Theo Phương Pháp Bụt Dạy","1u9wuPjMr-7DS2Xo98U1GhyfFn38JGEYZ","doi"],["Trái Tim của Bụt","1afoxW0yF9Fy7nScXEMAFqmxtodYtyc96","doi"],["Trái Tim của Hiểu Biết","1QiDQJ2pVg2xhcq5XFO85xg2UPK4McmtM","doi"],["Đạo Bụt Nguyên Chất","1Aji5WXMj5ARe04CgAPlkpHIUBL-zcD_N","doi"],["Đi Tìm Từ Bi","1qiO1O-Gile8ZJaZUo1oXpmqHpPirC5EN","doi"],["Tâm Từ","1CAXm6SMl0UihN5w4p_YT8xwVQFCOtwoU","doi"],["Sống với Tâm Từ","10STC7WEM3tZ50qSjAbw-9mmg8vl8AGSp","doi"],["Sống Chung An Lạc","1Hb8VuB8z0J1JTxfA_b40detmxeW-NjTs","doi"],["Đừng Coi Thường Phiền Não","1lVli5EMYxfiFG5zq5ITD8q1j7UjDqASw","doi"],["Đừng Coi Thường Ô Nhiễm Tâm","1aVvDiQuWjV-hZ0tdo0J46Yp2CWfynicG","doi"],["Đức Phật trong Đời","1RhudSOqAUelb511_eeSjl4I8PGT5kXkw","doi"],["Đức Phật Bên Trong","1zouLBFydFNQp39SDvdSuS-1IjB3Wl_2R","doi"],["Đức Phật trong Ba Lô","1pdnl-mLxSlLqqZCYXZt1WOiekFavTXMR","doi"],["Phật Ở Tầng Áp Mái","1JXvXabELvZAPiqKsQfvG1evow9qvjAwu","doi"],["Đắc Nhân Tâm Theo Phong Cách Phật Giáo","1MdHwkQHi_-JWBlLjf9r6h5AUSPi2AhBx","doi"],["Suy Niệm Mỗi Ngày","1Uw3QU-VFq9cqtCkoPCZlz8u535zcZrZ7","doi"],["Đôi Điều Cần Suy Ngẫm","1flKllide47EgKdyulWGBTtlYt_GUKZ8z","doi"],["Tâm Lý Học Phật Giáo","15FQxuYaffvUIfTl6ev_SW2dt5EWcVpCp","doi"],["Vũ Trụ Quan Phật Giáo","1ViWpCRmm5ncWqiL5BPe0M2HiEaQ5dZSM","doi"],["Tư Tưởng Phật Giáo","1Z5sxNqQ2h3iMmnU0Cq2Qjrj7c9UnEffy","doi"],["Đối Thoại Giữa Triết Học và Phật Giáo","1FQDXB2S6FBXIyNdgYX1u8g1-6Pwj8Wwc","doi"],["Thiền và Sức Khỏe","1Oum3Y-sLxxEd62xlw8zZi-A3V1_ygU3v","doi"],["Thiền Định Thiết Thực - cho Sự Bình An của Tâm Hồn","1Xf-NTl2agsRzImEGmsr90fhbL09-9Sia","doi"],["Ốc Đảo Tự Thân","1phoHgnmFuyC92ssaW2hK8ZjrdGzgsNeE","doi"],["Đường Xa Nắng Mới","1MTRBSMFkd4bznOxNxoXBErk76ygORVEt","doi"],["Đi Để Mà Đi","1uZaUI_hc1ZSD4PFwIuRWwxcpmT1u_qaf","doi"],["Thanh Tịnh Tâm","1KJAv9aaMrMWmuD9tY7S51x_2MfTNDXEt","doi"],["Điều Trị Bệnh Tận Gốc Năng Lực của Tâm Bi Mẫn","1fYNMq0fvUKGhvh7UIot-JOolxwpfnIDu","doi"],["Tình Đời Ý Đạo","1P850i28KZ0MKPEtIxdnFb-vlCxHh6L_g","doi"]]};
+const LIB_GOI = [ // gợi ý cho người mới: [tên, lời giới thiệu]
+  ['Đường Xưa Mây Trắng', 'Cuộc đời Đức Phật kể như một câu chuyện dài, dễ đọc cho người mới.'],
+  ['Đức Phật Đã Dạy Những Gì', 'Tóm lược giáo lý căn bản: Tứ diệu đế, Bát chánh đạo, vô ngã.'],
+  ['Phật Học Phổ Thông', 'Giáo trình nhập môn, đi từng bước từ căn bản.'],
+  ['Tích Truyện Pháp Cú', 'Những câu kệ ngắn kèm chuyện tích — mỗi ngày đọc một bài.'],
+  ['Thở và Thiền', 'Về thực tập hơi thở và thiền trong đời sống.'],
+  ['Kinh Tụng Hằng Ngày', 'Các bài kinh tụng quen thuộc trong thời khoá ở chùa.'],
+  ['Kinh Thiện Sanh Giáo Thọ Thi Ca La Việt', 'Đạo làm người tại gia: cha mẹ, con cái, vợ chồng, bạn bè, thầy trò.'],
+  ['Kinh A Di Đà', 'Bài kinh ngắn, căn bản của pháp môn Tịnh độ.'],
+  ['Kinh Kim Cang', 'Kinh thuộc hệ Bát Nhã, dạy tâm không chấp trước.'],
+  ['Pháp Bảo Đàn Kinh', 'Lời dạy của Lục Tổ Huệ Năng, nền tảng của Thiền tông.'],
+  ['Thiền Sư Việt Nam', 'Chân dung các thiền sư Việt qua nhiều thời đại.'],
+  ['Trần Nhân Tông - Đức Vua Sáng Tỏ Một Dòng Thiền', 'Vị vua – thiền sư khai sáng Thiền phái Trúc Lâm.'],
+];
+const LIB_LOI = [ // lời nhắc mỗi ngày — diễn ý tinh thần kinh điển
+  ['Hận thù không dập tắt được hận thù; chỉ có lòng thương mới làm được điều đó.', 'ý kinh Pháp Cú'],
+  ['Tâm dẫn đầu mọi việc. Nói và làm với tâm trong sáng, an vui theo ta như bóng theo hình.', 'ý kinh Pháp Cú'],
+  ['Chiến thắng ngàn quân không bằng tự thắng chính mình.', 'ý kinh Pháp Cú'],
+  ['Một lời nói lành đem lại bình an còn hơn ngàn lời vô ích.', 'ý kinh Pháp Cú'],
+  ['Giọt nước nhỏ mãi cũng đầy bình; điều thiện nhỏ góp mãi thành phước lớn.', 'ý kinh Pháp Cú'],
+  ['Đừng tin chỉ vì nghe nói, vì sách chép hay vì người nói là thầy; hãy tự xét thấy điều ấy lành, có ích, rồi mới thực hành.', 'ý kinh Kalama'],
+  ['Hãy tự thắp đuốc lên mà đi; hãy nương tựa chính mình và nương tựa giáo pháp.', 'ý kinh Đại Bát Niết Bàn'],
+  ['Thở vào, biết mình đang thở vào. Thở ra, biết mình đang thở ra.', 'ý kinh Quán niệm hơi thở'],
+  ['Như mẹ hiền thương con một, hãy mở lòng thương đến muôn loài.', 'ý kinh Từ Bi'],
+  ['Mọi sự do duyên mà thành, do duyên mà đổi; hiểu vậy thì bớt lo âu.', 'tinh thần Duyên khởi'],
+  ['Biết đủ là giàu. Không biết đủ thì dù có nhiều vẫn thấy thiếu.', 'tinh thần kinh Di Giáo'],
+  ['Kính cha mẹ, thương vợ con, giúp bạn bè, tôn trọng thầy — ấy là đạo người tại gia.', 'ý kinh Thiện Sanh'],
+  ['Đừng sống trong quá khứ, đừng mơ tưởng tương lai; hãy an trú trong giây phút hiện tại.', 'ý kinh Nhất Dạ Hiền Giả'],
+  ['Tâm không trụ vào đâu mà vẫn sáng suốt, ấy là tâm tự tại.', 'ý kinh Kim Cang'],
+  ['Mọi pháp hữu vi như mộng, như huyễn, như bọt nước, như bóng — nên nhìn như thế.', 'ý kinh Kim Cang'],
+  ['Không làm các điều ác, siêng làm các việc lành, giữ tâm ý trong sạch — đó là lời chư Phật dạy.', 'ý kinh Pháp Cú'],
+  ['Người trí như tảng đá vững giữa gió, không lay động trước khen chê.', 'ý kinh Pháp Cú'],
+  ['Tưới hạt giống hiểu và thương mỗi ngày, vườn tâm sẽ nở hoa.', 'tinh thần Duy thức'],
+  ['Cõi Phật ở ngay nơi tâm thanh tịnh.', 'ý kinh Duy Ma Cật'],
+  ['Phiền não là chất liệu của bồ đề, như bùn nuôi hoa sen.', 'tinh thần Đại thừa'],
+  ['Cư trần lạc đạo hãy tuỳ duyên: đói thì ăn, mệt ngủ liền.', 'ý thơ vua Trần Nhân Tông'],
+];
+const libNorm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
+const LIB_SEEN = new Set(); // mỗi cuốn chỉ tính hành trì một lần mỗi phiên
+function libState() { if (!store.lib || !Array.isArray(store.lib.read)) store.lib = { read: [], fav: [] }; return store.lib; }
+function libUrl(id) { return 'https://drive.google.com/drive/folders/' + id; }
+function libRow(b) {
+  const L = libState(), [t, id, c] = b, read = L.read.includes(id), fav = L.fav.includes(id), cn = (KINH_LIB.cats.find(k => k[0] === c) || [, ''])[1];
+  const goi = LIB_GOI.find(g => g[0].toLowerCase() === t.toLowerCase());
+  return `<li class="bk${read ? ' rd' : ''}"><div class="bt"><b>${esc(t)}</b><small>${esc(cn)}${read ? ' · ✓ đã mở' : ''}</small>${goi ? `<i>${esc(goi[1])}</i>` : ''}</div>
+    <button class="bf" data-f="${id}" aria-label="${fav ? 'Bỏ khỏi tủ sách' : 'Thêm vào tủ sách'}">${fav ? '★' : '☆'}</button><a class="bo" data-o="${id}" href="${libUrl(id)}" target="_blank" rel="noopener">Đọc ↗</a></li>`;
+}
+function openLibrary(cat) {
+  const L = libState(), day = Math.floor(Date.now() / 864e5), loi = LIB_LOI[day % LIB_LOI.length];
+  let cur = cat || 'goi', q = '';
+  const books = () => {
+    if (q) { const n = libNorm(q); return KINH_LIB.books.filter(b => libNorm(b[0]).includes(n)); }
+    if (cur === 'goi') return LIB_GOI.map(g => KINH_LIB.books.find(b => b[0].toLowerCase() === g[0].toLowerCase())).filter(Boolean);
+    if (cur === 'mine') return KINH_LIB.books.filter(b => L.fav.includes(b[1]) || L.read.includes(b[1])).sort((a, b) => L.fav.includes(b[1]) - L.fav.includes(a[1]));
+    return KINH_LIB.books.filter(b => b[2] === cur);
+  };
+  const listHtml = () => { const bs = books(); return bs.length ? bs.map(libRow).join('') : `<li>${q ? 'Không tìm thấy cuốn nào. Thử từ khác, hoặc mở toàn bộ thư viện bên dưới.' : 'Tủ sách còn trống. Bấm ☆ để giữ cuốn mình muốn đọc.'}</li>`; };
+  openPanel(`<div class="h2">📚 Tàng kinh các</div>
+    <p class="sub">${KINH_LIB.books.length} đầu kinh sách Phật học · đã mở <b id="lbN">${L.read.length}</b> cuốn. Sách mở ở thẻ mới trên Google Drive (bản PDF/EPUB).</p>
+    <div class="loi"><p>“${esc(loi[0])}”</p><small>— ${esc(loi[1])} · lời nhắc hôm nay</small></div>
+    <input type="search" id="lbQ" placeholder="🔍 Tìm tên kinh, sách…" maxlength="40" autocomplete="off">
+    <div class="chips" id="lbC">${[['goi', '⭐ Gợi ý'], ...KINH_LIB.cats, ['mine', '📌 Tủ sách của tôi']].map(([k, n]) => `<button class="chip${k === cur ? ' on' : ''}" data-c="${k}">${esc(n)}</button>`).join('')}</div>
+    <ul class="list lib" id="lbL">${listHtml()}</ul>
+    <div class="row"><button class="big alt" id="lbR">🎲 Gợi ý một cuốn</button><a class="big alt" id="lbAll" href="${LIB_ROOT}" target="_blank" rel="noopener">Toàn bộ thư viện ↗</a></div>
+    <p class="note">Danh mục dẫn tới thư viện sách cộng đồng trên Google Drive. Bản quyền thuộc tác giả, dịch giả và nhà xuất bản — xin đọc để học hỏi, không dùng vào việc thương mại. Đọc chậm, hiểu sâu, rồi đem vào đời sống: đó là văn – tư – tu.</p>`, { cls: 'libp' });
+  const ul = $('#lbL'), redraw = () => { ul.innerHTML = listHtml(); };
+  $('#lbQ').addEventListener('input', e => { q = e.target.value.trim(); pbody.querySelectorAll('#lbC .chip').forEach(c => c.classList.toggle('on', !q && c.dataset.c === cur)); redraw(); });
+  $('#lbC').onclick = e => { const b = e.target.closest('[data-c]'); if (!b) return; SND.tap(); cur = b.dataset.c; q = ''; $('#lbQ').value = ''; pbody.querySelectorAll('#lbC .chip').forEach(c => c.classList.toggle('on', c === b)); redraw(); };
+  ul.onclick = e => {
+    const f = e.target.closest('[data-f]'), o = e.target.closest('[data-o]');
+    if (f) { SND.tap(); const id = f.dataset.f, i = L.fav.indexOf(id); if (i >= 0) L.fav.splice(i, 1); else L.fav.unshift(id); save(); redraw(); return; }
+    if (o) { const id = o.dataset.o, b = KINH_LIB.books.find(x => x[1] === id); if (!L.read.includes(id)) { L.read.unshift(id); L.read = L.read.slice(0, 400); } save();
+      if (!LIB_SEEN.has(id)) { LIB_SEEN.add(id); qev('kinh'); if (b) journal('Mở đọc "' + b[0] + '" ở Tàng kinh các'); }
+      setTimeout(() => { redraw(); const n = $('#lbN'); if (n) n.textContent = L.read.length; }, 300); toast('📖 Đang mở “' + esc(b ? b[0] : '') + '” ở thẻ mới…', 2600); }
+  };
+  $('#lbR').onclick = () => { SND.tap(); const pool = KINH_LIB.books.filter(b => !L.read.includes(b[1])), b = pick(pool.length ? pool : KINH_LIB.books); q = b[0]; $('#lbQ').value = b[0]; pbody.querySelectorAll('#lbC .chip').forEach(c => c.classList.remove('on')); redraw(); };
+}
+
+/* =====================================================================
    20. VÒNG LẶP CHÍNH (+ tự giảm độ phân giải nếu máy yếu)
    ===================================================================== */
 let T = 0, last = performance.now(), perfAcc = 0, perfN = 0, perfT = 0;
@@ -3047,7 +3178,7 @@ $('#loadErr').textContent = '';
   } catch (e) { console.info('Không nạp được vầng sáng (bloom)', e); FX.composer = null; }
 })();
 // Gỡ lỗi/kiểm thử: truy cập trạng thái từ console
-window.__game = { NET, netMsg, get qevF() { return qev; }, DYN_SPOTS, CQ, PEN, openReal, REAL, QS, LUNAR, openLook, openQuests, doEmote, setLook, NHIEU, actLePhat, actThien, actHoaHong, startNhieu, litterMeshes, FX, GFX, HALL, heightAt, sun, DONATE, openDonate, openHonor, honorList, vietQR, G, player, store, SPOTS, cam, PG, sky_, actIncense, actBell, actMo, actWish, actQue, openShare, openBook, makeShareImage, renderer };
+window.__game = { openLibrary, KINH_LIB, NET, netMsg, get qevF() { return qev; }, DYN_SPOTS, CQ, PEN, openReal, REAL, QS, LUNAR, openLook, openQuests, doEmote, setLook, NHIEU, actLePhat, actThien, actHoaHong, startNhieu, litterMeshes, FX, GFX, HALL, heightAt, sun, DONATE, openDonate, openHonor, honorList, vietQR, G, player, store, SPOTS, cam, PG, sky_, actIncense, actBell, actMo, actWish, actQue, openShare, openBook, makeShareImage, renderer };
 </script>
 </body>
 </html>
