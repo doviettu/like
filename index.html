@@ -346,7 +346,10 @@ const tierById = id => TIERS.find(t => t.id === id) || TIER0;
 const IS_REAL_TEMPLE = DONATE.recipientType === 'chua' && !!DONATE.templeName;
 /* 1c. CHÙA TRỰC TUYẾN — dán URL máy chủ phòng chùa sau khi triển khai (docs/HUONG-DAN-CLOUDFLARE.md).
    Để trống = chơi một mình với khách hành hương AI. */
-const ONLINE = { url: '' }; // vd 'wss://lenchua-phong.ten-ban.workers.dev/room/an-lac'
+const ONLINE = { url: '' };
+if (/github\.io$/.test(location.hostname)) ONLINE.url = 'wss://bodetam.doviettudn.workers.dev/room/an-lac'; // bản GitHub Pages nối về máy chủ Cloudflare
+else if (/^https?:$/.test(location.protocol)) ONLINE.url = (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/room/an-lac'; // chạy trên Worker bodetam: cùng địa chỉ
+// mở file trực tiếp (file://) thì chơi một mình
 const DONATE_ON = !!((DONATE.bankBin && DONATE.accountNo) || DONATE.apiBase || DONATE.kofi);
 // Mã VietQR (chuẩn EMVCo/NAPAS 247) tự sinh trên máy, không gửi số tài khoản đi đâu
 const tlv = (id, v) => id + String(v.length).padStart(2, '0') + v;
