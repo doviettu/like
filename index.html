@@ -1909,6 +1909,7 @@ function openPanel(html, o = {}) {
 }
 function closePanel(cancel = true) {
   if (!G.panel) return; panel.className = ''; G.panel = false; const f = panelOnClose; panelOnClose = null; pbody.innerHTML = ''; updateUIVis(); if (f) f(cancel);
+  updateUIVis(); // trò chơi có thể vừa kết thúc trong onClose (G.game = null) → hiện lại cần điều khiển & nút hành động
 }
 $('#xBtn').addEventListener('click', () => { SND.tap(); closePanel(true); });
 panel.addEventListener('pointerdown', e => { if (e.target === panel && !panelModal) closePanel(true); });
@@ -2730,7 +2731,9 @@ $('#questPill').addEventListener('click', () => { if (canAct()) { SND.tap(); ope
 document.querySelectorAll('#emotes [data-e]').forEach(b => b.addEventListener('click', () => doEmote(b.dataset.e)));
 addEventListener('keydown', e => { if (isField(e)) return; const m = { Digit1: 'chap', Digit2: 'cui', Digit3: 'vay', Digit4: 'thien' }[e.code]; if (m) doEmote(m); });
 refreshQuestPill();
-function updateExtras(dt) { updateEmote(dt); updateNhieu(); updateLitter(); updatePenance(dt); updateOnline(dt); $('#emotes').classList.toggle('hidden', !canAct()); }
+let uiKey = '';
+function updateExtras(dt) { updateEmote(dt); updateNhieu(); updateLitter(); updatePenance(dt); updateOnline(dt);
+  const k = `${canAct()}|${!!nearSpot}|${G.mode}`; if (k !== uiKey) { uiKey = k; updateUIVis(); $('#emotes').classList.toggle('hidden', !canAct()); } } // luôn khớp trạng thái nút với trạng thái game
 
 
 /* =====================================================================
