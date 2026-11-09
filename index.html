@@ -43,6 +43,19 @@ body.party .vibeBar i{animation:hue 1s linear infinite}
 @keyframes hue{to{filter:hue-rotate(360deg)}}
 #top3{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:4px 8px;font-size:11px;display:flex;flex-direction:column;gap:2px}
 #top3:empty{display:none}
+#kqPanel{background:linear-gradient(135deg,rgba(80,20,110,.82),rgba(160,30,90,.78));border:1px solid rgba(255,140,220,.45);border-radius:12px;padding:4px 8px;font-size:11px}
+.kqHead{font-weight:900;font-size:10.5px;letter-spacing:.6px;color:#ffb3e6}
+.kqi{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.kqi.now{color:#fff59d}
+.kqi.mut{opacity:.7}
+#ktv{position:absolute;left:50%;top:calc(31% + var(--sat));transform:translateX(-50%);width:min(94vw,620px);background:#0d0812;border:2px solid #ff4fb8;border-radius:14px;overflow:hidden;box-shadow:0 10px 40px rgba(255,60,170,.35)}
+#ktv.mini{left:auto;right:calc(62px + var(--sar));top:auto;bottom:calc(12px + var(--sab));transform:none;width:min(52vw,300px)}
+.ktvBar{display:flex;align-items:center;gap:6px;padding:4px 6px 4px 10px;background:linear-gradient(90deg,#7b1fa2,#e91e63);font-size:12.5px;font-weight:800}
+.ktvBar span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ktvBar button{flex:none;width:30px;height:26px;border-radius:8px;border:none;background:rgba(0,0,0,.3);font-size:14px}
+.ktvBox{position:relative;width:100%;aspect-ratio:16/9;background:#000}
+#ktvPlayer,#ktvPlayer iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#ktvMsg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:14px;font-size:14px;font-weight:700;background:rgba(10,4,14,.82)}
 #top3 .r{display:flex;justify-content:space-between;gap:6px}
 #top3 .r span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #top3 .r b{color:var(--yel)}
@@ -114,6 +127,18 @@ body.clean #cleanHot{display:block}
 .dish .btn{text-align:left;font-size:12.5px}
 .dish .btn small{display:block;color:var(--mut);font-weight:600;font-size:10.5px}
 .row{display:flex;gap:6px;align-items:center;margin:6px 0}
+.row .lbl{flex:1;font-size:13px;color:var(--mut)}
+.row input[type=number]{width:90px;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:10px;color:#fff;padding:8px;font:inherit}
+.row input[type=range]{flex:1.2}
+.warn{background:rgba(255,152,0,.15);border:1px solid rgba(255,152,0,.5);border-radius:10px;padding:6px 10px;color:#ffe0b2!important}
+.micMeter{height:8px;border-radius:5px;background:rgba(255,255,255,.12);overflow:hidden;margin:8px 0}
+.micMeter i{display:block;height:100%;width:0;background:linear-gradient(90deg,#69f0ae,#ffeb3b,#ff5252);transition:width .08s}
+.kqa{border-top:1px dashed var(--line);padding:6px 0;font-size:13px}
+.kqa small{color:var(--mut)}
+.kqa .btns{margin-top:4px}
+.kqa .btn{padding:5px 9px;font-size:12px}
+.kqa.now{color:#ffd36b}
+.kqa.mutb{opacity:.85}
 .row input[type=text],.row select{flex:1;min-width:0;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:10px;color:#fff;padding:9px 10px;font-size:14px;font:inherit}
 .tg{display:flex;align-items:center;gap:10px;font-size:14px;padding:6px 0;cursor:pointer}
 .tg input{display:none}
@@ -189,15 +214,20 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:0 5px;font-size:1
     </div>
     <div class="vibe"><div class="vibeLabel"><span>🔥 Không khí</span><span id="vibeTxt">0%</span></div><div class="vibeBar"><i id="vibeFill"></i></div></div>
     <div id="top3"></div>
+    <div id="kqPanel" class="hidden"><div class="kqHead">🎤 KARAOKE</div><div id="kqList"></div></div>
   </div>
 
   <div id="menuPanel" class="pe">
     <div class="menuHead" id="menuHead"><div>🎁 QUÀ → GỌI MÓN<small>Tặng x2 = món lớn</small></div><span class="chev">▾</span></div>
     <div id="menuList"></div>
-    <div class="hint">💬 Comment là <b>vào quán</b> · <b>"bàn 7"</b> chọn bàn · <b>"bàn riêng"</b> · <b>"ghép Tên"</b> ngồi với bạn · <b>"dzô"</b> · <b>"hát"</b> · <b>"oẳn tù tì"</b> · ❤ đẩy không khí</div>
+    <div class="hint">💬 Comment là <b>vào quán</b> · <b>"bàn 7"</b> chọn bàn · <b>"bàn riêng"</b> · <b>"ghép Tên"</b> ngồi với bạn · <b>"dzô"</b> · <b>"hát + tên bài"</b> + 🎁 karaoke · <b>"xin lên mic"</b> · ❤ đẩy không khí</div>
   </div>
 
   <div id="banner"></div>
+  <div id="ktv" class="pe hidden">
+    <div class="ktvBar"><span id="ktvTitle">🎤</span><button id="ktvSize" title="Thu nhỏ / phóng to">⤢</button><button id="ktvSkip" title="Qua bài">⏭</button></div>
+    <div class="ktvBox"><div id="ktvPlayer"></div><div id="ktvMsg" class="hidden"></div></div>
+  </div>
   <div id="feed"></div>
 
   <div id="quick">
@@ -205,6 +235,7 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:0 5px;font-size:1
     <button class="rbtn pe" id="bLucky" title="Bốc thăm may mắn (L)">🎲</button>
     <button class="rbtn pe" id="bFire" title="Bắn pháo hoa (F)">🎆</button>
     <button class="rbtn pe" id="bSound" title="Âm thanh (M)">🔊</button>
+    <button class="rbtn pe" id="bKara" title="Karaoke & mic">🎤</button>
     <button class="rbtn pe" id="bSet" title="Bảng điều khiển">⚙️</button>
   </div>
   <div id="cleanHot" title="Chạm 3 lần để hiện lại bảng điều khiển"></div>
@@ -244,7 +275,9 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:0 5px;font-size:1
     <button class="btn" data-cmd="ghép *">🤝 ghép bạn</button>
     <button class="btn" data-cmd="mời *">🙋 mời bạn</button>
     <button class="btn" data-cmd="tên bàn Hội Bia Hơi">🏷️ tên bàn</button>
-    <button class="btn" data-cmd="hát">🎤 hát</button>
+    <button class="btn" data-cmd="hát">🎤 hát mộc</button>
+    <button class="btn" data-cmd="hát Nối vòng tay lớn">🎶 hát + tên bài</button>
+    <button class="btn" data-cmd="xin lên mic">🙋 xin lên mic</button>
     <button class="btn" data-cmd="oẳn tù tì búa">✊ oẳn tù tì</button>
     <button class="btn" data-cmd="xí ngầu">🎲 xí ngầu</button>
     <button class="btn" data-cmd="cụng ly với *">🍻 cụng với bạn</button>
@@ -263,6 +296,27 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:0 5px;font-size:1
     <button class="btn" data-ev="reset">🚪 Dọn quán (mời khách về)</button>
     <button class="btn" data-ev="cam">🎥 Đặt lại góc nhìn</button>
   </div>
+
+  <h4 id="karaSec">🎤 Karaoke YouTube</h4>
+  <p>Người xem comment <b>"hát + tên bài"</b> (vd: <i>hát Nối vòng tay lớn</i>) rồi tặng quà để chốt bài. Game tìm bài trên YouTube và phát trong khung karaoke giữa màn hình.</p>
+  <p id="fileWarn" class="warn hidden">⚠️ Bạn đang mở game bằng file trực tiếp. YouTube thường chặn phát video trong trường hợp này (lỗi 153). Hãy mở game qua http/https: bật GitHub Pages cho repo, hoặc chạy <code>npx serve</code> / <code>python -m http.server</code> trong thư mục chứa file rồi mở <code>http://localhost:...</code>.</p>
+  <div class="row"><input type="text" id="ytKey" placeholder="YouTube Data API key (để tự tìm bài)" autocomplete="off" spellcheck="false"></div>
+  <p style="font-size:11.5px">Không có key: chủ quán bấm 🔎 Tìm rồi 🔗 Dán link cho từng bài, hoặc quán phát nhạc nền để hát mộc. Key chỉ lưu trên máy bạn; từ khóa tìm kiếm được gửi tới Google/YouTube.</p>
+  <div class="row"><label class="lbl">Quà tối thiểu (xu, 0 = miễn phí)</label><input type="number" id="kMin" min="0" max="100000"></div>
+  <div class="row"><label class="lbl">Quà để chen hàng (xu)</label><input type="number" id="kPrio" min="1" max="100000"></div>
+  <div class="row"><label class="lbl">Tối đa mỗi bài (phút)</label><input type="number" id="kMax" min="1" max="20"></div>
+  <label class="tg"><input type="checkbox" id="optKSuffix" checked><span></span>Tự thêm chữ “karaoke” khi tìm bài</label>
+  <div class="row"><label class="lbl">Âm lượng video</label><input type="range" id="ytVol" min="0" max="100"></div>
+  <div class="row"><input type="text" id="kAdd" placeholder="Chủ quán thêm bài: tên bài hoặc link YouTube"><button class="btn" id="kAddBtn">➕ Thêm</button></div>
+  <div id="kqAdmin"></div>
+
+  <h4>🎙️ Mic – hát cho cả phòng live</h4>
+  <p>Người xem lên mic bằng tính năng <b>Khách mời (multi-guest)</b> của TikTok Live: họ comment <b>"xin lên mic"</b>, bạn mời họ làm khách mời trên TikTok, giọng hát đi thẳng vào phòng live. Bấm “Đánh dấu đang lên mic” để quán hiện 🎙️ trên đầu nhân vật.</p>
+  <p>Mic của máy bạn dùng để <b>chấm điểm</b> và (tuỳ chọn) phát ra loa kèm tiếng vang khi có người hát tại chỗ.</p>
+  <div class="btns"><button class="btn pri" id="micBtn">🎙️ Bật mic chấm điểm</button></div>
+  <div class="micMeter"><i id="micLevel"></i></div>
+  <label class="tg"><input type="checkbox" id="optMicMon"><span></span>Phát mic ra loa kèm tiếng vang (đeo tai nghe để không bị hú)</label>
+  <div class="row"><label class="lbl">Âm lượng mic</label><input type="range" id="micVol" min="0" max="200"></div>
 
   <h4>🔊 Âm thanh & hiển thị</h4>
   <label class="tg"><input type="checkbox" id="optMusic" checked><span></span>Nhạc nền</label>
@@ -284,6 +338,8 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:0 5px;font-size:1
     <li>Uống nhiều sẽ <b>say 🥴</b> – comment <b>"trà đá"</b> cho tỉnh · <b>"về nha"</b> / <b>"tính tiền"</b> → ra về.</li>
     <li>Thả tim → đẩy thanh <b>Không khí</b>; đủ 100% cả quán quẩy. Mỗi 300 tim cả quán dzô.</li>
     <li>Tặng quà → nhân viên <b>bưng món</b> ra bàn bạn (x2 là món lớn). Quà 500 xu trở lên → <b>pháo hoa</b>.</li>
+    <li>🎤 <b>"hát + tên bài"</b> rồi <b>tặng quà</b> → đăng ký karaoke, video bài hát phát trên màn hình. Quà lớn được <b>chen hàng</b>. <b>"hủy bài"</b> để rút, <b>"qua bài"</b> khi đang hát để dừng.</li>
+    <li>🎙️ <b>"xin lên mic"</b> → xin làm khách mời TikTok để hát cho cả phòng nghe. Tim và quà lúc đang hát được cộng vào <b>điểm karaoke</b>.</li>
   </ul>
   <h4>⌨️ Phím tắt (máy tính)</h4>
   <p><kbd>D</kbd> dzô · <kbd>L</kbd> bốc thăm · <kbd>F</kbd> pháo hoa · <kbd>P</kbd> quẩy · <kbd>M</kbd> tắt/bật tiếng · <kbd>H</kbd> ẩn/hiện nút</p>
@@ -301,7 +357,8 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:0 5px;font-size:1
     <ul class="guide">
       <li>💬 <b>Comment</b> → vào quán, lời chat hiện trên đầu nhân vật</li>
       <li>🪑 <b>"bàn 5"</b> chọn bàn · <b>"bàn riêng"</b> giữ bàn · <b>"ghép Tên"</b> ngồi với bạn</li>
-      <li>🍻 <b>"dzô"</b> cụng ly · 🎤 <b>"hát"</b> karaoke · ✊ <b>"oẳn tù tì"</b> với Cậu Cả</li>
+      <li>🍻 <b>"dzô"</b> cụng ly · ✊ <b>"oẳn tù tì"</b> với Cậu Cả</li>
+      <li>🎤 <b>"hát + tên bài"</b> + tặng quà → hát karaoke YouTube · 🎙️ <b>"xin lên mic"</b></li>
       <li>❤️ <b>Thả tim</b> → không khí lên 100% là cả quán quẩy</li>
       <li>🎁 <b>Tặng quà</b> → món ăn bưng ra tận bàn, quà to bắn pháo hoa</li>
       <li>👆 <b>Chạm</b> vào bàn/khách để gọi món, mời cụng ly</li>
@@ -1209,7 +1266,8 @@ const Snd = {
   },
   resume() { if (this.ctx && this.ctx.state !== 'running') this.ctx.resume(); },
   get t() { return this.ctx ? this.ctx.currentTime : 0; },
-  setMusic(on) { if (this.musicG) this.musicG.gain.setTargetAtTime(on ? 0.3 : 0, this.t, 0.1); },
+  setMusic(on) { if (this.musicG) this.musicG.gain.setTargetAtTime(on && !this.ducked ? 0.3 : 0, this.t, 0.1); },
+  duck(on) { this.ducked = on; this.setMusic(opts.music); },
   setSfx(on) { if (this.sfxG) this.sfxG.gain.setTargetAtTime(on ? 0.8 : 0, this.t, 0.05); },
   env(g, t, a, peak, dec) { g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(0.0001, t + a + dec); },
   osc(type, f, t, dur, peak, dest, a = 0.005, f2) {
@@ -1384,6 +1442,7 @@ class Guest extends Actor {
     else if (this.npc) st = { bg: 'rgba(16,8,16,0.45)', fg: '#e8d8c8' };
     if (this.fan) n += ' ⭐';
     if (this.drunk) n += ' 🥴';
+    if (this.onMic) n += ' 🎙️';
     this.setLabel(n, st);
   }
   say(text, dur = 4.5, force) {
@@ -1422,8 +1481,8 @@ class Guest extends Actor {
     if (this.leaving) return; this.leaving = true;
     const s = this.seat; this.seat = null; this.pending = null;
     if (s) { s.guest = null; seatFreed(s.table, this); }
-    if (karaoke.singer === this) endSing(true);
-    const qi = karaoke.queue.indexOf(this); if (qi >= 0) karaoke.queue.splice(qi, 1);
+    if (karaoke.cur && karaoke.cur.g === this) endSing(true);
+    karaoke.queue = karaoke.queue.filter(it => it.g !== this); karaoke.pending.delete(this); karaoke.micReq.delete(this); refreshKQ();
     if (selActor === this) hideCard();
     const p = this.g.position;
     if (this.state === 'sit' && s) {
@@ -1582,60 +1641,311 @@ function cheersWith(g, f) {
   Snd.clink(0.35, 0.3);
 }
 
-/* ---------- karaoke vỉa hè ---------- */
-const karaoke = { queue: [], singer: null, t: 0, lyricT: 0, line: '' };
+/* ---------- karaoke: hàng chờ, đăng ký bài bằng quà, YouTube, mic ---------- */
+const karaoke = { queue: [], cur: null, pending: new Map(), micReq: new Map(), seq: 0, line: '', lyricT: 0, acc: 0 };
 const LYRICS = ['Một hai ba dzô, anh em mình cùng say', 'Đêm nay vỉa hè, ghế nhựa kê sát nhau', 'Cậu Cả ơi, cho thêm ly bia lạnh', 'Không say không về, chuyện mai tính sau', 'Tình anh em, ly bia sủi bọt trắng', 'Gió đêm thổi mát, đĩa mực thơm lừng', 'Ai buồn thì nói, ai vui thì dzô', 'La la la… dzô dzô dzô!'];
-function requestSing(g) {
-  const k = karaoke;
-  if (k.singer === g) return;
-  if (k.queue.includes(g)) return g.say(`Đang xếp hàng hát, thứ ${k.queue.indexOf(g) + 1} 🎤`, 3);
-  if (k.queue.length >= 6) return g.say('Hàng chờ hát dài quá, lát nha!', 3);
-  k.queue.push(g);
-  if (k.singer || k.queue.length > 1) { g.say(`Đăng ký hát! Thứ ${k.queue.length} 🎤`, 3); feed(`🎤 <b>${esc(g.name)}</b> đăng ký hát karaoke (thứ ${k.queue.length})`); }
+const YT_RE = /(?:youtu\.be\/|youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/|live\/))([\w-]{11})/i;
+const kMin = () => Math.max(0, Math.floor(Number(opts.kMin) || 0));
+const kPrio = () => Math.max(1, Math.floor(Number(opts.kPrio) || 30));
+const singerName = it => it.g ? it.g.name : (it.host || 'Cậu Cả');
+const findItem = g => karaoke.queue.find(it => it.g === g) || (karaoke.cur && karaoke.cur.g === g ? karaoke.cur : null);
+function decodeEntities(s) { const t = document.createElement('textarea'); t.innerHTML = s; return t.value; }
+function enqueue(it) {
+  Object.assign(it, { id: ++karaoke.seq, hearts: 0, giftXu: 0, micN: 0, micV: 0 });
+  if (it.prio) { let i = 0; while (i < karaoke.queue.length && karaoke.queue[i].prio) i++; karaoke.queue.splice(i, 0, it); }
+  else karaoke.queue.push(it);
+  if (it.kind === 'song') resolveVideo(it);
+  refreshKQ(); return karaoke.queue.indexOf(it) + 1;
 }
-function startSing(g) {
-  const k = karaoke; k.singer = g; g.pending = null;
-  const s = g.seat;
-  g.walkTo(leavePath(s).concat([{ x: -LANE_IN, z: KARAOKE.z + 0.6 }, { x: KARAOKE.x, z: KARAOKE.z }]), () => {
-    if (k.singer !== g) return;
-    g.rot = 0.25; g.singing = true; k.t = 14; k.lyricT = 0;
-    banner(`🎤 ${esc(g.name)} lên hát karaoke!`, 'purple', 2600);
-    feed(`🎤 <b>${esc(g.name)}</b> đang hát karaoke – thả tim cổ vũ!`, 'sys');
-    Snd.karaoke = true; addVibe(8); ownerSay('Hát hay quá! Vỗ tay nào 👏', true);
-  });
-  g.say('Lên hát đây! 🎤', 2.5);
+function requestSing(g) { // "hát" không kèm tên bài → hát mộc với nhạc của quán
+  if (findItem(g)) return g.say('Đang trong hàng chờ hát rồi nè 🎤', 3);
+  if (karaoke.queue.length >= 15) return g.say('Hàng chờ hát dài quá, lát nha!', 3);
+  const pos = enqueue({ kind: 'free', g, title: null });
+  if (karaoke.cur || pos > 1) { g.say(`Đăng ký hát mộc! Thứ ${pos} 🎤`, 3); feed(`🎤 <b>${esc(g.name)}</b> đăng ký hát mộc (thứ ${pos})`); }
 }
+function requestSong(g, raw) {
+  const link = raw.match(YT_RE);
+  const title = trunc(raw.replace(/https?:\/\/\S+/g, '').replace(/\s+/g, ' ').trim(), 60) || (link ? 'Bài theo link YouTube' : '');
+  if (!title) return;
+  const had = findItem(g);
+  if (had) return g.say(`Bạn đã đăng ký "${trunc(had.title || 'hát mộc', 20)}" rồi, chờ tới lượt nha!`, 3.5);
+  if (karaoke.queue.length >= 15) return g.say('Hàng chờ hát đầy rồi, lát nha!', 3);
+  const req = { kind: 'song', g, title, link: link ? link[1] : null, paid: 0 };
+  if (kMin() <= 0) return confirmSong(req, false);
+  if (g.songCredit && g.songCredit.until > now()) { const c = g.songCredit; g.songCredit = null; return confirmSong(req, c.prio); }
+  req.at = now(); karaoke.pending.set(g, req);
+  g.say(`Tặng quà từ ${kMin()} xu để chốt bài "${trunc(title, 22)}" nha! 🎁`, 4.5);
+  feed(`🎤 <b>${esc(g.name)}</b> muốn hát <b>“${esc(title)}”</b> – tặng quà từ ${kMin()} xu để chốt bài`, 'sys');
+  refreshKQ();
+}
+function confirmSong(req, prio) {
+  karaoke.pending.delete(req.g);
+  req.prio = !!prio; const pos = enqueue(req);
+  feed(`✅ <b>${esc(req.g.name)}</b> chốt bài <b>“${esc(req.title)}”</b>${req.prio ? ' – <b>⏫ ưu tiên</b>' : ''} · thứ ${pos}`, 'gift');
+  req.g.say(`Chốt bài "${trunc(req.title, 20)}"! Thứ ${pos} 🎤`, 3.5);
+  Snd.sparkle(); addVibe(4);
+}
+function songGift(g, total) {
+  const cur = karaoke.cur;
+  if (cur && cur.singing && cur.g !== g) cur.giftXu += total;
+  const prio = total >= kPrio();
+  const p = karaoke.pending.get(g);
+  if (p) { p.paid += total; if (p.paid >= Math.max(1, kMin())) confirmSong(p, p.paid >= kPrio()); return; }
+  const q = karaoke.queue.find(it => it.g === g);
+  if (q) {
+    if (prio && !q.prio) { karaoke.queue.splice(karaoke.queue.indexOf(q), 1); q.prio = true; let i = 0; while (i < karaoke.queue.length && karaoke.queue[i].prio) i++; karaoke.queue.splice(i, 0, q); feed(`⏫ <b>${esc(g.name)}</b> chen hàng karaoke – lên thứ ${i + 1}`, 'gift'); refreshKQ(); }
+    return;
+  }
+  if (kMin() > 0 && total >= kMin()) g.songCredit = { until: now() + 180000, prio };
+}
+function cancelSong(g) {
+  if (karaoke.pending.delete(g)) { g.say('Thôi không hát nữa 😅', 2.5); refreshKQ(); return; }
+  const q = karaoke.queue.find(it => it.g === g);
+  if (q) { karaoke.queue.splice(karaoke.queue.indexOf(q), 1); g.say('Hủy bài rồi nha!', 2.5); refreshKQ(); }
+}
+function requestMic(g) {
+  if (karaoke.micReq.has(g)) return g.say('Đang chờ Cậu Cả mời lên mic nè!', 3);
+  karaoke.micReq.set(g, now());
+  g.say('Cho em lên mic hát với! 🙋', 3);
+  feed(`🙋 <b>${esc(g.name)}</b> xin lên mic – chủ quán mời làm <b>Khách mời</b> trên TikTok nhé`, 'sys');
+  ownerSay(`Chờ chút, Cậu Cả mời ${trunc(g.name, 12)} lên mic nha!`); Snd.ding(); refreshKQ();
+}
+async function resolveVideo(it) {
+  if (it.link) { it.cands = [{ id: it.link, title: it.title }]; it.vstatus = 'ok'; refreshKQ(); return; }
+  const key = String(opts.ytKey || '').trim();
+  if (!key) { it.vstatus = 'nokey'; refreshKQ(); return; }
+  it.vstatus = 'searching'; refreshKQ();
+  try {
+    const q = it.title + (opts.kSuffix === false ? '' : ' karaoke');
+    const u = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&videoEmbeddable=true&safeSearch=moderate&maxResults=6&q=${encodeURIComponent(q)}&key=${encodeURIComponent(key)}`;
+    const r = await fetch(u); const j = await r.json();
+    if (!r.ok) throw new Error((j.error && j.error.message) || ('HTTP ' + r.status));
+    it.cands = (j.items || []).map(x => ({ id: x.id && x.id.videoId, title: decodeEntities(x.snippet ? x.snippet.title : '') })).filter(x => x.id);
+    it.vstatus = it.cands.length ? 'ok' : 'none';
+  } catch (e) {
+    it.vstatus = 'err'; it.err = String(e && e.message || e);
+    feed(`⚠️ Không tìm được “${esc(it.title)}” trên YouTube: ${esc(trunc(it.err, 80))}`, 'sys');
+  }
+  refreshKQ();
+}
+function setItemLink(it, url) {
+  const m = String(url || '').match(YT_RE) || String(url || '').trim().match(/^([\w-]{11})$/);
+  if (!m) { feed('⚠️ Link YouTube không hợp lệ', 'sys'); return false; }
+  it.link = m[1]; it.cands = [{ id: m[1], title: it.title || 'YouTube' }]; it.vstatus = 'ok'; refreshKQ(); return true;
+}
+function startSing(it) {
+  const k = karaoke; k.cur = it; it.el = 0; it.singing = false;
+  const a = it.g || owner; it.actor = a; a.pending = null;
+  let path;
+  if (it.g) path = leavePath(it.g.seat).concat([{ x: -LANE_IN, z: KARAOKE.z + 0.6 }]);
+  else path = [{ x: -LANE_OUT, z: owner.g.position.z }, { x: -LANE_OUT, z: KARAOKE.z + 0.6 }];
+  path.push({ x: KARAOKE.x, z: KARAOKE.z });
+  a.walkTo(path, () => { if (k.cur !== it) return; a.rot = 0.25; a.singing = true; it.singing = true; beginPerformance(it); });
+  a.say(it.title ? `Lên hát "${trunc(it.title, 18)}" đây! 🎤` : 'Lên hát đây! 🎤', 2.5);
+  refreshKQ();
+}
+function beginPerformance(it) {
+  const name = singerName(it);
+  banner(`🎤 ${esc(name)} lên hát${it.title ? '<br>“' + esc(trunc(it.title, 34)) + '”' : ''}`, 'purple', 3000);
+  feed(`🎤 <b>${esc(name)}</b> đang hát${it.title ? ' <b>“' + esc(it.title) + '”</b>' : ''} – thả tim, tặng quà cổ vũ!`, 'sys');
+  addVibe(8);
+  ownerSay(it.g ? (it.g.onMic ? `${trunc(name, 12)} đang mở mic, cả phòng nghe nè! 🎙️` : `Hát hay quá! Vỗ tay nào 👏`) : 'Cậu Cả hát tặng anh em nè! 🎤', true);
+  if (it.kind === 'song' && it.cands && it.cands.length) { it.mode = 'yt'; it.ci = 0; Snd.duck(true); YTK.play(it); }
+  else {
+    it.mode = 'free'; it.t = it.kind === 'song' ? 45 : 14; Snd.karaoke = true;
+    if (it.kind === 'song') feed(it.vstatus === 'nokey' ? 'ℹ️ Chưa có YouTube API key nên quán phát nhạc nền – chủ quán có thể dán link bài trong ⚙️' : `ℹ️ Không có video cho “${esc(it.title)}”, hát mộc với nhạc của quán`, 'sys');
+  }
+}
+function scoreOf(it) {
+  let s = 64 + Math.min(14, it.hearts / 15) + Math.min(10, it.giftXu / 5) + rand(0, 6);
+  if (it.micN > 30) s += (it.micV / it.micN) * 16 - 5;
+  return Math.round(clamp(s, 55, 100));
+}
+const gradeOf = s => s >= 95 ? 'Ca sĩ vỉa hè hạng A! 🌟' : s >= 85 ? 'Hay quá trời! 👏' : s >= 75 ? 'Hát cũng mượt nè 😄' : 'Uống thêm ly cho mượt giọng 🍺';
 function endSing(abort) {
-  const k = karaoke, g = k.singer; k.singer = null; k.line = ''; Snd.karaoke = false;
-  if (!g) return;
-  g.singing = false;
-  if (abort || g.leaving) return;
-  Snd.cheer(1.8); addVibe(6); g.points += 15;
-  feed(`👏 Cả quán vỗ tay cho <b>${esc(g.name)}</b>!`);
-  const s = g.seat; if (!s) return g.leave();
-  g.walkTo([{ x: -LANE_IN, z: KARAOKE.z + 0.6 }].concat(approach(s)), () => g.sit());
-  tableToast(s.table, g);
+  const k = karaoke, it = k.cur; if (!it) return;
+  k.cur = null; k.line = ''; Snd.karaoke = false; Snd.duck(false); YTK.stop();
+  const a = it.actor; if (a) a.singing = false;
+  refreshKQ();
+  if (abort || !a || (it.g && it.g.leaving)) return;
+  if (it.singing) {
+    const sc = scoreOf(it);
+    banner(`🎤 ${esc(singerName(it))}: <b>${sc} điểm</b><br>${gradeOf(sc)}`, sc >= 85 ? 'gold' : 'purple', 3500);
+    feed(`👏 <b>${esc(singerName(it))}</b> hát xong – <b>${sc} điểm</b> (${it.hearts} tim cổ vũ)`, 'gift');
+    Snd.cheer(1.8); Snd.fanfare(); addVibe(6);
+    if (it.g) it.g.points += Math.round(sc / 4);
+  }
+  if (it.g) {
+    const s = it.g.seat; if (!s) return it.g.leave();
+    it.g.walkTo([{ x: -LANE_IN, z: KARAOKE.z + 0.6 }].concat(approach(s)), () => it.g.sit());
+    tableToast(s.table, it.g);
+  } else {
+    owner.walkTo([{ x: -LANE_OUT, z: KARAOKE.z + 0.6 }, { x: -LANE_OUT, z: -3.9 }, { x: -FACADE_X + 0.75, z: -3.9 }], () => { owner.rot = Math.PI / 2 + 0.5; });
+  }
 }
 function updateKaraoke(dt) {
   const k = karaoke;
-  if (!k.singer) {
+  k.acc += dt;
+  if (k.acc > 1) {
+    k.acc = 0; let ch = false;
+    for (const [g, p] of k.pending) if (g.leaving || now() - p.at > 180000) { k.pending.delete(g); ch = true; }
+    for (const [g, t0] of k.micReq) if (g.leaving || now() - t0 > 600000) { k.micReq.delete(g); ch = true; }
+    if (ch) refreshKQ();
+  }
+  if (!k.cur) {
     while (k.queue.length) {
-      const g = k.queue[0];
-      if (g.leaving) { k.queue.shift(); continue; }
-      if (g.state !== 'sit') break; // chờ ngồi xuống đã
-      k.queue.shift(); startSing(g); break;
+      const it = k.queue[0];
+      if (it.g && it.g.leaving) { k.queue.shift(); refreshKQ(); continue; }
+      if (it.g && it.g.state !== 'sit') break;          // chờ khách ngồi xuống đã
+      if (it.kind === 'song' && it.vstatus === 'searching') break; // chờ tìm bài xong
+      k.queue.shift(); startSing(it); break;
     }
     return;
   }
-  const g = k.singer;
-  if (g.leaving) { endSing(true); return; }
-  if (g.singing) {
-    k.t -= dt; k.lyricT -= dt;
-    if (k.lyricT <= 0) { k.lyricT = 3.2; k.line = pick(LYRICS); g.say('🎵 ' + k.line + ' 🎵', 3.1); }
-    if (Math.random() < dt * 5) notes.spawn(g.pos.x + rand(-0.4, 0.4), 1.7, g.pos.z + rand(-0.2, 0.2), { size: rand(0.25, 0.4), life: 1.8, vy: rand(0.6, 1.0), vx: rand(-0.3, 0.3), color: pick(['#ffd54f', '#ff80ab', '#80d8ff', '#b9f6ca']) });
-    if (k.t <= 0) endSing();
+  const it = k.cur, a = it.actor;
+  if (it.g && it.g.leaving) return endSing(true);
+  if (!it.singing) return;
+  it.el += dt;
+  if (Mic.on) { it.micN++; if (Mic.level > 0.04) it.micV++; }
+  const rate = 2 + (Mic.on ? Mic.level * 40 : 3);
+  if (Math.random() < dt * rate) notes.spawn(a.pos.x + rand(-0.4, 0.4), 1.7 * a.g.scale.y, a.pos.z + rand(-0.2, 0.2), { size: rand(0.25, 0.4), life: 1.8, vy: rand(0.6, 1.0), vx: rand(-0.3, 0.3), color: pick(['#ffd54f', '#ff80ab', '#80d8ff', '#b9f6ca']) });
+  if (it.mode === 'free') {
+    it.t -= dt; k.lyricT -= dt;
+    if (k.lyricT <= 0) { k.lyricT = 3.2; k.line = pick(LYRICS); a.say('🎵 ' + k.line + ' 🎵', 3.1); }
+    if (it.t <= 0) endSing();
+  } else {
+    k.line = it.title || '';
+    if (it.el > Math.max(1, Number(opts.kMax) || 5) * 60) { feed('⏱️ Hết thời gian mỗi bài, mời người kế tiếp!', 'sys'); endSing(); }
   }
 }
+
+/* ---------- trình phát YouTube (khung karaoke) ---------- */
+const ktv = $('#ktv');
+function ktvMsg(html) { const m = $('#ktvMsg'); m.innerHTML = html || ''; m.classList.toggle('hidden', !html); }
+function showKtv(it) { ktv.classList.remove('hidden'); $('#ktvTitle').textContent = `🎤 ${singerName(it)} – ${it.title || ''}`; }
+function hideKtv() { ktv.classList.add('hidden'); ktvMsg(''); }
+const YTK = {
+  api: null, player: null, ready: false, it: null,
+  load() {
+    if (this.api) return this.api;
+    this.api = new Promise((res, rej) => {
+      if (window.YT && window.YT.Player) return res();
+      const prev = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => { prev && prev(); res(); };
+      const s = document.createElement('script'); s.src = 'https://www.youtube.com/iframe_api';
+      s.onerror = () => { this.api = null; rej(new Error('Không tải được trình phát YouTube (kiểm tra mạng)')); };
+      document.head.appendChild(s);
+      setTimeout(() => { if (!(window.YT && window.YT.Player)) { this.api = null; rej(new Error('Trình phát YouTube tải quá lâu')); } }, 15000);
+    });
+    return this.api;
+  },
+  async play(it) {
+    this.it = it; showKtv(it); ktvMsg('⏳ Đang tải bài…');
+    try { await this.load(); } catch (e) { return this.fail(it, e.message); }
+    if (karaoke.cur !== it) return;
+    const c = it.cands[it.ci];
+    $('#ktvTitle').textContent = `🎤 ${singerName(it)} – ${c.title || it.title}`;
+    if (this.player && this.ready) { try { this.player.loadVideoById(c.id); this.player.setVolume(Number(opts.ytVol ?? 100)); return; } catch { } }
+    $('#ktvPlayer').innerHTML = '<div id="ktvYT"></div>'; this.ready = false;
+    const pv = { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1, controls: 1, fs: 0 };
+    if (/^https?:$/.test(location.protocol)) pv.origin = location.origin;
+    this.player = new window.YT.Player('ktvYT', {
+      host: 'https://www.youtube-nocookie.com', videoId: c.id, width: '100%', height: '100%', playerVars: pv,
+      events: {
+        onReady: e => { this.ready = true; try { e.target.setVolume(Number(opts.ytVol ?? 100)); e.target.playVideo(); } catch { } },
+        onStateChange: e => { if (e.data === 1) ktvMsg(''); if (e.data === 0 && karaoke.cur === this.it) endSing(); },
+        onError: e => this.onErr(e.data)
+      }
+    });
+  },
+  onErr(code) {
+    const it = this.it; if (!it || karaoke.cur !== it) return;
+    if ([2, 5, 100, 101, 150].includes(code) && it.ci + 1 < it.cands.length) { it.ci++; return this.play(it); }
+    const msg = code === 153 ? 'YouTube chặn phát khi mở game bằng file trực tiếp. Hãy mở game qua http/https (GitHub Pages hoặc máy chủ cục bộ).'
+      : (code === 101 || code === 150) ? 'Video này không cho phát nhúng.' : `Không phát được video (mã ${code}).`;
+    this.fail(it, msg);
+  },
+  fail(it, msg) {
+    feed('⚠️ ' + esc(msg), 'sys'); ktvMsg('⚠️ ' + esc(msg) + '<br>Chuyển sang hát mộc với nhạc của quán.');
+    setTimeout(() => { if (karaoke.cur === it) hideKtv(); }, 6000);
+    it.mode = 'free'; it.t = 40; Snd.karaoke = true; Snd.duck(false);
+  },
+  stop() { try { this.player && this.player.stopVideo && this.player.stopVideo(); } catch { } this.it = null; hideKtv(); },
+  setVolume(v) { try { this.player && this.ready && this.player.setVolume(v); } catch { } }
+};
+$('#ktvSize').onclick = () => ktv.classList.toggle('mini');
+$('#ktvSkip').onclick = () => { if (karaoke.cur) { feed('⏭️ Chủ quán cho qua bài', 'sys'); endSing(); } };
+
+/* ---------- mic: chấm điểm, vang, phát ra loa ---------- */
+const Mic = {
+  on: false, level: 0, stream: null,
+  async start() {
+    Snd.init(); Snd.resume();
+    if (!Snd.ctx || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) throw new Error('Trình duyệt không hỗ trợ mic');
+    const c = Snd.ctx;
+    this.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    this.src = c.createMediaStreamSource(this.stream);
+    this.an = c.createAnalyser(); this.an.fftSize = 1024; this.buf = new Float32Array(this.an.fftSize);
+    this.src.connect(this.an);
+    // nhánh phát ra loa: khô + vang
+    this.out = c.createGain(); this.out.gain.value = 0; this.out.connect(Snd.master);
+    this.dry = c.createGain(); this.dry.gain.value = 1; this.src.connect(this.dry); this.dry.connect(this.out);
+    const conv = c.createConvolver(); const len = Math.floor(c.sampleRate * 1.8); const ir = c.createBuffer(2, len, c.sampleRate);
+    for (let ch = 0; ch < 2; ch++) { const d = ir.getChannelData(ch); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2.6); }
+    conv.buffer = ir; this.wet = c.createGain(); this.wet.gain.value = 0.45; this.src.connect(conv); conv.connect(this.wet); this.wet.connect(this.out);
+    this.on = true; this.apply();
+  },
+  stop() { try { this.stream && this.stream.getTracks().forEach(t => t.stop()); this.src && this.src.disconnect(); this.out && this.out.disconnect(); } catch { } this.on = false; this.level = 0; },
+  apply() { if (this.out && Snd.ctx) this.out.gain.setTargetAtTime(opts.micMon ? (Number(opts.micVol ?? 100) / 100) : 0, Snd.t, 0.05); },
+  update() {
+    if (!this.on) return;
+    this.an.getFloatTimeDomainData(this.buf); let s = 0; for (let i = 0; i < this.buf.length; i++) s += this.buf[i] * this.buf[i];
+    const rms = Math.sqrt(s / this.buf.length); this.level = this.level * 0.8 + rms * 0.2;
+    const el = $('#micLevel'); if (el) el.style.width = Math.min(100, this.level * 400) + '%';
+  }
+};
+
+/* ---------- bảng hàng chờ karaoke (HUD + bảng điều khiển) ---------- */
+const VST = { ok: '✓ có video', searching: '🔎 đang tìm…', nokey: '⚠ chưa có video', none: '⚠ không thấy video', err: '⚠ lỗi tìm' };
+function refreshKQ() {
+  const k = karaoke, rows = [];
+  if (k.cur) rows.push(`<div class="kqi now">▶ <b>${esc(trunc(singerName(k.cur), 14))}</b>${k.cur.title ? ' – ' + esc(trunc(k.cur.title, 24)) : ' (hát mộc)'}${k.cur.g && k.cur.g.onMic ? ' 🎙️' : ''}</div>`);
+  k.queue.slice(0, 3).forEach((it, i) => rows.push(`<div class="kqi">${i + 1}. ${it.prio ? '⏫ ' : ''}<b>${esc(trunc(singerName(it), 12))}</b>${it.title ? ' – ' + esc(trunc(it.title, 20)) : ' (hát mộc)'}</div>`));
+  if (k.queue.length > 3) rows.push(`<div class="kqi mut">+${k.queue.length - 3} bài nữa</div>`);
+  if (k.pending.size) rows.push(`<div class="kqi mut">⏳ ${k.pending.size} bài chờ tặng quà chốt</div>`);
+  $('#kqPanel').classList.toggle('hidden', !rows.length); $('#kqList').innerHTML = rows.join('');
+  // bảng quản lý cho chủ quán
+  const A = [];
+  if (k.cur) A.push(`<div class="kqa now"><div><b>▶ ${esc(singerName(k.cur))}</b> – ${esc(k.cur.title || 'hát mộc')}</div><div class="btns"><button class="btn" data-k="skip">⏭ Qua bài</button>${k.cur.g ? `<button class="btn" data-k="mic" data-g="${esc(k.cur.g.uid)}">${k.cur.g.onMic ? '🎙️ Đang mic ✓' : '🎙️ Đánh dấu đang lên mic'}</button>` : ''}</div></div>`);
+  k.queue.forEach((it, i) => A.push(`<div class="kqa"><div>${i + 1}. ${it.prio ? '⏫ ' : ''}<b>${esc(singerName(it))}</b> – ${esc(it.title || 'hát mộc')} ${it.kind === 'song' ? `<small>${VST[it.vstatus] || ''}</small>` : ''}</div><div class="btns"><button class="btn" data-k="now" data-id="${it.id}">▶ Hát ngay</button>${it.kind === 'song' ? `<button class="btn" data-k="link" data-id="${it.id}">🔗 Dán link</button><button class="btn" data-k="find" data-id="${it.id}">🔎 Tìm</button>` : ''}<button class="btn" data-k="del" data-id="${it.id}">✕</button></div></div>`));
+  for (const [g, p] of k.pending) A.push(`<div class="kqa mutb"><div>⏳ <b>${esc(g.name)}</b> – ${esc(p.title)} <small>(chờ quà ${p.paid}/${Math.max(1, kMin())} xu)</small></div><div class="btns"><button class="btn" data-k="free" data-g="${esc(g.uid)}">✓ Cho hát miễn phí</button></div></div>`);
+  for (const [g] of k.micReq) A.push(`<div class="kqa mutb"><div>🙋 <b>${esc(g.name)}</b> xin lên mic</div><div class="btns"><button class="btn" data-k="mic" data-g="${esc(g.uid)}">${g.onMic ? '🎙️ Đang mic ✓' : '🎙️ Đã mời lên mic'}</button><button class="btn" data-k="micdel" data-g="${esc(g.uid)}">✕</button></div></div>`);
+  $('#kqAdmin').innerHTML = A.join('') || '<p>Chưa có ai đăng ký hát.</p>';
+}
+$('#kqAdmin').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; Snd.resume();
+  const k = karaoke, id = Number(b.dataset.id), it = k.queue.find(x => x.id === id), g = b.dataset.g ? guests.get(b.dataset.g) : null;
+  switch (b.dataset.k) {
+    case 'skip': if (k.cur) { feed('⏭️ Chủ quán cho qua bài', 'sys'); endSing(); } break;
+    case 'now': if (it) { k.queue.splice(k.queue.indexOf(it), 1); k.queue.unshift(it); if (k.cur) endSing(); } break;
+    case 'del': if (it) k.queue.splice(k.queue.indexOf(it), 1); break;
+    case 'link': if (it) { const u = prompt('Dán link YouTube cho bài “' + (it.title || '') + '”:'); if (u) setItemLink(it, u); } break;
+    case 'find': if (it) window.open('https://www.youtube.com/results?search_query=' + encodeURIComponent(it.title + (opts.kSuffix === false ? '' : ' karaoke')), '_blank', 'noopener'); break;
+    case 'free': if (g && k.pending.has(g)) confirmSong(k.pending.get(g), false); break;
+    case 'mic': if (g) { g.onMic = !g.onMic; g.refreshLabel(); if (g.onMic) { feed(`🎙️ <b>${esc(g.name)}</b> đang lên mic – cả phòng nghe nè!`, 'sys'); k.micReq.delete(g); } } break;
+    case 'micdel': if (g) k.micReq.delete(g); break;
+  }
+  refreshKQ();
+});
+function hostAddSong() {
+  const v = $('#kAdd').value.trim(); if (!v) return;
+  const link = v.match(YT_RE);
+  const title = trunc(v.replace(/https?:\/\/\S+/g, '').trim(), 60) || (link ? 'Bài theo link YouTube' : v);
+  const pos = enqueue({ kind: 'song', g: null, host: 'Cậu Cả', title, link: link ? link[1] : null, prio: false });
+  feed(`🎤 Cậu Cả thêm bài <b>“${esc(title)}”</b> (thứ ${pos})`, 'sys'); $('#kAdd').value = '';
+}
+$('#kAddBtn').onclick = hostAddSong;
+$('#kAdd').addEventListener('keydown', e => { if (e.key === 'Enter') hostAddSong(); });
 
 /* ---------- trò chơi nhỏ ---------- */
 const RPS = { bua: ['búa', '✊'], bao: ['bao', '✋'], keo: ['kéo', '✌️'] };
@@ -1813,6 +2123,11 @@ const RE_SING = /^(hat|hat di|hat nao)(\s|$|!|\.)|(len hat|karaoke|xin hat|cho .
 const RE_RPS = /(oan tu ti|oan tu xi|oan tu ty|xi to)/;
 const RE_DICE = /(xi ngau|xuc xac|lac xi)/;
 const RE_TEA = /(tra da|them da|xin da|xo da|nuoc da|tra chanh)/;
+const RE_SONG = /^\s*(?:🎤\s*)?(?:đăng ký hát|dang ky hat|đăng ký bài|dang ky bai|xin bài|xin bai|hát bài|hat bai|hát|hat|bài hát|bai hat)\s*[:\-]?\s+(.+)$/iu;
+const SONG_STOP = new Set(['di', 'nao', 'nha', 'nhe', 'di nao', 'di ma', 'hay', 'hay qua', 'karaoke', 'len', 'voi', 'cho', 'tiep', 'nua', 'di moi nguoi', 'hay ghe', 'gi', 'mot bai', '1 bai', 'bai nao', 'cung', 'chung', 'di anh em']);
+const RE_CANCEL_SONG = /(huy bai|bo bai|khong hat nua|thoi khong hat)/;
+const RE_SKIP_SONG = /(qua bai|skip|dung hat|het bai|ket thuc bai)/;
+const RE_MIC = /(len mic|mo mic|xin mic|cho .{0,10}mic|vao mic)/;
 function onJoin(uid, name) {
   const existed = guests.has(String(uid));
   const g = ensureGuest(uid, name); if (!g) return;
@@ -1850,7 +2165,12 @@ function onChat(uid, name, text) {
   if (cw) cheersWith(g, cw);
   else if (RE_TOAST.test(t)) { g.toast(isNew ? 2.5 : 0); if (g.seat) tableToast(g.seat.table, g); Snd.clink(0.3, isNew ? 2.5 : 0.25); addVibe(2); }
   if (RE_DANCE.test(t)) { g.danceT = 6; addVibe(2); }
-  if (RE_SING.test(t)) requestSing(g);
+  const ms = text.normalize('NFC').match(RE_SONG);
+  if (ms && !SONG_STOP.has(norm(ms[1]).replace(/[!.?~]+$/, '').trim()) && norm(ms[1]).length >= 3) requestSong(g, ms[1].trim());
+  else if (RE_SING.test(t)) requestSing(g);
+  if (RE_CANCEL_SONG.test(t)) cancelSong(g);
+  if (RE_SKIP_SONG.test(t) && karaoke.cur && karaoke.cur.g === g) { feed(`⏭️ <b>${esc(g.name)}</b> dừng bài`, 'sys'); endSing(); }
+  if (RE_MIC.test(t)) requestMic(g);
   if (RE_RPS.test(t)) playRps(g, t);
   if (RE_DICE.test(t)) rollDice(g);
   if (RE_TEA.test(t)) orderTea(g);
@@ -1860,6 +2180,7 @@ function onLike(uid, name, n) {
   n = clamp(Number(n) || 1, 1, 500);
   const g = ensureGuest(uid, name); if (!g) return;
   g.likes += n; g.points += n; G.totalLikes += n; addVibe(Math.min(10, n * 0.6));
+  if (karaoke.cur && karaoke.cur.singing) karaoke.cur.hearts += n;
   const k = Math.min(6, Math.ceil(n / 3));
   for (let i = 0; i < k; i++) setTimeout(() => {
     if (g.leaving) return;
@@ -1877,6 +2198,7 @@ function onGift(uid, name, giftName, count, diamonds) {
   const g = ensureGuest(uid, name); if (!g) return;
   const item = mapGift(giftName, diamonds); const big = count >= 2; const total = diamonds * count;
   g.points += total * 10; g.giftsN += count; addVibe(6 + total * 1.5);
+  songGift(g, total);
   G.revenue += item.price * (big ? 2 : 1) * (count > 2 ? Math.ceil(count / 2) : 1);
   feed(`🎁 <b>${esc(name)}</b> tặng ${esc(giftVi(giftName))} x${count} → <b>${item.dish}${big ? ' (món lớn)' : ''}</b>`, 'gift');
   flashMenu(item.id);
@@ -1976,13 +2298,14 @@ function setDemo(on) {
 }
 function demoName() { let n = pick(DEMO_NAMES); if (Math.random() < 0.45) n += ' ' + randi(1, 99); return n; }
 function demoJoin() { const n = demoName(); handle('join', { uid: 'demo:' + n, name: n }); }
+const DEMO_SONGS = ['Nối vòng tay lớn', 'Diễm xưa', 'Hai mùa Noel', 'Mưa trên phố Huế', 'Bèo dạt mây trôi', 'Một đời người một rừng cây', 'Ly cà phê ban mê', 'Đêm lao xao', 'Hà Nội mùa thu', 'Tình anh em'];
 function demoChat(g, live) {
   const others = live.filter(x => x !== g); const o = others.length ? pick(others) : null; const r = Math.random();
   if (o && r < 0.07) return `ghép ${o.name}`;
   if (o && r < 0.1) return `mời ${o.name} qua bàn mình`;
   if (o && r < 0.14) return `cụng ly với ${o.name}`;
   if (r < 0.17) return 'bàn riêng';
-  if (r < 0.2) return pick(['hát', 'cho em lên hát karaoke', 'hát đi']);
+  if (r < 0.2) { if (Math.random() < 0.6) { setTimeout(() => !g.leaving && handle('gift', { uid: g.uid, name: g.name, gift: pick(['Rose', 'Finger Heart', 'Doughnut']), diamonds: pick([1, 5, 30]), count: 1 }), 2500); return 'hát ' + pick(DEMO_SONGS); } return pick(['hát', 'cho em lên hát karaoke']); }
   if (r < 0.24) return 'oẳn tù tì ' + pick(['búa', 'bao', 'kéo', '']);
   if (r < 0.27) return pick(['lắc xí ngầu', 'xí ngầu nè']);
   if (r < 0.3) return pick(['cho ly trà đá', 'thêm đá Cậu Cả ơi']);
@@ -2200,6 +2523,23 @@ function toggleSound() {
 }
 updateSoundBtn();
 $('#bDzo').onclick = () => { Snd.resume(); runEvent('dzo'); };
+$('#bKara').onclick = () => { Snd.resume(); openSettings(); setTimeout(() => $('#karaSec').scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); };
+// karaoke & mic
+Object.assign(opts, Object.assign({ kMin: 1, kPrio: 30, kMax: 5, kSuffix: true, ytKey: '', ytVol: 100, micMon: false, micVol: 100 }, opts));
+for (const [id, key] of [['ytKey', 'ytKey'], ['kMin', 'kMin'], ['kPrio', 'kPrio'], ['kMax', 'kMax'], ['ytVol', 'ytVol'], ['micVol', 'micVol']]) {
+  const el = $('#' + id); el.value = opts[key];
+  el.addEventListener('change', () => { opts[key] = el.type === 'text' ? el.value.trim() : Number(el.value); saveOpts(); if (key === 'ytVol') YTK.setVolume(opts.ytVol); if (key === 'micVol') Mic.apply(); if (key === 'ytKey') karaoke.queue.forEach(it => { if (it.kind === 'song' && !it.link && it.vstatus !== 'ok') resolveVideo(it); }); refreshKQ(); });
+  if (el.type === 'range') el.addEventListener('input', () => { opts[key] = Number(el.value); if (key === 'ytVol') YTK.setVolume(opts.ytVol); else Mic.apply(); });
+}
+bindToggle('optKSuffix', 'kSuffix');
+bindToggle('optMicMon', 'micMon', () => Mic.apply());
+$('#micBtn').onclick = async () => {
+  if (Mic.on) { Mic.stop(); $('#micBtn').textContent = '🎙️ Bật mic chấm điểm'; $('#micLevel').style.width = '0'; return; }
+  try { await Mic.start(); $('#micBtn').textContent = '🔇 Tắt mic'; feed('🎙️ Đã bật mic – chấm điểm karaoke theo giọng hát', 'sys'); }
+  catch (e) { feed('⚠️ Không mở được mic: ' + esc(e.message || e), 'sys'); }
+};
+if (location.protocol === 'file:') $('#fileWarn').classList.remove('hidden');
+refreshKQ();
 $('#bLucky').onclick = () => { Snd.resume(); runEvent('lucky'); };
 $('#bFire').onclick = () => { Snd.resume(); runEvent('fire'); };
 $('#bSound').onclick = () => { Snd.resume(); toggleSound(); };
@@ -2236,7 +2576,7 @@ canvas.addEventListener('pointerup', e => {
    VÒNG LẶP
    ===================================================================== */
 const clock = new THREE.Clock(); let T = 0, hudAcc = 0, ledAcc = 0, slowAcc = 0, perfAcc = 0, perfN = 0, perfT = 0, tipAcc = 0, idleAcc = 0;
-const TIPS = ['💡 Comment <b>"bàn 7"</b> để chọn bàn', '💡 Comment <b>"bàn riêng"</b> để giữ một bàn cho hội bạn', '💡 Comment <b>"ghép Tên"</b> để ngồi chung bàn với bạn', '💡 Comment <b>"mời Tên"</b> để rủ bạn qua bàn mình', '💡 Comment <b>"tên bàn Hội Bia"</b> để đặt tên bàn', '💡 Comment <b>"hát"</b> để lên hát karaoke 🎤', '💡 Comment <b>"oẳn tù tì búa"</b> để thách Cậu Cả', '💡 Comment <b>"xí ngầu"</b> – ra 6 cả bàn uống!', '💡 Comment <b>"cụng ly với Tên"</b> để mời bạn 1 ly', '💡 Say quá? Comment <b>"trà đá"</b> cho tỉnh 😅', '💡 Thả ❤️ để đẩy thanh <b>Không khí</b> lên 100%', '💡 Tặng quà để nhân viên <b>bưng món</b> ra bàn bạn'];
+const TIPS = ['💡 Comment <b>"bàn 7"</b> để chọn bàn', '💡 Comment <b>"bàn riêng"</b> để giữ một bàn cho hội bạn', '💡 Comment <b>"ghép Tên"</b> để ngồi chung bàn với bạn', '💡 Comment <b>"mời Tên"</b> để rủ bạn qua bàn mình', '💡 Comment <b>"tên bàn Hội Bia"</b> để đặt tên bàn', '💡 Comment <b>"hát + tên bài"</b> rồi tặng quà để đăng ký karaoke 🎤', '💡 Tặng quà từ 30 xu để <b>chen hàng</b> karaoke ⏫', '💡 Comment <b>"xin lên mic"</b> để hát cho cả phòng nghe 🎙️', '💡 Comment <b>"oẳn tù tì búa"</b> để thách Cậu Cả', '💡 Comment <b>"xí ngầu"</b> – ra 6 cả bàn uống!', '💡 Comment <b>"cụng ly với Tên"</b> để mời bạn 1 ly', '💡 Say quá? Comment <b>"trà đá"</b> cho tỉnh 😅', '💡 Thả ❤️ để đẩy thanh <b>Không khí</b> lên 100%', '💡 Tặng quà để nhân viên <b>bưng món</b> ra bàn bạn'];
 const OWNER_IDLE = ['Anh em cứ tự nhiên nha!', 'Bia lạnh đây, dzô!', 'Comment "bàn riêng" để giữ bàn nè!', 'Muốn ngồi với bạn thì comment "ghép" tên bạn!', 'Comment "hát" lên hát karaoke đi!', 'Oẳn tù tì với Cậu Cả không?', 'Thả tim cho quán đông vui nào!', 'Không say không về!', 'Tặng quà là có món ngay!'];
 function drawLED(t) {
   const g = ledCtx, W = 320, H = 160;
@@ -2250,17 +2590,18 @@ function drawLED(t) {
   }
   g.textAlign = 'center'; g.shadowColor = '#ff2d7a'; g.shadowBlur = 12;
   const k = karaoke;
-  if (k.singer && k.singer.singing) {
-    g.font = `800 17px ${FONT}`; g.fillStyle = '#80d8ff'; g.fillText('🎤 ' + trunc(k.singer.name, 20), W / 2, 24);
+  if (k.cur && k.cur.singing) {
+    g.font = `800 17px ${FONT}`; g.fillStyle = '#80d8ff'; g.fillText('🎤 ' + trunc(singerName(k.cur), 20) + (k.cur.g && k.cur.g.onMic ? ' 🎙️' : ''), W / 2, 24);
+    if (Mic.on) { g.fillStyle = '#2a2a3a'; g.fillRect(40, 116, W - 80, 8); g.fillStyle = '#69f0ae'; g.fillRect(40, 116, (W - 80) * Math.min(1, Mic.level * 4), 8); }
     g.font = `900 22px ${FONT}`;
     const lines = wrapLines(g, k.line || '♪ ♪ ♪', W - 30, 2);
     g.fillStyle = '#ffffff'; lines.forEach((l, i) => g.fillText(l, W / 2, 60 + i * 28));
-    const prog = clamp(1 - k.lyricT / 3.2, 0, 1);
+    const prog = k.cur.mode === 'yt' ? (k.cur.el % 4) / 4 : clamp(1 - k.lyricT / 3.2, 0, 1);
     g.save(); g.beginPath(); g.rect(15, 40, (W - 30) * prog, 64); g.clip(); g.fillStyle = '#ffd54f'; lines.forEach((l, i) => g.fillText(l, W / 2, 60 + i * 28)); g.restore();
   } else {
     g.font = `900 28px ${FONT}`; g.fillStyle = '#ffd54f'; g.fillText(partyOn ? 'QUẨY LÊN!!!' : 'KARAOKE CẬU CẢ', W / 2, 36);
     g.font = `700 15px ${FONT}`; g.fillStyle = '#ffffff';
-    g.fillText(k.queue.length ? trunc('Chờ hát: ' + k.queue.map(x => trunc(x.name, 10)).join(', '), 40) : 'Comment "hát" để lên hát 🎤', W / 2, 64);
+    g.fillText(k.queue.length ? trunc('Chờ hát: ' + k.queue.map(x => trunc(singerName(x), 10)).join(', '), 40) : 'Comment "hát + tên bài" rồi tặng quà 🎤', W / 2, 64);
     g.textAlign = 'left'; g.font = `800 18px ${FONT}`; g.fillStyle = '#ffe9a6';
     const tw = g.measureText(ledMsg).width; const x = W - ((t * 60) % (tw + W)); g.fillText(ledMsg, x, 96);
   }
@@ -2272,6 +2613,7 @@ function loop() {
   demoTick(dt);
   for (let i = actors.length - 1; i >= 0; i--) actors[i].update(dt, T);
   serveOrders(); updateKaraoke(dt); updateTraffic(dt, T); notes.update(dt);
+  Mic.update();
   hearts.update(dt); smoke.update(dt); updateFireworks(dt); updateDraw(dt);
   for (let i = dishPops.length - 1; i >= 0; i--) {
     const p = dishPops[i]; p.t += dt; const k = Math.min(1, p.t / 0.35); const s = p.m.userData.base * (1 + Math.sin(k * Math.PI) * 0.35) * k;
@@ -2319,7 +2661,7 @@ addEventListener('resize', fitCamera);
 fitCamera();
 drawLED(0);
 window.__gameReady = true;
-window.__cc = { renderer, guests, handle, runEvent, tables, camera, THREE, karaoke, traffic };
+window.__cc = { renderer, guests, handle, runEvent, tables, camera, THREE, karaoke, traffic, Mic, YTK };
 document.getElementById('loadErr').style.display = 'none';
 loop();
 
