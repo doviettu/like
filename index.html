@@ -78,6 +78,11 @@ body.party .vibeBar i{animation:hue 1s linear infinite}
 .fi.sys{background:rgba(40,60,120,.7)}
 .fi.join{color:#e6e6e6}
 .fi.fade{opacity:0}
+.fi .tb{display:inline-block;background:#ffd65a;color:#4a1d00;border-radius:6px;padding:0 5px;margin-right:5px;font-size:10.5px;font-weight:900;text-shadow:none}
+.chatlog{background:rgba(0,0,0,.32);border-radius:12px;padding:6px 10px;max-height:150px;overflow:auto}
+.cl{font-size:13px;margin:3px 0;color:#f3e6d8;line-height:1.35;word-break:break-word}
+.cl b{color:#ffd36b}
+.cl.mut{opacity:.6}
 @keyframes fin{from{transform:translateX(-12px);opacity:0}}
 
 #quick{position:absolute;right:calc(8px + var(--sar));bottom:calc(12px + var(--sab));display:flex;flex-direction:column;gap:8px}
@@ -189,7 +194,7 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:0 5px;font-size:1
   <div id="menuPanel" class="pe">
     <div class="menuHead" id="menuHead"><div>🎁 QUÀ → GỌI MÓN<small>Tặng x2 = món lớn</small></div><span class="chev">▾</span></div>
     <div id="menuList"></div>
-    <div class="hint">💬 Comment là <b>vào quán</b> · <b>"bàn 7"</b> đổi bàn · <b>"dzô"</b> cụng ly · <b>"nhảy"</b> quẩy · ❤ thả tim đẩy không khí</div>
+    <div class="hint">💬 Comment là <b>vào quán</b> · <b>"bàn 7"</b> chọn bàn · <b>"bàn riêng"</b> · <b>"ghép Tên"</b> ngồi với bạn · <b>"dzô"</b> · <b>"hát"</b> · <b>"oẳn tù tì"</b> · ❤ đẩy không khí</div>
   </div>
 
   <div id="banner"></div>
@@ -225,13 +230,26 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:0 5px;font-size:1
 
   <h4>🧪 Thử sự kiện bằng tay</h4>
   <div class="row"><input type="text" id="simName" placeholder="Tên người xem" value="Khách Thử"></div>
-  <div class="row"><input type="text" id="simText" placeholder="Nội dung comment (vd: bàn 5, dzô, nhảy)" value="dzô anh em!"></div>
+  <div class="row"><input type="text" id="simText" placeholder="Nội dung comment (vd: bàn 5, bàn riêng, ghép Tuấn, hát)" value="dzô anh em!"></div>
   <div class="btns">
     <button class="btn" data-sim="join">👋 Vào quán</button>
     <button class="btn" data-sim="chat">💬 Comment</button>
     <button class="btn" data-sim="like">❤ Thả 10 tim</button>
     <button class="btn" data-sim="follow">⭐ Theo dõi</button>
     <button class="btn" data-sim="share">📣 Chia sẻ</button>
+  </div>
+  <p style="margin-top:8px">Thử nhanh lệnh comment:</p>
+  <div class="btns">
+    <button class="btn" data-cmd="bàn riêng">🔒 bàn riêng</button>
+    <button class="btn" data-cmd="ghép *">🤝 ghép bạn</button>
+    <button class="btn" data-cmd="mời *">🙋 mời bạn</button>
+    <button class="btn" data-cmd="tên bàn Hội Bia Hơi">🏷️ tên bàn</button>
+    <button class="btn" data-cmd="hát">🎤 hát</button>
+    <button class="btn" data-cmd="oẳn tù tì búa">✊ oẳn tù tì</button>
+    <button class="btn" data-cmd="xí ngầu">🎲 xí ngầu</button>
+    <button class="btn" data-cmd="cụng ly với *">🍻 cụng với bạn</button>
+    <button class="btn" data-cmd="trà đá">🧊 trà đá</button>
+    <button class="btn" data-cmd="đổi bàn">🔄 đổi bàn</button>
   </div>
   <div class="row"><select id="simGift"></select><select id="simCount" style="flex:none;width:72px"><option value="1">x1</option><option value="2">x2</option><option value="5">x5</option><option value="10">x10</option></select><button class="btn pri" data-sim="gift">🎁 Tặng</button></div>
 
@@ -255,13 +273,17 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:0 5px;font-size:1
 
   <h4>📖 Luật chơi cho người xem</h4>
   <ul>
-    <li>Comment bất kỳ / vào phòng → nhân vật của bạn <b>vào quán</b> ngồi.</li>
-    <li>Comment <b>"bàn 7"</b> → chuyển sang bàn số 7 (ngồi gần bạn bè).</li>
-    <li>Comment <b>"dzô"</b>, <b>"100%"</b> → cả bàn <b>cụng ly</b>.</li>
-    <li>Comment <b>"nhảy"</b> → quẩy tại chỗ · <b>"về nha"</b> → ra về.</li>
-    <li>Thả tim → đẩy thanh <b>Không khí</b>. Đủ 100% là cả quán <b>QUẨY</b>. Mỗi 300 tim cả quán cùng dzô.</li>
-    <li>Tặng quà → nhân viên <b>bưng món</b> ra bàn bạn. Tặng x2 trở lên là món lớn. Quà 500 xu trở lên → <b>pháo hoa</b>.</li>
-    <li>Điểm = xu quà + tim + comment. Top 3 đội vương miện 👑🥈🥉.</li>
+    <li>Comment bất kỳ / vào phòng → nhân vật của bạn <b>vào quán</b>, kéo ghế ngồi. Lời comment hiện thành <b>bong bóng chat</b> trên đầu bạn.</li>
+    <li><b>"bàn 7"</b> → qua ngồi bàn số 7 · <b>"đổi bàn"</b> → qua bàn khác.</li>
+    <li><b>"bàn riêng"</b> → giữ một bàn trống cho hội bạn (người lạ không tự ngồi vào được).</li>
+    <li><b>"ghép Tên"</b> / <b>"ngồi với Tên"</b> → ngồi chung bàn với bạn. Bàn đầy thì cả hai dời qua bàn rộng hơn.</li>
+    <li><b>"mời Tên"</b> → rủ bạn qua bàn mình · <b>"tên bàn Hội Bia"</b> → đặt tên bàn.</li>
+    <li><b>"dzô"</b>, <b>"100%"</b> → cả bàn cụng ly · <b>"cụng ly với Tên"</b> → mời riêng 1 ly.</li>
+    <li><b>"hát"</b> → xếp hàng lên hát karaoke · <b>"nhảy"</b> → quẩy tại chỗ.</li>
+    <li><b>"oẳn tù tì búa/bao/kéo"</b> → thách Cậu Cả, thắng được mồi, thua uống phạt · <b>"xí ngầu"</b> → ra 6 cả bàn uống.</li>
+    <li>Uống nhiều sẽ <b>say 🥴</b> – comment <b>"trà đá"</b> cho tỉnh · <b>"về nha"</b> / <b>"tính tiền"</b> → ra về.</li>
+    <li>Thả tim → đẩy thanh <b>Không khí</b>; đủ 100% cả quán quẩy. Mỗi 300 tim cả quán dzô.</li>
+    <li>Tặng quà → nhân viên <b>bưng món</b> ra bàn bạn (x2 là món lớn). Quà 500 xu trở lên → <b>pháo hoa</b>.</li>
   </ul>
   <h4>⌨️ Phím tắt (máy tính)</h4>
   <p><kbd>D</kbd> dzô · <kbd>L</kbd> bốc thăm · <kbd>F</kbd> pháo hoa · <kbd>P</kbd> quẩy · <kbd>M</kbd> tắt/bật tiếng · <kbd>H</kbd> ẩn/hiện nút</p>
@@ -277,7 +299,9 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:0 5px;font-size:1
     <button class="btn pri" id="btnDemo">🍺 Vào quán chơi thử</button>
     <button class="btn" id="btnLive">📡 Mở quán cho Live TikTok</button>
     <ul class="guide">
-      <li>💬 <b>Comment</b> → vào quán · <b>"bàn 5"</b> đổi bàn · <b>"dzô"</b> cụng ly</li>
+      <li>💬 <b>Comment</b> → vào quán, lời chat hiện trên đầu nhân vật</li>
+      <li>🪑 <b>"bàn 5"</b> chọn bàn · <b>"bàn riêng"</b> giữ bàn · <b>"ghép Tên"</b> ngồi với bạn</li>
+      <li>🍻 <b>"dzô"</b> cụng ly · 🎤 <b>"hát"</b> karaoke · ✊ <b>"oẳn tù tì"</b> với Cậu Cả</li>
       <li>❤️ <b>Thả tim</b> → không khí lên 100% là cả quán quẩy</li>
       <li>🎁 <b>Tặng quà</b> → món ăn bưng ra tận bàn, quà to bắn pháo hoa</li>
       <li>👆 <b>Chạm</b> vào bàn/khách để gọi món, mời cụng ly</li>
@@ -326,15 +350,15 @@ const opts = Object.assign({ music: true, sfx: true, tts: false, nums: true, cle
 function saveOpts() { store.set(opts); }
 
 /* =====================================================================
-   BỐ CỤC QUÁN
+   BỐ CỤC QUÁN – hai dãy vỉa hè kê bàn, lòng đường ở giữa cho xe qua lại
    ===================================================================== */
-const COLS = [-4.4, -2.2, 0, 2.2, 4.4];
-const ROWS = [2, -1, -4, -7, -10, -13, -16];
-const SEAT_OFF = 0.6, STOOL_H = 0.3, HIP = 0.37;
-const LANE_L = -5.85, LANE_R = 5.85, FACADE_X = 7;
-const FRONT_Z = 12, BACK_Z = -27;
-const GAPS = ROWS.map(z => z + 1.5).concat([ROWS[ROWS.length - 1] - 1.5]);
-const gapNear = z => GAPS.reduce((b, g) => Math.abs(g - z) < Math.abs(b - z) ? g : b, GAPS[0]);
+const FACADE_X = 5.6, CURB_X = 1.7, TABLE_X = 3.6;
+const ROWS = [3.2, -0.3, -3.8, -7.3, -10.8, -14.3];
+const LANE_IN = 2.3, LANE_OUT = 4.95;           // lối đi sát lòng đường / sát nhà (nhân dấu theo bên)
+const TOP_DZ = 0.42, SIDE_OFF = 0.62, END_OFF = 1.2, GAP_DZ = 1.75;
+const SEATS_PER = 6, STOOL_H = 0.3, HIP = 0.37;
+const FRONT_Z = 12, BACK_Z = -30, DOOR_Z = -2.05;
+const KARAOKE = { x: -3.45, z: ROWS[ROWS.length - 1] };   // góc karaoke thế chỗ bàn cuối dãy trái
 
 /* =====================================================================
    THỰC ĐƠN: QUÀ → MÓN
@@ -394,9 +418,9 @@ function fitCamera() {
   camera.aspect = a;
   camera.fov = a < 0.8 ? 60 : a < 1.2 ? 54 : 45;
   camera.updateProjectionMatrix();
-  controls.target.set(0, 0.3, a < 0.8 ? -6.8 : -6.6);
+  controls.target.set(0, 0.3, a < 0.8 ? -7.2 : -6.0);
   const tv = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
-  const halfW = a < 0.8 ? 6.9 : 7.6;
+  const halfW = a < 0.8 ? 5.9 : 7.2;
   const halfV = a < 0.8 ? 8.5 : 8.9;
   const dist = clamp(Math.max(halfW / (tv * a), halfV / tv), 14, 42);
   camera.position.copy(controls.target).addScaledVector(CAM_DIR, dist);
@@ -519,6 +543,8 @@ function getMugGeo() {
   if (!mugGeo) mugGeo = merge([CY(0.05, 0.044, 0.13, '#f6a91c', [0, 0, 0]), CY(0.053, 0.053, 0.04, '#fffbe8', [0, 0.08, 0]), B(0.02, 0.07, 0.035, '#f1e7cf', 0.062, 0, 0)]);
   return mugGeo;
 }
+let micGeo = null;
+function getMicGeo() { if (!micGeo) micGeo = merge([CY(0.025, 0.02, 0.16, '#222', [0, 0, 0], null, 8), SP(0.045, '#bbb', [0, 0.1, 0], null, 8, 6)]); return micGeo; }
 function buildAvatar(L) {
   const hy = HIP + 0.40 + 0.22, hs = 0.22, P = [];
   const hc = L.hairCol;
@@ -561,13 +587,14 @@ function buildAvatar(L) {
   const armL = new THREE.Mesh(armG, vcMat), armR = new THREE.Mesh(armG, vcMat);
   armL.position.set(0.255, HIP + 0.38, 0); armR.position.set(-0.255, HIP + 0.38, 0);
   const mug = new THREE.Mesh(getMugGeo(), vcMat); mug.position.set(0, -0.37, 0.05); mug.visible = false; armR.add(mug);
+  const mic = new THREE.Mesh(getMicGeo(), vcMat); mic.position.set(0, -0.36, 0.07); mic.visible = false; armR.add(mic);
   // cặp tay/chân gộp sẵn: dùng khi đứng/ngồi yên để giảm số lệnh vẽ
   const legs2 = new THREE.Mesh(limb('legs2' + L.pants + L.shoe, () => mergeGeometries([legG.clone().translate(0.095, 0, 0), legG.clone().translate(-0.095, 0, 0)])), vcMat);
   legs2.position.set(0, HIP, 0);
   const arms2 = new THREE.Mesh(limb('arms2' + sleeve + L.skin, () => mergeGeometries([armG.clone().translate(0.255, 0, 0), armG.clone().translate(-0.255, 0, 0)])), vcMat);
   arms2.position.set(0, HIP + 0.38, 0);
   group.add(legL, legR, armL, armR, legs2, arms2);
-  return { group, body, legL, legR, armL, armR, mug, legs2, arms2 };
+  return { group, body, legL, legR, armL, armR, mug, mic, legs2, arms2 };
 }
 
 const pickables = [];
@@ -622,12 +649,14 @@ class Actor {
       aL = aR = -2.75 + s * 0.4; y += Math.abs(s) * 0.09; wig = Math.sin(t * 4.5 + this.phase) * 0.4;
     }
     if (this.dj) { const s = Math.sin(t * 8.2); aL = -1.25 + s * 0.15; aR = -1.1 - s * 0.15; y += Math.abs(s) * 0.05; if (partyOn) { aR = -2.9 + Math.sin(t * 9) * 0.3; } }
+    if (this.singing) { const s = Math.sin(t * 3 + this.phase); aR = -2.3 + s * 0.08; aL = -1.0 + Math.sin(t * 2.1) * 0.9; aLz = 0.3; y += Math.abs(Math.sin(t * 4)) * 0.03; wig = Math.sin(t * 1.5) * 0.25; }
     if (this.waveT > 0) { aR = 0; aRz = -2.5 + Math.sin(t * 14) * 0.35; this.waveT -= dt; }
     if (this.toastT > 0) {
       const el = this.toastDur - this.toastT; const k = Math.min(1, el / 0.2, this.toastT / 0.25);
       const clink = Math.max(0, Math.sin(clamp((el - 0.35) / 0.5, 0, 1) * Math.PI)) * 0.35;
       aR = -2.4 * k - clink * k; aRz = 0; this.toastT -= dt; a.mug.visible = true; a.mug.rotation.x = -aR;
     } else a.mug.visible = false;
+    a.mic.visible = !!this.singing && this.toastT <= 0; if (a.mic.visible) a.mic.rotation.x = -aR * 0.9;
     if (this.danceT > 0) this.danceT -= dt;
     const legsSame = Math.abs(lL - lR) < 1e-3, armsSame = Math.abs(aL - aR) < 0.2 && !aLz && !aRz && this.toastT <= 0;
     a.legs2.visible = legsSame; a.legL.visible = a.legR.visible = !legsSame;
@@ -635,6 +664,7 @@ class Actor {
     a.arms2.visible = armsSame; a.armL.visible = a.armR.visible = !armsSame;
     if (armsSame) a.arms2.rotation.x = (aL + aR) / 2; else { a.armL.rotation.set(aL, 0, aLz); a.armR.rotation.set(aR, 0, aRz); }
     g.position.y = y;
+    if (this.drunk && !walking) { wig += Math.sin(t * 1.8 + this.phase) * 0.25; g.rotation.z = Math.sin(t * 1.3 + this.phase) * 0.1; } else g.rotation.z = 0;
     let dr = this.rot + wig - g.rotation.y; dr = Math.atan2(Math.sin(dr), Math.cos(dr));
     g.rotation.y += dr * Math.min(1, dt * 10);
     if (this.bubble) { this.bubbleT -= dt; if (this.bubbleT <= 0) { disposeSprite(this.bubble); this.bubble = null; } }
@@ -648,27 +678,45 @@ class Actor {
 }
 
 /* =====================================================================
-   CẢNH: MẶT ĐƯỜNG, NHÀ PHỐ, QUÁN CẬU CẢ, SÂN KHẤU, ĐÈN
+   CẢNH: VỈA HÈ, LÒNG ĐƯỜNG, NHÀ PHỐ, QUÁN CẬU CẢ, CỘT ĐIỆN, ĐÈN
    ===================================================================== */
-const groundTex = canvasTex(256, 256, (g, w, h) => {
-  g.fillStyle = '#3b302d'; g.fillRect(0, 0, w, h);
+// nền tối dưới cùng
+const baseGround = new THREE.Mesh(new THREE.PlaneGeometry(60, 110), new THREE.MeshLambertMaterial({ color: 0x2a2224 }));
+baseGround.rotation.x = -Math.PI / 2; baseGround.position.set(0, -0.01, -22); scene.add(baseGround);
+// gạch vỉa hè đỏ có hoa văn
+const tileTex = canvasTex(256, 256, (g, w, h) => {
+  g.fillStyle = '#4a2f28'; g.fillRect(0, 0, w, h);
   const r = mulberry32(7);
   for (let i = 0; i < 4; i++) for (let j = 0; j < 4; j++) {
-    const v = 92 + r() * 26 | 0; g.fillStyle = `rgb(${v + 16},${v + 4},${v - 4})`;
+    const v = r(); g.fillStyle = `rgb(${150 + v * 30 | 0},${92 + v * 22 | 0},${70 + v * 16 | 0})`;
     g.fillRect(i * 64 + 2, j * 64 + 2, 60, 60);
-    for (let k = 0; k < 40; k++) { g.fillStyle = `rgba(0,0,0,${r() * 0.16})`; g.fillRect(i * 64 + 3 + r() * 56, j * 64 + 3 + r() * 56, 2, 2); }
-    g.fillStyle = 'rgba(255,255,255,.05)'; g.fillRect(i * 64 + 2, j * 64 + 2, 60, 3);
+    g.strokeStyle = 'rgba(90,45,30,.35)'; g.lineWidth = 2;
+    g.beginPath(); g.arc(i * 64 + 32, j * 64 + 32, 15, 0, 7); g.stroke();
+    g.beginPath(); g.moveTo(i * 64 + 32, j * 64 + 8); g.lineTo(i * 64 + 32, j * 64 + 56); g.moveTo(i * 64 + 8, j * 64 + 32); g.lineTo(i * 64 + 56, j * 64 + 32); g.stroke();
+    for (let k = 0; k < 35; k++) { g.fillStyle = `rgba(0,0,0,${r() * 0.18})`; g.fillRect(i * 64 + 3 + r() * 56, j * 64 + 3 + r() * 56, 2, 2); }
   }
 });
-groundTex.wrapS = groundTex.wrapT = THREE.RepeatWrapping; groundTex.repeat.set(16, 40);
-const ground = new THREE.Mesh(new THREE.PlaneGeometry(32, 80), new THREE.MeshLambertMaterial({ map: groundTex }));
-ground.rotation.x = -Math.PI / 2; ground.position.z = -18; scene.add(ground);
-// lề đường hai bên
-for (const sx of [-1, 1]) {
-  const curb = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.12, 80), new THREE.MeshLambertMaterial({ color: 0x8a7f78 }));
-  curb.position.set(sx * 6.35, 0.06, -18); scene.add(curb);
+const roadTex = canvasTex(128, 256, (g, w, h) => {
+  g.fillStyle = '#34312f'; g.fillRect(0, 0, w, h);
+  const r = mulberry32(11);
+  for (let k = 0; k < 900; k++) { const v = 40 + r() * 45 | 0; g.fillStyle = `rgba(${v},${v},${v},.5)`; g.fillRect(r() * w, r() * h, 2, 2); }
+  g.fillStyle = 'rgba(240,235,220,.85)'; g.fillRect(w / 2 - 2, 30, 4, 110);
+  g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(0, 0, 7, h); g.fillRect(w - 7, 0, 7, h);
+});
+function groundStrip(x0, x1, tex, tileU, tileV, y) {
+  const w = x1 - x0, L = 100; const t = tex.clone(); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(w / tileU, L / tileV); t.needsUpdate = true;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(w, L), new THREE.MeshLambertMaterial({ map: t }));
+  m.rotation.x = -Math.PI / 2; m.position.set((x0 + x1) / 2, y, -24); scene.add(m); return m;
 }
-
+groundStrip(-FACADE_X, -CURB_X, tileTex, 2, 2, 0.004);
+groundStrip(CURB_X, FACADE_X, tileTex, 2, 2, 0.004);
+groundStrip(-CURB_X, CURB_X, roadTex, 2 * CURB_X, 4, 0.002);
+for (const sx of [-1, 1]) {
+  const curb = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.12, 100), new THREE.MeshLambertMaterial({ color: 0x9a918a }));
+  curb.position.set(sx * CURB_X, 0.06, -24); scene.add(curb);
+}
+// vạch qua đường trước cửa quán
+{ const P = []; for (let x = -1.4; x <= 1.41; x += 0.47) P.push(B(0.28, 0.01, 1.3, '#e9e6dc', x, 0.008, DOOR_Z)); scene.add(new THREE.Mesh(merge(P), vcMat)); }
 const HIDDEN = new THREE.MeshBasicMaterial({ visible: false });
 const WALLS = ['#c9a36b', '#9fb3a8', '#c48b7a', '#d8c9a0', '#8e9bb5', '#b5876a', '#d2b48c', '#a3c4a8', '#e0b0a0', '#b0a0c8'];
 function facadeTextures(w, h, seed, shop) {
@@ -813,55 +861,54 @@ addVerticalSign(-1, -4.6, 5.1, 'BIA HƠI', '#ffffff', '#1b5e20', 2.2);
   P.push(B(0.04, 0.9, 0.04, '#ddd', 0.28, 1.3, -1.08), B(0.04, 0.9, 0.04, '#ddd', 0.28, 1.3, 1.08), B(0.04, 0.04, 2.2, '#ddd', 0.28, 1.74, 0));
   for (let k = 0; k < 5; k++) { const zz = -0.85 + k * 0.42; P.push(SP(0.13, '#9c3d12', [0.12, 1.32, zz], [1, 1.45, 0.9]), B(0.02, 0.2, 0.02, '#888', 0.12, 1.62, zz)); }
   P.push(B(0.6, 0.25, 2.2, '#ffd54f', 0, 1.88, 0));
-  const cab = new THREE.Mesh(merge(P), vcMat); cab.position.set(-6.65, 0, -2.4); scene.add(cab);
+  const cab = new THREE.Mesh(merge(P), vcMat); cab.position.set(-FACADE_X + 0.32, 0, 0.6); scene.add(cab);
   const grill = new THREE.Mesh(merge([B(0.55, 0.7, 1.1, '#3a3a3a', 0, 0.35, 0), B(0.5, 0.06, 1.0, '#ff5a1f', 0, 0.72, 0),
   ...[0, 1, 2, 3, 4].map(k => B(0.5, 0.03, 0.04, '#d8b07a', 0.02, 0.77, -0.4 + k * 0.2))]), vcMat);
-  grill.position.set(-6.6, 0, -6.4); scene.add(grill);
-  const coal = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.02, 0.98), new THREE.MeshBasicMaterial({ color: 0xff6a1a })); coal.position.set(-6.6, 0.735, -6.4); scene.add(coal);
+  grill.position.set(-FACADE_X + 0.3, 0, -4.6); scene.add(grill);
+  const coal = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.02, 0.98), new THREE.MeshBasicMaterial({ color: 0xff6a1a })); coal.position.set(-FACADE_X + 0.3, 0.735, -4.6); scene.add(coal);
   const crates = [];
   for (let k = 0; k < 5; k++) { const c = ['#c62828', '#2e7d32', '#f9a825'][k % 3]; crates.push(B(0.42, 0.3, 0.6, c, (k % 2) * 0.05, 0.15 + k * 0.31, k % 2 ? 0.03 : 0)); }
   for (let k = 0; k < 3; k++) crates.push(B(0.42, 0.3, 0.6, ['#2e7d32', '#c62828', '#1565c0'][k], 0, 0.15 + k * 0.31, 0.68));
-  const cr = new THREE.Mesh(merge(crates), vcMat); cr.position.set(-6.65, 0, 2.6); scene.add(cr);
+  const cr = new THREE.Mesh(merge(crates), vcMat); cr.position.set(-FACADE_X + 0.25, 0, 3.9); scene.add(cr);
   const keg = new THREE.Mesh(merge([CY(0.28, 0.28, 0.75, '#b0bec5', [0, 0.375, 0]), CY(0.29, 0.29, 0.05, '#78909c', [0, 0.15, 0]), CY(0.29, 0.29, 0.05, '#78909c', [0, 0.6, 0]), CY(0.03, 0.03, 0.15, '#333', [0, 0.82, 0]),
   CY(0.28, 0.28, 0.75, '#b0bec5', [0, 0.375, 0.62]), CY(0.29, 0.29, 0.05, '#78909c', [0, 0.15, 0.62]), CY(0.29, 0.29, 0.05, '#78909c', [0, 0.6, 0.62])]), vcMat);
-  keg.position.set(-6.65, 0, -8.1); scene.add(keg);
+  keg.position.set(-FACADE_X + 0.3, 0, -7.7); scene.add(keg);
   const cool = new THREE.Mesh(merge([B(0.5, 0.5, 0.8, '#1e88e5', 0, 0.25, 0), B(0.52, 0.06, 0.82, '#e3f2fd', 0, 0.52, 0)]), vcMat);
-  cool.position.set(-6.65, 0, 0.9); scene.add(cool);
+  cool.position.set(-FACADE_X + 0.28, 0, 2.45); scene.add(cool);
 }
 
-/* ---------- Sân khấu DJ cuối phố ---------- */
-const STAGE_Z = -20.9;
-let ledCanvas, ledCtx, ledTex, ledMsg = 'QUÁN NHẬU VỈA HÈ CẬU CẢ  •  DZÔ ANH EM ƠI!  •  KHÔNG SAY KHÔNG VỀ  •  ';
+/* ---------- Góc karaoke vỉa hè (loa kẹo kéo + TV) & băng rôn ---------- */
+const STAGE_Z = KARAOKE.z;
+let ledCanvas, ledCtx, ledTex, ledMsg = 'QUÁN NHẬU VỈA HÈ CẬU CẢ  •  DZÔ ANH EM ƠI!  •  COMMENT "HÁT" ĐỂ LÊN HÁT KARAOKE  •  ';
 const stageStrip = new THREE.MeshBasicMaterial({ color: 0xff2d7a });
-{
-  const plat = new THREE.Mesh(merge([B(6.6, 0.5, 3.2, '#2a2533', 0, 0.25, 0), B(6.8, 0.06, 3.4, '#4a4458', 0, 0.52, 0)]), vcMat);
-  plat.position.set(0, 0, STAGE_Z); scene.add(plat);
-  const strip = new THREE.Mesh(new THREE.BoxGeometry(6.8, 0.07, 0.04), stageStrip); strip.position.set(0, 0.42, STAGE_Z + 1.62); scene.add(strip);
-  const spk = () => merge([B(0.75, 1.5, 0.6, '#1b1b1f', 0, 0.75, 0), CY(0.25, 0.25, 0.04, '#3a3a44', [0, 0.95, 0.31], [Math.PI / 2, 0, 0], 16), CY(0.12, 0.12, 0.05, '#555', [0, 0.95, 0.32], [Math.PI / 2, 0, 0], 12), CY(0.13, 0.13, 0.04, '#3a3a44', [0, 0.35, 0.31], [Math.PI / 2, 0, 0], 12)]);
-  for (const sx of [-2.75, 2.75]) { const s = new THREE.Mesh(spk(), vcMat); s.position.set(sx, 0.5, STAGE_Z - 0.4); scene.add(s); }
-  const booth = new THREE.Mesh(merge([B(1.8, 0.95, 0.6, '#151518', 0, 0.475, 0), B(1.82, 0.05, 0.62, '#888', 0, 0.97, 0), B(0.5, 0.03, 0.35, '#222', -0.5, 1.01, 0), B(0.5, 0.03, 0.35, '#222', 0.5, 1.01, 0), CY(0.12, 0.12, 0.02, '#ccc', [-0.5, 1.03, 0], null, 14), CY(0.12, 0.12, 0.02, '#ccc', [0.5, 1.03, 0], null, 14), B(0.3, 0.2, 0.02, '#90caf9', 0, 1.1, -0.1, [-0.4, 0, 0])]), vcMat);
-  booth.position.set(0, 0.5, STAGE_Z + 0.55); scene.add(booth);
-  const boothLogo = new THREE.Mesh(new THREE.PlaneGeometry(1.6, 0.6), new THREE.MeshBasicMaterial({ map: signTexture([{ t: 'DJ CẬU BA', size: 50, color: '#ff4fd8', y: 46 }], { w: 320, h: 100, bg: '#0d0820' }) }));
-  boothLogo.position.set(0, 0.98, STAGE_Z + 0.86); scene.add(boothLogo);
-  ledCanvas = document.createElement('canvas'); ledCanvas.width = 320; ledCanvas.height = 160; ledCtx = ledCanvas.getContext('2d');
-  ledTex = new THREE.CanvasTexture(ledCanvas); ledTex.colorSpace = THREE.SRGBColorSpace;
-  const led = new THREE.Mesh(new THREE.PlaneGeometry(5.4, 2.7), new THREE.MeshBasicMaterial({ map: ledTex }));
-  led.position.set(0, 2.25, STAGE_Z - 1.45); scene.add(led);
-  const frame = new THREE.Mesh(new THREE.BoxGeometry(5.7, 3.0, 0.15), new THREE.MeshLambertMaterial({ color: 0x111111 })); frame.position.set(0, 2.25, STAGE_Z - 1.55); scene.add(frame);
-  // băng rôn ngang phố
-  const banTex = signTexture([{ t: 'QUÁN NHẬU VỈA HÈ CẬU CẢ', size: 92, color: '#ffe14d', glow: '#ff6d00', y: 80 }, { t: 'Dzô cho tới bến  •  Không say không về', size: 40, color: '#ffffff', glow: '#000', blur: 4, y: 142 }], { w: 1300, h: 180, bg: '#c62828', border: '#ffd54f', bw: 8, r: 6 });
-  const ban = new THREE.Mesh(new THREE.PlaneGeometry(12, 1.66), new THREE.MeshBasicMaterial({ map: banTex, side: THREE.DoubleSide }));
-  ban.position.set(0, 5.1, STAGE_Z - 1.9); scene.add(ban);
-  for (const sx of [-6.3, 6.3]) { const pole = new THREE.Mesh(CY(0.07, 0.09, 6.2, '#a0784a', [0, 3.1, 0], null, 8), vcMat); pole.position.set(sx, 0, STAGE_Z - 1.9); scene.add(pole); }
-}
-// đèn sân khấu (chỉ bật khi quẩy)
 const beams = [];
 {
-  const bg = new THREE.ConeGeometry(1.4, 11, 20, 1, true); bg.translate(0, -5.5, 0); bg.rotateX(-Math.PI / 2 + 0.0);
-  [0xff2d7a, 0x00e5ff, 0xffea00, 0x7c4dff].forEach((c, i) => {
-    const m = new THREE.Mesh(bg, new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: 0.16, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }));
-    m.position.set(-3 + i * 2, 4.2, STAGE_Z - 1.2); m.visible = false; scene.add(m); beams.push(m);
-  });
+  const loa = new THREE.Mesh(merge([B(0.8, 1.5, 0.55, '#1b1b22', 0, 0.85, 0), B(0.82, 0.08, 0.57, '#333', 0, 1.62, 0),
+  B(0.06, 0.5, 0.06, '#888', -0.3, 1.9, -0.2), B(0.06, 0.5, 0.06, '#888', 0.3, 1.9, -0.2), B(0.66, 0.06, 0.06, '#888', 0, 2.15, -0.2),
+  CY(0.27, 0.27, 0.04, '#3a3a44', [0, 0.65, 0.28], [Math.PI / 2, 0, 0], 16), CY(0.1, 0.1, 0.05, '#666', [0, 0.65, 0.29], [Math.PI / 2, 0, 0], 12),
+  CY(0.12, 0.12, 0.04, '#3a3a44', [0, 1.27, 0.28], [Math.PI / 2, 0, 0], 12),
+  TO(0.08, 0.035, '#111', [-0.3, 0.08, 0.2], [0, Math.PI / 2, 0]), TO(0.08, 0.035, '#111', [0.3, 0.08, 0.2], [0, Math.PI / 2, 0])]), vcMat);
+  loa.position.set(KARAOKE.x - 1.3, 0, KARAOKE.z - 0.2); loa.rotation.y = 0.4; scene.add(loa);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.29, 0.025, 6, 24), stageStrip); ring.position.set(0, 0.65, 0.3); loa.add(ring);
+  const mic = new THREE.Mesh(merge([CY(0.15, 0.18, 0.03, '#222', [0, 0.015, 0], null, 10), CY(0.015, 0.015, 1.3, '#999', [0, 0.65, 0], null, 6), CY(0.03, 0.02, 0.12, '#111', [0, 1.33, 0.04], [0.5, 0, 0], 8), SP(0.04, '#aaa', [0, 1.4, 0.07])]), vcMat);
+  mic.position.set(KARAOKE.x + 0.75, 0, KARAOKE.z + 0.15); scene.add(mic);
+  const rug = new THREE.Mesh(merge([B(1.5, 0.01, 1.3, '#8e1b3a', 0, 0.007, 0), B(1.3, 0.012, 1.1, '#b5294e', 0, 0.008, 0)]), vcMat);
+  rug.position.set(KARAOKE.x, 0, KARAOKE.z); scene.add(rug);
+  ledCanvas = document.createElement('canvas'); ledCanvas.width = 320; ledCanvas.height = 160; ledCtx = ledCanvas.getContext('2d');
+  ledTex = new THREE.CanvasTexture(ledCanvas); ledTex.colorSpace = THREE.SRGBColorSpace;
+  const tv = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 0.95), new THREE.MeshBasicMaterial({ map: ledTex }));
+  tv.position.set(KARAOKE.x, 2.15, KARAOKE.z - 1.0); scene.add(tv);
+  const tvFrame = new THREE.Mesh(merge([B(2.04, 1.1, 0.1, '#111', 0, 2.15, -0.07), B(0.08, 1.55, 0.08, '#444', 0, 0.78, -0.1), B(0.8, 0.05, 0.4, '#444', 0, 0.025, -0.1)]), vcMat);
+  tvFrame.position.set(KARAOKE.x, 0, KARAOKE.z - 1.0); scene.add(tvFrame);
+  // bảng menu phấn trước quán
+  const boardTex = signTexture([{ t: 'MỒI NHẬU', size: 34, color: '#ffffff', y: 34, blur: 2 }, { t: 'Bia hơi 10K', size: 26, color: '#ffe082', y: 74, blur: 2 }, { t: 'Lạc • Mực • Ốc', size: 24, color: '#b2ff59', y: 108, blur: 2 }, { t: 'Lẩu • Nướng', size: 24, color: '#ff8a80', y: 140, blur: 2 }], { w: 180, h: 170, bg: '#20302a', border: '#8d6e63', bw: 10, r: 6 });
+  const board = new THREE.Mesh(new THREE.PlaneGeometry(0.75, 0.7), new THREE.MeshBasicMaterial({ map: boardTex }));
+  board.position.set(-FACADE_X + 0.8, 0.75, 5.2); board.rotation.set(-0.15, 0.35, 0); scene.add(board);
+  // băng rôn ngang phố
+  const banTex = signTexture([{ t: 'QUÁN NHẬU VỈA HÈ CẬU CẢ', size: 92, color: '#ffe14d', glow: '#ff6d00', y: 80 }, { t: 'Dzô cho tới bến  •  Không say không về', size: 40, color: '#ffffff', glow: '#000', blur: 4, y: 142 }], { w: 1300, h: 180, bg: '#c62828', border: '#ffd54f', bw: 8, r: 6 });
+  const ban = new THREE.Mesh(new THREE.PlaneGeometry(12.6, 1.66), new THREE.MeshBasicMaterial({ map: banTex, side: THREE.DoubleSide }));
+  ban.position.set(0, 5.5, -20.4); ban.scale.x = (2 * FACADE_X - 0.7) / 12.6; scene.add(ban);
+  for (const sx of [-FACADE_X + 0.35, FACADE_X - 0.35]) { const pole = new THREE.Mesh(CY(0.07, 0.09, 6.6, '#a0784a', [0, 3.3, 0], null, 8), vcMat); pole.position.set(sx, 0, -20.4); scene.add(pole); }
 }
 
 /* ---------- Đèn ---------- */
@@ -869,12 +916,12 @@ scene.add(new THREE.HemisphereLight(0xffd2a8, 0x2a1830, 1.9));
 const moon = new THREE.DirectionalLight(0xa8b4ff, 0.9); moon.position.set(6, 14, 8); scene.add(moon);
 const warm1 = new THREE.PointLight(0xffb066, 40, 16, 1.6); warm1.position.set(0, 4.5, -0.5); scene.add(warm1);
 const warm2 = new THREE.PointLight(0xffb066, 40, 16, 1.6); warm2.position.set(0, 4.5, -10); scene.add(warm2);
-const shopLight = new THREE.PointLight(0xff9a3c, 30, 10, 1.6); shopLight.position.set(-5.6, 2.6, -2.5); scene.add(shopLight);
-const stageLight = new THREE.PointLight(0xff3d9a, 35, 13, 1.6); stageLight.position.set(0, 3.5, STAGE_Z + 2.5); scene.add(stageLight);
+const shopLight = new THREE.PointLight(0xff9a3c, 30, 10, 1.6); shopLight.position.set(-4.3, 2.6, -2.5); scene.add(shopLight);
+const stageLight = new THREE.PointLight(0xff3d9a, 35, 13, 1.6); stageLight.position.set(KARAOKE.x + 0.5, 3.0, KARAOKE.z + 1.6); scene.add(stageLight);
 // dây đèn bóng tròn giăng ngang phố
 {
   const bulbs = []; const wires = [];
-  const crossZ = [-2.5, -8, -13.5, -18.5];
+  const crossZ = [1.45, -5.55, -12.55];
   for (const z of crossZ) {
     const n = 22;
     for (let i = 0; i <= n; i++) {
@@ -894,75 +941,114 @@ const stageLight = new THREE.PointLight(0xff3d9a, 35, 13, 1.6); stageLight.posit
 {
   const lg = merge([SP(0.2, '#e53935', [0, 0, 0], [1, 1.25, 1], 10, 8), CY(0.12, 0.12, 0.05, '#ffcc33', [0, 0.25, 0]), CY(0.12, 0.12, 0.05, '#ffcc33', [0, -0.25, 0]), B(0.03, 0.22, 0.03, '#ffcc33', 0, -0.38, 0), B(0.01, 0.3, 0.01, '#333', 0, 0.42, 0)]);
   const lm = new THREE.MeshLambertMaterial({ vertexColors: true, emissive: 0x8a1a10 });
-  for (let z = 3.6; z > -9; z -= 1.8) { const l = new THREE.Mesh(lg, lm); l.position.set(-5.95, 2.2, z); scene.add(l); }
+  for (let z = 3.6; z > -9; z -= 1.8) { const l = new THREE.Mesh(lg, lm); l.position.set(-FACADE_X + 1.05, 2.2, z); scene.add(l); }
 }
-// cột đèn đường
-for (const z of [-4.5, -15]) {
-  const p = new THREE.Mesh(merge([CY(0.07, 0.1, 5.4, '#555b63', [0, 2.7, 0], null, 8), B(1.3, 0.07, 0.07, '#555b63', -0.6, 5.35, 0), B(0.45, 0.12, 0.25, '#333', -1.2, 5.28, 0)]), vcMat);
-  p.position.set(6.6, 0, z); scene.add(p);
-  const bulb = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.04, 0.2), new THREE.MeshBasicMaterial({ color: 0xffd9a0 })); bulb.position.set(5.4, 5.2, z); scene.add(bulb);
-}
-// xe máy đậu ven đường
+// cột điện bê tông + dây điện chằng chịt kiểu phố Việt
 {
-  const bikeGeo = (c) => merge([B(0.22, 0.25, 0.75, c, 0, 0.45, 0), B(0.2, 0.1, 0.45, '#1a1a1a', 0, 0.62, -0.08), B(0.24, 0.35, 0.12, c, 0, 0.55, 0.42),
-  B(0.5, 0.04, 0.04, '#777', 0, 0.82, 0.45), B(0.1, 0.08, 0.06, '#fff8c8', 0, 0.68, 0.5), TO(0.2, 0.06, '#151515', [0, 0.22, 0.42], [0, Math.PI / 2, 0]), TO(0.2, 0.06, '#151515', [0, 0.22, -0.4], [0, Math.PI / 2, 0])]);
-  const cols = ['#c62828', '#1565c0', '#eeeeee', '#212121', '#ef6c00', '#6a1b9a', '#2e7d32'];
-  const spots = [[6.55, 1.2], [6.55, -0.4], [6.55, -6.8], [6.55, -9.2], [6.55, -12.6], [6.55, -18.8], [-6.55, -11.5], [-6.55, -13], [-6.55, -17.2]];
-  spots.forEach(([x, z], i) => { const b = new THREE.Mesh(bikeGeo(cols[i % cols.length]), vcMat); b.position.set(x, 0, z); b.rotation.y = (x > 0 ? 0.35 : -0.35) + (i % 2 ? Math.PI : 0); scene.add(b); });
+  const PX0 = CURB_X + 0.25; const POLES = [[-PX0, -5.55], [-PX0, -16.4], [PX0, -9.05], [PX0, -19.2]];
+  const pg = merge([B(0.22, 7.2, 0.22, '#a5a09a', 0, 3.6, 0), B(0.9, 0.08, 0.08, '#777', 0, 6.6, 0), B(0.7, 0.08, 0.08, '#777', 0, 6.1, 0), B(0.3, 0.45, 0.25, '#5b6066', 0.2, 5.2, 0),
+  TO(0.25, 0.05, '#151515', [0, 5.6, 0], [Math.PI / 2, 0, 0]), TO(0.2, 0.05, '#151515', [0, 4.9, 0], [Math.PI / 2, 0, 0]), B(0.24, 0.3, 0.02, '#e8e2c8', 0, 2.2, 0.12)]);
+  POLES.forEach(([x, z]) => { const m = new THREE.Mesh(pg, vcMat); m.position.set(x, 0, z); m.rotation.y = x < 0 ? 0 : Math.PI; scene.add(m); });
+  const pts = []; const r = mulberry32(99);
+  const V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const wire = (a, b, sag) => { const n = 14; for (let i = 0; i < n; i++) { const t0 = i / n, t1 = (i + 1) / n; const P0 = V().lerpVectors(a, b, t0); P0.y -= Math.sin(t0 * Math.PI) * sag; const P1 = V().lerpVectors(a, b, t1); P1.y -= Math.sin(t1 * Math.PI) * sag; pts.push(P0, P1); } };
+  for (const side of [-1, 1]) {
+    const ps = POLES.filter(p => Math.sign(p[0]) === side).sort((a, b) => b[1] - a[1]);
+    for (let i = 0; i < ps.length - 1; i++) for (let k = 0; k < 4; k++) wire(V(ps[i][0] + (r() - 0.5) * 0.3, 5.0 + r() * 1.5, ps[i][1]), V(ps[i + 1][0] + (r() - 0.5) * 0.3, 5.0 + r() * 1.5, ps[i + 1][1]), 0.2 + r() * 0.6);
+    ps.forEach(p => { for (let k = 0; k < 2; k++) wire(V(p[0], 5 + r() * 1.2, p[1]), V(side * (FACADE_X - 0.05), 3.8 + r() * 2.5, p[1] + (r() - 0.5) * 4), 0.15 + r() * 0.3); });
+    const last = ps[ps.length - 1];
+    for (let k = 0; k < 3; k++) wire(V(last[0], 5 + r() * 1.4, last[1]), V(last[0], 5 + r() * 1.4, last[1] - 14), 0.3 + r() * 0.5);
+  }
+  [[0, 2], [1, 3]].forEach(([i, j]) => { for (let k = 0; k < 2; k++) wire(V(POLES[i][0], 5.2 + r(), POLES[i][1]), V(POLES[j][0], 5.2 + r(), POLES[j][1]), 0.4 + r() * 0.5); });
+  scene.add(new THREE.LineSegments(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: 0x1c1517, transparent: true, opacity: 0.75 })));
+  for (const [x, z] of POLES) {
+    const s = Math.sign(x);
+    const arm = new THREE.Mesh(merge([B(1.2, 0.06, 0.06, '#666', -s * 0.6, 6.4, 0), B(0.45, 0.1, 0.22, '#333', -s * 1.15, 6.35, 0)]), vcMat); arm.position.set(x, 0, z); scene.add(arm);
+    const bulb = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.03, 0.18), new THREE.MeshBasicMaterial({ color: 0xffd9a0 })); bulb.position.set(x - s * 1.15, 6.29, z); scene.add(bulb);
+  }
 }
+// cây bàng cuối phố + chồng ghế nhựa + thùng rác
+{
+  const tree = merge([CY(0.14, 0.2, 3.2, '#5d4030', [0, 1.6, 0], null, 7), SP(1.2, '#2e6b32', [0, 3.6, 0], [1.2, 0.55, 1.2], 9, 6), SP(0.9, '#3d8b40', [0.5, 4.0, 0.3], [1.1, 0.6, 1.1], 8, 6), SP(0.8, '#285c2c', [-0.6, 3.9, -0.3], [1.1, 0.6, 1.1], 8, 6)]);
+  const t1 = new THREE.Mesh(tree, vcMat); t1.position.set(FACADE_X - 1.1, 0, -21.8); scene.add(t1);
+  const t2 = new THREE.Mesh(tree, vcMat); t2.position.set(-FACADE_X + 1.1, 0, -22.6); t2.rotation.y = 1.3; scene.add(t2);
+  const st = []; for (let k = 0; k < 6; k++) st.push(CY(0.16, 0.18, 0.06, k % 2 ? '#1f7fd8' : '#d7332f', [0, 0.2 + k * 0.07, 0], null, 10), CY(0.12, 0.17, 0.24, k % 2 ? '#1f7fd8' : '#d7332f', [0, 0.1 + k * 0.07, 0], null, 8));
+  const stack = new THREE.Mesh(merge(st), vcMat); stack.position.set(-FACADE_X + 0.3, 0, -8.7); scene.add(stack);
+  const bin = new THREE.Mesh(merge([CY(0.25, 0.22, 0.75, '#2e7d32', [0, 0.375, 0], null, 10), CY(0.27, 0.27, 0.06, '#1b5e20', [0, 0.77, 0], null, 10)]), vcMat); bin.position.set(FACADE_X - 0.35, 0, -16.6); scene.add(bin);
+}
+// xe máy đậu dọc vỉa hè
+function bikeGeo(c) {
+  return merge([B(0.22, 0.25, 0.75, c, 0, 0.45, 0), B(0.2, 0.1, 0.45, '#1a1a1a', 0, 0.62, -0.08), B(0.24, 0.35, 0.12, c, 0, 0.55, 0.42),
+  B(0.5, 0.04, 0.04, '#777', 0, 0.82, 0.45), B(0.1, 0.08, 0.06, '#fff8c8', 0, 0.68, 0.5), TO(0.2, 0.06, '#151515', [0, 0.22, 0.42], [0, Math.PI / 2, 0]), TO(0.2, 0.06, '#151515', [0, 0.22, -0.4], [0, Math.PI / 2, 0])]);
+}
+const BIKE_COLS = ['#c62828', '#1565c0', '#eeeeee', '#212121', '#ef6c00', '#6a1b9a', '#2e7d32', '#f9a825'];
+const bikeGeoCache = {};
+const bikeGeoC = c => bikeGeoCache[c] || (bikeGeoCache[c] = bikeGeo(c));
+[[4.2, -16.9], [4.2, -17.6], [4.2, -18.3], [4.2, -19.0], [-4.3, -20.6], [-4.3, -21.3], [4.3, 5.6], [4.3, 6.3]].forEach(([x, z], i) => {
+  const b = new THREE.Mesh(bikeGeoC(BIKE_COLS[i % BIKE_COLS.length]), vcMat); b.position.set(x, 0, z); b.rotation.y = (x > 0 ? -Math.PI / 2 : Math.PI / 2) + (Math.random() - 0.5) * 0.3; scene.add(b);
+});
 
 /* =====================================================================
-   BÀN GHẾ NHỰA (instanced)
+   BÀN GHẾ NHỰA – mỗi bàn là 2 bàn vuông ghép lại, 6 ghế đẩu
    ===================================================================== */
 const tables = []; const seats = [];
 const plasticMat = new THREE.MeshLambertMaterial({ color: 0xffffff });
-const NT = COLS.length * ROWS.length;
+const NT = ROWS.length * 2 - 1;
 const topGeo = new THREE.BoxGeometry(0.82, 0.05, 0.82).translate(0, 0.53, 0);
-const tableTops = new THREE.InstancedMesh(topGeo, plasticMat, NT);
-const tableLegs = new THREE.InstancedMesh(new THREE.BoxGeometry(0.05, 0.52, 0.05).translate(0, 0.26, 0), plasticMat, NT * 4);
-const stools = new THREE.InstancedMesh(merge([CY(0.16, 0.18, 0.04, '#fff', [0, 0.28, 0], null, 10), CY(0.12, 0.17, 0.26, '#fff', [0, 0.13, 0], null, 8)]), new THREE.MeshLambertMaterial({ vertexColors: true }), NT * 4);
-const glassG = new THREE.InstancedMesh(merge([CY(0.04, 0.035, 0.12, '#f3a81e', [0, 0.06, 0], null, 8), CY(0.042, 0.042, 0.03, '#fffbe6', [0, 0.13, 0], null, 8)]), new THREE.MeshLambertMaterial({ vertexColors: true }), NT * 3);
+const tableTops = new THREE.InstancedMesh(topGeo, plasticMat, NT * 2);
+const tableLegs = new THREE.InstancedMesh(new THREE.BoxGeometry(0.05, 0.52, 0.05).translate(0, 0.26, 0), plasticMat, NT * 8);
+const stools = new THREE.InstancedMesh(merge([CY(0.16, 0.18, 0.04, '#fff', [0, 0.28, 0], null, 10), CY(0.12, 0.17, 0.26, '#fff', [0, 0.13, 0], null, 8)]), new THREE.MeshLambertMaterial({ vertexColors: true }), NT * SEATS_PER);
+const glassG = new THREE.InstancedMesh(merge([CY(0.04, 0.035, 0.12, '#f3a81e', [0, 0.06, 0], null, 8), CY(0.042, 0.042, 0.03, '#fffbe6', [0, 0.13, 0], null, 8)]), new THREE.MeshLambertMaterial({ vertexColors: true }), NT * 5);
 const blobTex = canvasTex(64, 64, (g) => { const gr = g.createRadialGradient(32, 32, 2, 32, 32, 31); gr.addColorStop(0, 'rgba(0,0,0,.55)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); });
-const blobs = new THREE.InstancedMesh(new THREE.PlaneGeometry(1.9, 1.9).rotateX(-Math.PI / 2).translate(0, 0.012, 0), new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false }), NT);
+const blobs = new THREE.InstancedMesh(new THREE.PlaneGeometry(2.0, 3.0).rotateX(-Math.PI / 2).translate(0, 0.012, 0), new THREE.MeshBasicMaterial({ map: blobTex, transparent: true, depthWrite: false }), NT);
 {
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), s1 = new THREE.Vector3(1, 1, 1), yAx = new THREE.Vector3(0, 1, 0);
   const RED = new THREE.Color('#d7332f'), BLUE = new THREE.Color('#1f7fd8');
   const SC = [new THREE.Color('#d7332f'), new THREE.Color('#1f7fd8'), new THREE.Color('#e04a3a'), new THREE.Color('#2a8be0'), new THREE.Color('#f2c230')];
   const r = mulberry32(42);
   let ti = 0, li = 0, si = 0, gi = 0;
-  ROWS.forEach((z, ri) => COLS.forEach((x, ci) => {
-    const n = ri * COLS.length + ci + 1;
-    const col = (ri + ci) % 2 ? BLUE : RED;
-    q.setFromAxisAngle(yAx, (r() - 0.5) * 0.25);
-    m4.compose(v.set(x, 0, z), q, s1); tableTops.setMatrixAt(ti, m4); tableTops.setColorAt(ti, col);
-    blobs.setMatrixAt(ti, new THREE.Matrix4().makeTranslation(x, 0, z));
-    for (const [lx, lz] of [[-0.35, -0.35], [0.35, -0.35], [-0.35, 0.35], [0.35, 0.35]]) {
-      const lp = new THREE.Vector3(lx, 0, lz).applyQuaternion(q);
-      tableLegs.setMatrixAt(li, new THREE.Matrix4().makeTranslation(x + lp.x, 0, z + lp.z)); tableLegs.setColorAt(li, col); li++;
+  ROWS.forEach((z, ri) => [-1, 1].forEach((sd, k) => {
+    if (sd < 0 && z === KARAOKE.z) return;
+    const x = sd * TABLE_X, n = tables.length + 1;
+    const base = (ri + k) % 2 ? BLUE : RED;
+    for (const dz of [-TOP_DZ, TOP_DZ]) {
+      const col = r() < 0.3 ? (base === RED ? BLUE : RED) : base; // bàn ghép hay lệch màu
+      q.setFromAxisAngle(yAx, (r() - 0.5) * 0.12);
+      m4.compose(v.set(x + (r() - 0.5) * 0.04, 0, z + dz), q, s1); tableTops.setMatrixAt(ti, m4); tableTops.setColorAt(ti, col); ti++;
+      for (const [lx, lz] of [[-0.35, -0.35], [0.35, -0.35], [-0.35, 0.35], [0.35, 0.35]]) {
+        const lp = new THREE.Vector3(lx, 0, lz).applyQuaternion(q);
+        tableLegs.setMatrixAt(li, new THREE.Matrix4().makeTranslation(x + lp.x, 0, z + dz + lp.z)); tableLegs.setColorAt(li, col); li++;
+      }
     }
-    const t = { n, x, z, ri, ci, seats: [], dishes: [null, null, null, null], center: null, slot: 0, numSprite: null };
-    for (const [ox, oz] of [[0, SEAT_OFF], [-SEAT_OFF, 0], [SEAT_OFF, 0], [0, -SEAT_OFF]]) {
-      let ax;
-      if (ox < 0) ax = x - 1.1; else if (ox > 0) ax = x + 1.1; else ax = ci < 2 ? x - 1.1 : ci > 2 ? x + 1.1 : (oz > 0 ? x - 1.1 : x + 1.1);
-      const seat = { table: t, x: x + ox, z: z + oz, rot: Math.atan2(-ox, -oz), ax, guest: null };
+    blobs.setMatrixAt(n - 1, new THREE.Matrix4().makeTranslation(x, 0, z));
+    const t = { n, x, z, ri, side: sd, seats: [], dishes: Array(6).fill(null), centers: [null, null], slot: 0, cslot: 0, numSprite: null, owner: null, name: null, private: false, chat: [], signKey: '' };
+    const defs = [[-sd * SIDE_OFF, TOP_DZ, 'in'], [0, END_OFF, 'end'], [sd * SIDE_OFF, TOP_DZ, 'out'], [sd * SIDE_OFF, -TOP_DZ, 'out'], [0, -END_OFF, 'end'], [-sd * SIDE_OFF, -TOP_DZ, 'in']];
+    for (const [ox, oz, kind] of defs) {
+      const rot = kind === 'end' ? Math.atan2(0, -oz) : Math.atan2(-ox, 0);
+      const seat = { table: t, x: x + ox, z: z + oz, rot, kind, side: sd, guest: null };
       t.seats.push(seat); seats.push(seat);
       stools.setMatrixAt(si, new THREE.Matrix4().makeTranslation(seat.x + (r() - 0.5) * 0.04, 0, seat.z + (r() - 0.5) * 0.04)); stools.setColorAt(si, SC[Math.floor(r() * SC.length)]); si++;
     }
-    const gpos = [[0.34, 0.02], [-0.33, -0.05], [0.05, 0.34]];
-    for (let k = 0; k < 3; k++) { glassG.setMatrixAt(gi, new THREE.Matrix4().makeTranslation(x + gpos[k][0] + (r() - 0.5) * 0.05, 0.555, z + gpos[k][1])); gi++; }
-    tables.push(t); ti++;
+    const gpos = [[0.33, -0.45], [-0.33, 0.4], [0.32, 0.38], [-0.34, -0.36], [0.02, 0.86]];
+    for (let j = 0; j < 5; j++) { glassG.setMatrixAt(gi, new THREE.Matrix4().makeTranslation(x + gpos[j][0] + (r() - 0.5) * 0.04, 0.555, z + gpos[j][1])); gi++; }
+    tables.push(t);
   }));
   [tableTops, tableLegs, stools, glassG, blobs].forEach(m => { m.frustumCulled = false; m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; scene.add(m); });
 }
-// số bàn
-function makeTableNumbers() {
-  for (const t of tables) {
-    const s = textSprite(String(t.n), { fs: 34, bg: 'rgba(255,214,90,.92)', fg: '#4a1d00', padX: 10, padY: 4, depthTest: true, order: 2, scale: 0.75 });
-    s.position.set(t.x, 1.02, t.z); s.center.set(0.5, 0.5); scene.add(s); t.numSprite = s;
-  }
+// biển số bàn (kèm tên bàn / bàn riêng)
+function refreshTableSign(t) {
+  const special = t.private || !!t.name;
+  const key = `${t.n}|${t.private}|${t.name}|${t.owner ? t.owner.name : ''}`;
+  if (t.numSprite && key === t.signKey) { t.numSprite.visible = opts.nums || special; return; }
+  t.signKey = key;
+  if (t.numSprite) disposeSprite(t.numSprite);
+  let txt = String(t.n);
+  if (special) txt = `${t.private ? '🔒 ' : ''}${t.n} · ${t.name || ('Bàn ' + trunc(t.owner ? t.owner.name : '', 12))}`;
+  const s = textSprite(txt, { fs: 34, bg: t.private ? '#ffcf40' : special ? '#ffe9a6' : 'rgba(255,214,90,.92)', fg: '#4a1d00', padX: 10, padY: 4, depthTest: true, order: 2, scale: special ? 0.85 : 0.75, border: t.private ? '#fff' : null });
+  s.position.set(t.x, 1.02, t.z); s.center.set(0.5, 0.5); s.visible = opts.nums || special; scene.add(s); t.numSprite = s;
 }
-makeTableNumbers();
-function setNumbersVisible(v) { tables.forEach(t => t.numSprite.visible = v); }
+tables.forEach(refreshTableSign);
+function setNumbersVisible(v) { tables.forEach(t => t.numSprite.visible = v || t.private || !!t.name); }
 
 /* =====================================================================
    MÓN ĂN (mỗi loại một khối gộp, dùng chung)
@@ -981,11 +1067,13 @@ function dishGeo(id) {
     case 'vit': plate(); P.push(SP(0.08, '#9a3e14', [0, 0.075, 0], [1.4, 0.85, 1]), SP(0.035, '#8a3510', [0.13, 0.11, 0]), CY(0.02, 0.025, 0.06, '#8a3510', [0.1, 0.09, 0], [0, 0, -0.9]), SP(0.03, '#a8481a', [-0.06, 0.06, 0.08], [1.5, 0.8, 0.8]), SP(0.03, '#a8481a', [-0.06, 0.06, -0.08], [1.5, 0.8, 0.8]), B(0.04, 0.01, 0.01, '#f2c94c', 0.165, 0.11, 0)); for (let i = 0; i < 4; i++) P.push(B(0.05, 0.01, 0.025, '#66bb6a', -0.1 + i * 0.06, 0.03, -0.1)); break;
     case 'oc': P.push(CY(0.13, 0.08, 0.06, '#e8e2d6', [0, 0.03, 0], null, 14), CY(0.12, 0.12, 0.004, '#c9b48a', [0, 0.058, 0], null, 14)); for (let i = 0; i < 9; i++) { const a = i / 9 * 6.28 + r(), d = 0.04 + r() * 0.05; P.push(CO(0.03, 0.07, i % 2 ? '#a07650' : '#8a6040', [Math.cos(a) * d, 0.08, Math.sin(a) * d], [r() - 0.5, 0, r() - 0.5], 6)); } P.push(B(0.2, 0.012, 0.012, '#9ccc65', 0, 0.1, 0.02, [0, 0.6, 0.2])); break;
     case 'bia': P.push(CY(0.1, 0.11, 0.03, '#222', [0, 0.015, 0], null, 14), CY(0.07, 0.07, 0.58, '#f4a614', [0, 0.32, 0], null, 14), CY(0.072, 0.072, 0.07, '#fff6d8', [0, 0.57, 0], null, 14), CY(0.075, 0.075, 0.05, '#333', [0, 0.635, 0], null, 14), B(0.012, 0.5, 0.012, '#fff2c0', -0.05, 0.3, 0.05), B(0.05, 0.03, 0.03, '#bbb', 0.08, 0.06, 0), B(0.02, 0.05, 0.02, '#bbb', 0.1, 0.035, 0)); break;
+    case 'tra': P.push(CY(0.045, 0.038, 0.13, '#b8732e', [0, 0.065, 0], null, 10), B(0.035, 0.03, 0.035, '#e8f6ff', 0.01, 0.135, 0.01), B(0.03, 0.03, 0.03, '#e8f6ff', -0.015, 0.14, -0.012), B(0.006, 0.18, 0.006, '#ff5252', 0.02, 0.15, 0)); break;
     case 'lau': P.push(B(0.3, 0.07, 0.3, '#4a4a4a', 0, 0.035, 0), CY(0.05, 0.05, 0.02, '#1e88e5', [0, 0.08, 0], null, 10), CY(0.16, 0.14, 0.11, '#b8c0c8', [0, 0.13, 0], null, 16), CY(0.15, 0.15, 0.01, '#e8571e', [0, 0.18, 0], null, 16), TO(0.165, 0.012, '#9aa3ab', [0, 0.185, 0], [Math.PI / 2, 0, 0])); for (let i = 0; i < 8; i++) { const a = r() * 6.28, d = r() * 0.1; P.push(i % 3 === 0 ? TO(0.025, 0.01, '#ff8a50', [Math.cos(a) * d, 0.19, Math.sin(a) * d], [Math.PI / 2, 0, r() * 3]) : B(0.035, 0.012, 0.02, i % 2 ? '#7cb342' : '#fff3e0', Math.cos(a) * d, 0.19, Math.sin(a) * d, [0, r() * 3, 0])); } break;
   }
   return dishGeoCache[id] = merge(P);
 }
-const SLOTS = [[-0.17, 0.16], [0.17, 0.16], [-0.17, -0.17], [0.17, -0.17]];
+const SLOTS = [[-0.2, -0.62], [0.2, -0.62], [-0.2, 0], [0.2, 0], [-0.2, 0.62], [0.2, 0.62]];
+const CSLOTS = [[0, -0.31], [0, 0.31]];
 const dishPops = [];
 const steamEmitters = [];
 function makeDish(id, big) { const m = new THREE.Mesh(dishGeo(id), vcMat); m.scale.setScalar(big ? 1.3 : 1); m.userData.base = big ? 1.3 : 1; m.userData.id = id; return m; }
@@ -995,13 +1083,13 @@ function removeDish(m) {
 }
 function placeDish(t, m) {
   const id = m.userData.id; m.removeFromParent();
-  if (id === 'bia' || id === 'lau') { removeDish(t.center); t.center = m; m.position.set(t.x, 0.555, t.z); }
-  else { const k = t.slot++ % 4; removeDish(t.dishes[k]); t.dishes[k] = m; m.position.set(t.x + SLOTS[k][0], 0.555, t.z + SLOTS[k][1]); }
+  if (id === 'bia' || id === 'lau') { const k = t.cslot++ % 2; removeDish(t.centers[k]); t.centers[k] = m; m.position.set(t.x + CSLOTS[k][0], 0.555, t.z + CSLOTS[k][1]); }
+  else { const k = t.slot++ % 6; removeDish(t.dishes[k]); t.dishes[k] = m; m.position.set(t.x + SLOTS[k][0], 0.555, t.z + SLOTS[k][1]); }
   m.rotation.set(0, Math.random() * 6.28, 0); scene.add(m);
   m.scale.setScalar(0.01); dishPops.push({ m, t: 0 });
   if (id === 'lau') steamEmitters.push({ obj: m, x: m.position.x, y: 0.8, z: m.position.z, acc: 0, rate: 0.28 });
 }
-function clearAllDishes() { for (const t of tables) { t.dishes.forEach(removeDish); t.dishes = [null, null, null, null]; removeDish(t.center); t.center = null; } }
+function clearAllDishes() { for (const t of tables) { t.dishes.forEach(removeDish); t.dishes = Array(6).fill(null); t.centers.forEach(removeDish); t.centers = [null, null]; } }
 
 /* =====================================================================
    HIỆU ỨNG: TIM, KHÓI, PHÁO HOA, ĐÈN CHIẾU
@@ -1037,7 +1125,9 @@ class Pool {
 }
 const hearts = new Pool(heartTex, 90);
 const smoke = new Pool(puffTex, 70);
-steamEmitters.push({ obj: null, x: -6.6, y: 0.9, z: -6.4, acc: 0, rate: 0.16, grill: true });
+steamEmitters.push({ obj: null, x: -FACADE_X + 0.3, y: 0.9, z: -4.6, acc: 0, rate: 0.16, grill: true });
+const noteTex = canvasTex(64, 64, g => { g.fillStyle = '#fff'; g.font = '900 54px ' + FONT; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('♪', 32, 34); });
+const notes = new Pool(noteTex, 40);
 
 const rockets = [], bursts = [];
 const sparkMat = new THREE.SpriteMaterial({ map: dotTex, color: 0xfff1c0, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
@@ -1150,7 +1240,7 @@ const Snd = {
     if (i % 4 === 2) CH[bar].forEach(n => this.osc('triangle', mtof(n + 12), t, 0.14, 0.05, M));
     const MEL = [76, -1, 74, -1, 72, -1, 74, 76, -1, -1, 81, -1, 79, -1, 76, -1, 72, -1, 74, -1, 76, -1, 74, 72, -1, -1, 69, -1, 72, -1, -1, -1, 79, -1, 76, -1, 79, -1, 81, -1, 79, -1, 76, -1, 74, -1, 72, -1, 74, -1, 76, -1, 74, -1, 72, -1, 69, -1, -1, -1, -1, -1, -1, -1];
     const mn = MEL[s % 64];
-    if (mn > 0 && (loop % 2 === 1 || partyOn)) this.osc('square', mtof(mn), t, 0.2, 0.045, M, 0.01);
+    if (mn > 0 && (loop % 2 === 1 || partyOn || this.karaoke)) { this.osc(this.karaoke ? 'triangle' : 'square', mtof(mn), t, 0.22, this.karaoke ? 0.1 : 0.045, M, 0.01); if (this.karaoke) this.osc('sine', mtof(mn - 12), t, 0.25, 0.05, M, 0.02); }
   },
   // ---- hiệu ứng ----
   clink(vol = 0.35, delay = 0) {
@@ -1184,6 +1274,14 @@ const Snd = {
     while (x < dur) { this.nz(t + x, 0.05, 0.08 + 0.2 * (x / dur), 'bandpass', 2000, 0.7); x += 0.055; }
     this.nz(t + dur, 1.2, 0.35, 'highpass', 5000, 0.5); this.osc('sine', 90, t + dur, 0.4, 0.4, null, 0.003, 50);
   },
+  honk() { if (!this.ctx) return; const t = this.t; [0, 0.2].forEach(d => { this.osc('square', 440, t + d, 0.12, 0.045); this.osc('square', 554, t + d, 0.12, 0.035); }); },
+  vroom() {
+    if (!this.ctx) return; const c = this.ctx, t = this.t; const o = c.createOscillator(), f = c.createBiquadFilter(), g = c.createGain();
+    o.type = 'sawtooth'; o.frequency.setValueAtTime(70, t); o.frequency.linearRampToValueAtTime(115, t + 0.5); o.frequency.linearRampToValueAtTime(60, t + 1.3);
+    f.type = 'lowpass'; f.frequency.value = 420; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.06, t + 0.45); g.gain.exponentialRampToValueAtTime(0.0001, t + 1.4);
+    o.connect(f); f.connect(g); g.connect(this.sfxG); o.start(t); o.stop(t + 1.5);
+  },
+  dice() { if (!this.ctx) return; const t = this.t; for (let k = 0; k < 7; k++) this.nz(t + k * 0.06 + Math.random() * 0.02, 0.025, 0.15, 'bandpass', 2500 + Math.random() * 1500, 2); },
   countBeep(final) { if (!this.ctx) return; this.osc('square', final ? 1046 : 660, this.t, final ? 0.4 : 0.15, 0.08); },
 };
 
@@ -1200,61 +1298,82 @@ function speak(text) {
 }
 
 /* =====================================================================
-   NHÂN VIÊN, CẬU CẢ, DJ
+   CẬU CẢ & NHÂN VIÊN
    ===================================================================== */
 const owner = new Actor({ skin: '#d9a07a', hairCol: '#151010', hair: 0, singlet: true, pants: '#3a3a3a', shoe: '#7a4a2a', mustache: true, scale: 1.2 }, { speed: 1.6 });
-owner.g.position.set(-6.25, 0, -0.6); owner.rot = Math.PI / 2 + 0.25; owner.g.rotation.y = owner.rot;
+owner.g.position.set(-FACADE_X + 0.75, 0, -3.9); owner.rot = Math.PI / 2 + 0.5; owner.g.rotation.y = owner.rot;
 owner.setLabel('Cậu Cả · Chủ quán', { bg: '#c62828', fg: '#ffe082', border: '#ffd54f' });
 owner.bubbleStyle = { bg: '#fff3c4', fg: '#5a1d00' };
 owner.isOwner = true;
 
 const waiters = [];
-const WAITER_HOME = [[-6.35, -3.9], [-6.35, -5.0], [-6.35, -1.9]];
+const WAITER_HOME = [[-FACADE_X + 0.35, -1.2], [-FACADE_X + 0.35, -2.0], [-FACADE_X + 0.35, -2.8]];
 WAITER_HOME.forEach(([x, z], i) => {
   const w = new Actor({ skin: SKINS[i + 1], hairCol: '#1a1414', hair: [0, 1, 3][i], cap: '#c62828', shirt: '#2b2b2b', pants: '#222', shoe: '#222', apron: true, scale: 1 }, { speed: 3.1 });
   w.g.position.set(x, 0, z); w.rot = Math.PI / 2; w.g.rotation.y = w.rot; w.home = { x, z }; w.busy = false; w.isStaff = true;
   w.setLabel('Nhân viên', { bg: '#1565c0', fg: '#fff' }); waiters.push(w);
 });
-const dj = new Actor({ skin: '#e9b994', hairCol: '#222', hair: 3, cap: '#212121', shirt: '#7b1fa2', pants: '#1c1c2b', shoe: '#fff', headphones: true, glasses: true, scale: 1.05 }, {});
-dj.dj = true; dj.baseY = 0.5; dj.g.position.set(0, 0.5, STAGE_Z - 0.05); dj.rot = 0; dj.isStaff = true;
-dj.setLabel('DJ Cậu Ba', { bg: '#6a1b9a', fg: '#fff' });
 
+const TEA = { id: 'tra', dish: 'Trà đá', price: 5000 };
+MENU_BY.tra = TEA;
 const orders = [];
 function orderDish(table, item, big, guest) {
-  if (!table) return;
-  if (item.id === 'phao') return;
+  if (!table || item.id === 'phao') return;
   orders.push({ table, item, big, guest });
 }
 function serveOrders() {
   if (!orders.length) return;
-  // quá đông thì "bay món" thẳng lên bàn cho kịp
   while (orders.length > 9) { const o = orders.shift(); placeDish(o.table, makeDish(o.item.id, o.big)); Snd.pop(); }
   for (const w of waiters) {
     if (w.busy || !orders.length) continue;
     const o = orders.shift(); w.busy = true;
     const dish = makeDish(o.item.id, o.big); dish.position.set(0, 0.8, 0.4); dish.scale.setScalar(o.big ? 1.15 : 0.9); w.g.add(dish); w.carry = dish;
-    const t = o.table, gz = t.z + 1.5, sx = t.x + 0.5, sz = t.z + 1.0;
-    w.walkTo([{ x: LANE_L, z: w.home.z }, { x: LANE_L, z: gz }, { x: sx, z: gz }, { x: sx, z: sz }], () => {
-      w.rot = Math.atan2(t.x - sx, t.z - sz);
+    const t = o.table, sd = t.side, li = sd * LANE_IN;
+    const go = [{ x: -LANE_OUT, z: w.home.z }, { x: -LANE_OUT, z: DOOR_Z }, { x: -LANE_IN, z: DOOR_Z }];
+    if (sd > 0) go.push({ x: LANE_IN, z: DOOR_Z });
+    go.push({ x: li, z: t.z });
+    w.walkTo(go, () => {
+      w.rot = sd * Math.PI / 2;
       dish.scale.setScalar(dish.userData.base); placeDish(t, dish); w.carry = null; Snd.pop();
       if (o.guest && !o.guest.leaving) o.guest.toast(0.3);
       setTimeout(() => {
-        w.walkTo([{ x: sx, z: gz }, { x: LANE_L, z: gz }, { x: LANE_L, z: w.home.z }, { x: w.home.x, z: w.home.z }], () => { w.busy = false; w.rot = Math.PI / 2; });
+        const back = go.slice(0, -1).reverse(); back.push({ x: w.home.x, z: w.home.z });
+        w.walkTo(back, () => { w.busy = false; w.rot = Math.PI / 2; });
       }, 450);
     });
   }
 }
 
 /* =====================================================================
-   KHÁCH
+   KHÁCH – đường đi, chỗ ngồi, bàn riêng, ghép bàn
    ===================================================================== */
 const guests = new Map();
 let rankList = [];
+// đường từ lối đi sát lòng đường vào tới ghế
+function approach(s) {
+  const sd = s.side, li = sd * LANE_IN, t = s.table;
+  if (s.kind === 'in') return [{ x: li, z: s.z }, { x: s.x, z: s.z }];
+  const gz = t.z + (s.z > t.z ? GAP_DZ : -GAP_DZ);
+  if (s.kind === 'end') return [{ x: li, z: gz }, { x: s.x, z: gz }, { x: s.x, z: s.z }];
+  const lo = sd * LANE_OUT;
+  return [{ x: li, z: gz }, { x: lo, z: gz }, { x: lo, z: s.z }, { x: s.x, z: s.z }];
+}
+const leavePath = s => approach(s).reverse().slice(1);
+const freeSeats = t => t.seats.filter(s => !s.guest);
+function freeSeatAt(t, prefer) {
+  const f = freeSeats(t); if (!f.length) return null;
+  const p = prefer ? f.filter(s => s.kind === prefer) : [];
+  return pick(p.length ? p : f);
+}
+function seatFreed(t, g) {
+  if (t.owner === g) { t.owner = null; t.private = false; }
+  if (!t.seats.some(s => s.guest)) { t.name = null; t.owner = null; t.private = false; }
+  refreshTableSign(t); refreshCard(t);
+}
 class Guest extends Actor {
   constructor(uid, name, npc) {
     super(lookFor(uid));
-    this.uid = uid; this.name = name; this.npc = !!npc; this.points = 0; this.likes = 0; this.giftsN = 0; this.comments = 0;
-    this.fan = false; this.rank = 0; this.lastActive = now(); this.seat = null; this.leaving = false; this.lastLikeFeed = -1e9; this.pendingTable = null;
+    Object.assign(this, { uid, name, npc: !!npc, points: 0, likes: 0, giftsN: 0, comments: 0, fan: false, rank: 0, lastActive: now(), seat: null, leaving: false, lastLikeFeed: -1e9, pending: null, msgs: [], drinks: 0, drunk: false, singing: false, cool: {} });
     this.refreshLabel();
   }
   refreshLabel() {
@@ -1264,71 +1383,84 @@ class Guest extends Actor {
     else if (this.rank === 3) { n = '🥉 ' + n; st = { bg: '#e0a96d', fg: '#2a1500' }; }
     else if (this.npc) st = { bg: 'rgba(16,8,16,0.45)', fg: '#e8d8c8' };
     if (this.fan) n += ' ⭐';
+    if (this.drunk) n += ' 🥴';
     this.setLabel(n, st);
   }
+  say(text, dur = 4.5, force) {
+    const wait = (this.chatHold || 0) - now();
+    if (!force && wait > 0) { setTimeout(() => { if (!this.leaving) super.say(text, dur); }, wait); return; }
+    super.say(text, dur);
+  }
+  canDo(key, sec) { const t = now(); if ((this.cool[key] || 0) > t) return false; this.cool[key] = t + sec * 1000; return true; }
   enter() {
-    const s = this.seat; let start, fromAx;
-    if (s.z > -6 || Math.random() < 0.55) { start = { x: s.ax + rand(-0.08, 0.08), z: FRONT_Z + rand(0, 3) }; fromAx = s.ax; }
-    else { start = { x: LANE_R, z: BACK_Z - rand(0, 3) }; fromAx = LANE_R; }
-    this.g.position.set(start.x, 0, start.z); this.rot = Math.atan2(s.x - start.x, s.z - start.z); this.g.rotation.y = this.rot;
-    this.walkTo(route(start, fromAx, s, s.ax), () => this.sit());
+    const s = this.seat; const back = s.z < -8 && Math.random() < 0.6;
+    const start = { x: s.side * LANE_IN + rand(-0.15, 0.15), z: back ? BACK_Z - rand(0, 3) : FRONT_Z + rand(0, 3) };
+    this.g.position.set(start.x, 0, start.z); this.rot = back ? 0 : Math.PI; this.g.rotation.y = this.rot;
+    this.walkTo(approach(s), () => this.sit());
   }
   sit() {
     const s = this.seat; if (!s) return;
     this.g.position.set(s.x, 0, s.z); this.rot = s.rot; this.state = 'sit'; this.placeLabel();
-    if (this.pendingTable) { const n = this.pendingTable; this.pendingTable = null; setTimeout(() => this.moveToTable(n), 300); }
+    if (this.pending) { const f = this.pending; this.pending = null; setTimeout(() => { if (!this.leaving && this.state === 'sit') f(); }, 350); }
   }
-  moveToTable(n) {
-    const t = tables[n - 1]; if (!t) { this.say(`Quán chỉ có ${tables.length} bàn thôi 😅`); return; }
-    if (this.seat && this.seat.table === t) { this.say(`Đang ngồi bàn ${n} rồi nè!`); return; }
-    const free = t.seats.find(s => !s.guest);
-    if (!free) { this.say(`Bàn ${n} hết chỗ rồi 😭`); return; }
-    if (this.state !== 'sit') { this.pendingTable = n; return; }
-    const old = this.seat; old.guest = null; free.guest = this; this.seat = free;
-    this.walkTo(route({ x: old.x, z: old.z }, old.ax, free, free.ax), () => this.sit());
-    this.say(`Qua bàn ${n} ngồi với anh em!`, 3);
+  whenSeated(fn) { if (this.state === 'sit' && !this.singing) fn(); else this.pending = fn; }
+  moveToSeat(seat, msg) {
+    if (!seat) return;
+    const old = this.seat; if (old) old.guest = null;
+    seat.guest = this; this.seat = seat;
+    const pts = old && this.state === 'sit' ? leavePath(old) : [];
+    this.walkTo(pts.concat(approach(seat)), () => this.sit());
+    if (old && old.table !== seat.table) seatFreed(old.table, this);
+    refreshCard(seat.table);
+    if (msg) this.say(msg, 3);
+  }
+  toast(d = 0, dur = 1.9) {
+    super.toast(d, dur); this.drinks++;
+    if (!this.drunk && this.drinks >= 7) { this.drunk = true; this.refreshLabel(); setTimeout(() => !this.leaving && this.say('Hic… say rồi 🥴', 3), (d + dur) * 1000); }
   }
   leave() {
     if (this.leaving) return; this.leaving = true;
-    const s = this.seat; if (s) s.guest = null; this.seat = null; this.pendingTable = null;
+    const s = this.seat; this.seat = null; this.pending = null;
+    if (s) { s.guest = null; seatFreed(s.table, this); }
+    if (karaoke.singer === this) endSing(true);
+    const qi = karaoke.queue.indexOf(this); if (qi >= 0) karaoke.queue.splice(qi, 1);
     if (selActor === this) hideCard();
-    if (this.state === 'sit') {
-      const front = s.z > -8 || Math.random() < 0.5;
-      const to = front ? { x: s.ax, z: FRONT_Z + 3 } : { x: LANE_R, z: BACK_Z - 3 };
-      this.walkTo(route({ x: s.x, z: s.z }, s.ax, to, to.x), () => this.destroy());
+    const p = this.g.position;
+    if (this.state === 'sit' && s) {
+      const ex = { x: s.side * LANE_IN, z: s.z > -8 ? FRONT_Z + 3 : BACK_Z - 3 };
+      this.walkTo(leavePath(s).concat([ex]), () => this.destroy());
     } else {
-      this.walkTo([{ x: this.g.position.x, z: FRONT_Z + 3 }], () => this.destroy());
+      const sx = p.x < 0 ? -LANE_IN : LANE_IN;
+      this.walkTo([{ x: sx, z: p.z }, { x: sx, z: FRONT_Z + 3 }], () => this.destroy());
     }
   }
   destroy() { if (guests.get(this.uid) === this) guests.delete(this.uid); this.dispose(); const i = actors.indexOf(this); if (i >= 0) actors.splice(i, 1); }
 }
-function route(from, fromAx, to, toAx) {
-  const pts = [];
-  if (Math.abs(from.x - fromAx) > 0.01) pts.push({ x: fromAx, z: from.z });
-  if (Math.abs(fromAx - toAx) > 0.05) { const gz = gapNear(to.z); pts.push({ x: fromAx, z: gz }, { x: toAx, z: gz }); }
-  pts.push({ x: toAx, z: to.z }, { x: to.x, z: to.z });
-  return pts;
-}
-const actors = [owner, ...waiters, dj];
+const actors = [owner, ...waiters];
 function seatedCount() { let n = 0; for (const s of seats) if (s.guest) n++; return n; }
 function findSeat() {
   let best = null, bs = -1e9;
   for (const t of tables) {
-    const free = t.seats.filter(s => !s.guest); if (!free.length) continue;
-    const occ = 4 - free.length;
-    const sc = (occ > 0 && occ < 4 ? 1.6 : 0) + occ * 0.35 + Math.random() * 3.4 - Math.abs(t.ri - 2.5) * 0.18;
+    if (t.private) continue;
+    const free = freeSeats(t); if (!free.length) continue;
+    const occ = SEATS_PER - free.length;
+    const sc = (occ > 0 && occ < 5 ? 0.9 : 0) - (occ >= 5 ? 0.6 : 0) + Math.random() * 3;
     if (sc > bs) { bs = sc; best = pick(free); }
   }
   return best;
 }
 function evictSeat() {
   const tops = new Set(rankList.slice(0, 3));
-  const cands = [...guests.values()].filter(g => g.seat && !g.leaving && !tops.has(g));
+  const all = [...guests.values()].filter(g => g.seat && !g.leaving && !tops.has(g) && !g.singing);
+  let cands = all.filter(g => !g.seat.table.private);
+  if (!cands.length) cands = all.filter(g => g.seat.table.owner !== g);
   if (!cands.length) return null;
   cands.sort((a, b) => (a.npc === b.npc ? a.lastActive - b.lastActive : (a.npc ? -1 : 1)));
-  const g = cands[0]; const seat = g.seat;
+  const g = cands[0]; const seat = g.seat; const t = seat.table;
   feed(`🚶 <b>${esc(g.name)}</b> nhường chỗ ra về`, 'join');
-  g.leave(); return seat;
+  g.leave();
+  if (t.private) return findSeat(); // không nhét người lạ vào bàn riêng
+  return seat;
 }
 let visitorsTotal = 0;
 function ensureGuest(uid, name, npc) {
@@ -1344,6 +1476,258 @@ function ensureGuest(uid, name, npc) {
   seat.guest = g; g.seat = seat; g.enter();
   if (!npc) visitorsTotal++;
   return g;
+}
+function findGuestByName(q, except) {
+  q = norm(q).replace(/^@+/, '').replace(/[^\p{L}\p{N}\s._-]/gu, '').replace(/\s+/g, ' ').trim();
+  if (q.length < 2) return null;
+  let best = null, bs = 0;
+  for (const g of guests.values()) {
+    if (g === except || g.leaving) continue;
+    const n = norm(g.name), u = norm(String(g.uid).replace(/^(demo|sim|npc|host):/, ''));
+    let s = 0;
+    if (n === q || u === q) s = 4; else if (n.startsWith(q) || u.startsWith(q)) s = 3; else if (q.length >= 3 && (n.includes(q) || u.includes(q))) s = 2;
+    if (s > bs) { bs = s; best = g; }
+  }
+  return best;
+}
+function findGuestIn(str, except) {
+  const w = String(str).trim().split(/\s+/).slice(0, 6);
+  for (let k = w.length; k >= 1; k--) { const g = findGuestByName(w.slice(0, k).join(' '), except); if (g) return g; }
+  return null;
+}
+
+/* ---------- lệnh chọn chỗ ngồi ---------- */
+function goTable(g, n) {
+  const t = tables[n - 1];
+  if (!t) return g.say(`Quán chỉ có ${tables.length} bàn thôi 😅`, 3);
+  g.whenSeated(() => {
+    if (g.seat && g.seat.table === t) return g.say(`Đang ngồi bàn ${n} rồi nè!`, 3);
+    if (t.private && t.owner && t.owner !== g) return g.say(`Bàn ${n} là bàn riêng của ${trunc(t.owner.name, 12)}. Comment "ghép ${trunc(t.owner.name, 12)}" nha!`, 4.5);
+    const s = freeSeatAt(t); if (!s) return g.say(`Bàn ${n} hết chỗ rồi 😭`, 3);
+    g.moveToSeat(s, `Qua bàn ${n} ngồi nha!`);
+  });
+}
+function takePrivate(g) {
+  g.whenSeated(() => {
+    const cur = g.seat.table;
+    if (cur.owner === g && cur.private) return g.say('Đây là bàn riêng của mình rồi nè 😎', 3);
+    let t = null;
+    if (cur.seats.every(s => !s.guest || s.guest === g)) t = cur;
+    else {
+      const empties = tables.filter(x => x.seats.every(s => !s.guest));
+      if (empties.length) t = pick(empties);
+      else {
+        // quán đông: Cậu Cả nhờ bàn vắng nhất (≤ 2 người) dời sang chỗ khác
+        const c = tables.filter(x => x !== cur && !x.private && !x.seats.some(s => s.guest && s.guest.singing))
+          .map(x => ({ x, n: x.seats.filter(s => s.guest).length })).filter(o => o.n <= 2).sort((p, q) => p.n - q.n)[0];
+        if (c) {
+          t = c.x;
+          for (const st of t.seats) {
+            const o = st.guest; if (!o) continue;
+            const other = tables.filter(y => y !== t && !y.private).map(y => freeSeatAt(y)).find(Boolean);
+            if (other) o.moveToSeat(other, `Nhường bàn ${t.n} cho ${trunc(g.name, 10)} nha!`); else o.leave();
+          }
+        }
+      }
+    }
+    if (!t) return g.say('Hết bàn trống rồi, chờ chút nha 😅', 3);
+    if (t !== cur) g.moveToSeat(freeSeatAt(t, 'in'), `Qua bàn riêng số ${t.n}!`);
+    t.private = true; t.owner = g; refreshTableSign(t); refreshCard(t);
+    feed(`🔒 <b>${esc(g.name)}</b> đặt <b>bàn riêng số ${t.n}</b> – bạn bè comment "ghép ${esc(trunc(g.name, 14))}" để vào`, 'sys');
+    Snd.ding(); addVibe(3);
+  });
+}
+function bringTogether(mover, host, why) {
+  if (!host || host === mover) return;
+  mover.whenSeated(() => {
+    if (host.leaving || mover.leaving || !host.seat) return;
+    const ht = host.seat.table;
+    if (mover.seat && mover.seat.table === ht) return mover.say(`Đang ngồi chung với ${trunc(host.name, 12)} rồi mà!`, 3);
+    const s = freeSeatAt(ht);
+    if (s) {
+      mover.moveToSeat(s, why === 'invite' ? `${trunc(host.name, 12)} rủ qua ngồi nè!` : `Ghép bàn với ${trunc(host.name, 12)}!`);
+      host.say(pick([`Qua đây ${trunc(mover.name, 12)} ơi! 🍻`, `Ngồi đây nè ${trunc(mover.name, 12)}!`, `Anh em mình chung bàn!`]), 3);
+      feed(`🤝 <b>${esc(mover.name)}</b> ghép bàn ${ht.n} với <b>${esc(host.name)}</b>`, 'sys');
+      Snd.ding(); addVibe(4); return;
+    }
+    if (ht.private || host.singing || host.state !== 'sit') return mover.say(`Bàn của ${trunc(host.name, 12)} kín chỗ rồi 😭`, 3);
+    const cand = tables.filter(t => t !== ht && !t.private && freeSeats(t).length >= 2).sort((a, b) => freeSeats(b).length - freeSeats(a).length);
+    if (!cand.length) return mover.say('Hết bàn rộng để ghép rồi 😭', 3);
+    const t = cand[0];
+    host.moveToSeat(freeSeatAt(t), `Qua bàn ${t.n} ngồi chung với ${trunc(mover.name, 10)}!`);
+    mover.moveToSeat(freeSeatAt(t), `Ghép bàn ${t.n} nha!`);
+    feed(`🤝 <b>${esc(mover.name)}</b> và <b>${esc(host.name)}</b> dời qua bàn ${t.n} ngồi chung`, 'sys'); Snd.ding(); addVibe(4);
+  });
+}
+function nameTable(g, raw) {
+  const name = trunc(String(raw).replace(/\s+/g, ' ').trim(), 18); if (!name) return;
+  const t = g.seat && g.seat.table; if (!t) return;
+  if (t.owner && t.owner !== g) return g.say(`Chỉ chủ bàn ${trunc(t.owner.name, 12)} được đặt tên bàn`, 3);
+  t.name = name; refreshTableSign(t); refreshCard(t);
+  feed(`🏷️ Bàn ${t.n} giờ tên là <b>“${esc(name)}”</b>`, 'sys'); Snd.ding();
+}
+function changeTable(g) {
+  g.whenSeated(() => {
+    const cur = g.seat.table; const c = tables.filter(t => t !== cur && !t.private && freeSeats(t).length);
+    if (!c.length) return g.say('Hết bàn trống để đổi rồi 😅', 3);
+    const t = pick(c); g.moveToSeat(freeSeatAt(t), `Đổi qua bàn ${t.n}!`);
+  });
+}
+function cheersWith(g, f) {
+  if (!g.canDo('cw', 4)) return;
+  g.toast(0); f.toast(0.3);
+  g.say(`Cụng ly với ${trunc(f.name, 12)}! 🍻`, 3); setTimeout(() => !f.leaving && f.say(`Dzô với ${trunc(g.name, 12)}!`, 3), 500);
+  g.points += 2; f.points += 2; addVibe(3);
+  feed(`🍻 <b>${esc(g.name)}</b> cụng ly với <b>${esc(f.name)}</b>`);
+  Snd.clink(0.35, 0.3);
+}
+
+/* ---------- karaoke vỉa hè ---------- */
+const karaoke = { queue: [], singer: null, t: 0, lyricT: 0, line: '' };
+const LYRICS = ['Một hai ba dzô, anh em mình cùng say', 'Đêm nay vỉa hè, ghế nhựa kê sát nhau', 'Cậu Cả ơi, cho thêm ly bia lạnh', 'Không say không về, chuyện mai tính sau', 'Tình anh em, ly bia sủi bọt trắng', 'Gió đêm thổi mát, đĩa mực thơm lừng', 'Ai buồn thì nói, ai vui thì dzô', 'La la la… dzô dzô dzô!'];
+function requestSing(g) {
+  const k = karaoke;
+  if (k.singer === g) return;
+  if (k.queue.includes(g)) return g.say(`Đang xếp hàng hát, thứ ${k.queue.indexOf(g) + 1} 🎤`, 3);
+  if (k.queue.length >= 6) return g.say('Hàng chờ hát dài quá, lát nha!', 3);
+  k.queue.push(g);
+  if (k.singer || k.queue.length > 1) { g.say(`Đăng ký hát! Thứ ${k.queue.length} 🎤`, 3); feed(`🎤 <b>${esc(g.name)}</b> đăng ký hát karaoke (thứ ${k.queue.length})`); }
+}
+function startSing(g) {
+  const k = karaoke; k.singer = g; g.pending = null;
+  const s = g.seat;
+  g.walkTo(leavePath(s).concat([{ x: -LANE_IN, z: KARAOKE.z + 0.6 }, { x: KARAOKE.x, z: KARAOKE.z }]), () => {
+    if (k.singer !== g) return;
+    g.rot = 0.25; g.singing = true; k.t = 14; k.lyricT = 0;
+    banner(`🎤 ${esc(g.name)} lên hát karaoke!`, 'purple', 2600);
+    feed(`🎤 <b>${esc(g.name)}</b> đang hát karaoke – thả tim cổ vũ!`, 'sys');
+    Snd.karaoke = true; addVibe(8); ownerSay('Hát hay quá! Vỗ tay nào 👏', true);
+  });
+  g.say('Lên hát đây! 🎤', 2.5);
+}
+function endSing(abort) {
+  const k = karaoke, g = k.singer; k.singer = null; k.line = ''; Snd.karaoke = false;
+  if (!g) return;
+  g.singing = false;
+  if (abort || g.leaving) return;
+  Snd.cheer(1.8); addVibe(6); g.points += 15;
+  feed(`👏 Cả quán vỗ tay cho <b>${esc(g.name)}</b>!`);
+  const s = g.seat; if (!s) return g.leave();
+  g.walkTo([{ x: -LANE_IN, z: KARAOKE.z + 0.6 }].concat(approach(s)), () => g.sit());
+  tableToast(s.table, g);
+}
+function updateKaraoke(dt) {
+  const k = karaoke;
+  if (!k.singer) {
+    while (k.queue.length) {
+      const g = k.queue[0];
+      if (g.leaving) { k.queue.shift(); continue; }
+      if (g.state !== 'sit') break; // chờ ngồi xuống đã
+      k.queue.shift(); startSing(g); break;
+    }
+    return;
+  }
+  const g = k.singer;
+  if (g.leaving) { endSing(true); return; }
+  if (g.singing) {
+    k.t -= dt; k.lyricT -= dt;
+    if (k.lyricT <= 0) { k.lyricT = 3.2; k.line = pick(LYRICS); g.say('🎵 ' + k.line + ' 🎵', 3.1); }
+    if (Math.random() < dt * 5) notes.spawn(g.pos.x + rand(-0.4, 0.4), 1.7, g.pos.z + rand(-0.2, 0.2), { size: rand(0.25, 0.4), life: 1.8, vy: rand(0.6, 1.0), vx: rand(-0.3, 0.3), color: pick(['#ffd54f', '#ff80ab', '#80d8ff', '#b9f6ca']) });
+    if (k.t <= 0) endSing();
+  }
+}
+
+/* ---------- trò chơi nhỏ ---------- */
+const RPS = { bua: ['búa', '✊'], bao: ['bao', '✋'], keo: ['kéo', '✌️'] };
+function playRps(g, t) {
+  if (!g.canDo('rps', 8)) return;
+  const mine = (t.match(/\b(bua|bao|keo)\b/) || [])[1] || pick(['bua', 'bao', 'keo']);
+  const cc = pick(['bua', 'bao', 'keo']);
+  g.say(`Oẳn tù tì! Ra ${RPS[mine][1]} ${RPS[mine][0]}`, 3);
+  setTimeout(() => {
+    if (g.leaving) return;
+    ownerSay(`Cậu Cả ra ${RPS[cc][1]} ${RPS[cc][0]}!`, true);
+    const win = (mine === 'bua' && cc === 'keo') || (mine === 'keo' && cc === 'bao') || (mine === 'bao' && cc === 'bua');
+    if (mine === cc) { feed(`✊ <b>${esc(g.name)}</b> hòa Cậu Cả – cả hai cùng uống!`); g.toast(0.2); owner.toast(0.2); Snd.clink(0.3, 0.3); }
+    else if (win) { feed(`🏆 <b>${esc(g.name)}</b> thắng oẳn tù tì – Cậu Cả tặng đĩa đậu phộng!`, 'gift'); g.points += 5; g.danceT = 3; g.say('Thắng rồi! 🎉', 2.5); if (g.seat) orderDish(g.seat.table, MENU_BY.lac, false, null); Snd.sparkle(); }
+    else { feed(`🍺 <b>${esc(g.name)}</b> thua oẳn tù tì – uống phạt 1 ly!`); g.say('Thua rồi, uống phạt! 🍺', 2.5); g.toast(0.3); Snd.clink(0.3, 0.4); }
+  }, 1300);
+}
+function rollDice(g) {
+  if (!g.canDo('dice', 5)) return;
+  const n = randi(1, 6); Snd.dice();
+  g.say(`🎲 Lắc được ${n}! ${n === 6 ? 'Cả bàn uống! 🍻' : n === 1 ? 'Xui quá, tự uống 😵' : ''}`, 3.5);
+  feed(`🎲 <b>${esc(g.name)}</b> lắc xí ngầu ra <b>${n}</b>${n === 6 ? ' – cả bàn uống!' : ''}`);
+  if (n === 6 && g.seat) tableToast(g.seat.table); else if (n === 1) g.toast(0.4);
+}
+function orderTea(g) {
+  if (!g.canDo('tea', 20)) return g.say('Trà đá đang ra rồi nè!', 2);
+  if (g.seat) orderDish(g.seat.table, TEA, false, null);
+  g.drinks = Math.max(0, g.drinks - 3);
+  if (g.drunk && g.drinks < 4) { g.drunk = false; g.refreshLabel(); }
+}
+
+/* ---------- xe cộ & hàng rong qua lại ---------- */
+const traffic = []; let trafficT = 2;
+const headMat = new THREE.SpriteMaterial({ map: null, color: 0xfff0b0, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending });
+const VENDORS = [{ name: 'BÁNH MÌ', col: '#c62828', call: 'Bánh mì nóng giòn đâyyy!' }, { name: 'KEM', col: '#1e88e5', call: 'Kem đây kem đâyyy!' }, { name: 'BẮP NƯỚNG', col: '#ef6c00', call: 'Bắp nướng mỡ hành đây!' }];
+function riderGeo(r) {
+  const p = a => a[Math.floor(r() * a.length)];
+  const skin = p(SKINS), shirt = p(SHIRTS), helm = p(['#e53935', '#fdd835', '#ffffff', '#1e88e5', '#212121', '#ff80ab']), pants = p(PANTS);
+  return merge([B(0.34, 0.4, 0.22, shirt, 0, 0.98, -0.12, [0.2, 0, 0]), B(0.32, 0.32, 0.32, skin, 0, 1.36, -0.08), B(0.36, 0.2, 0.36, helm, 0, 1.5, -0.08), B(0.3, 0.03, 0.12, helm, 0, 1.42, 0.12),
+  B(0.1, 0.1, 0.36, shirt, -0.2, 0.95, 0.12, [0.4, 0, 0]), B(0.1, 0.1, 0.36, shirt, 0.2, 0.95, 0.12, [0.4, 0, 0]),
+  B(0.13, 0.13, 0.38, pants, -0.12, 0.72, 0.05), B(0.13, 0.13, 0.38, pants, 0.12, 0.72, 0.05), B(0.12, 0.3, 0.12, pants, -0.13, 0.5, 0.22), B(0.12, 0.3, 0.12, pants, 0.13, 0.5, 0.22)]);
+}
+const cartGeoCache = {};
+function cartGeo(col) {
+  if (cartGeoCache[col]) return cartGeoCache[col];
+  const W = [[0.38, 0.3], [-0.38, 0.3], [0.38, -0.3], [-0.38, -0.3]].map(([x, z]) => TO(0.2, 0.05, '#333', [x, 0.25, z], [0, Math.PI / 2, 0]));
+  return cartGeoCache[col] = merge([B(0.7, 0.5, 1.1, '#f2f2f2', 0, 0.75, 0), B(0.72, 0.05, 1.12, col, 0, 1.02, 0), B(0.68, 0.45, 1.0, '#ffe7a8', 0, 1.27, 0), B(0.7, 0.05, 1.05, col, 0, 1.52, 0),
+  ...W, B(0.04, 1.3, 0.04, '#888', 0, 2.1, 0), CO(0.9, 0.35, col, [0, 2.85, 0], null, 8), B(0.5, 0.04, 0.04, '#888', 0, 0.95, -0.62)]);
+}
+function spawnVehicle(kind) {
+  const dir = Math.random() < 0.5 ? 1 : -1; // 1: chạy ra xa (làn phải), -1: chạy về phía trước
+  const g = new THREE.Group(); const r = mulberry32((Math.random() * 1e9) | 0);
+  const v = { g, kind, passed: false, honked: false };
+  if (kind === 'cart') {
+    const vd = pick(VENDORS); g.add(new THREE.Mesh(cartGeo(vd.col), vcMat));
+    const av = buildAvatar(Object.assign(lookFor('vendor' + Math.random()), { hair: 4, scale: 1 }));
+    av.group.position.z = -0.95; av.body.userData.own = true; av.legs2.visible = av.arms2.visible = false; g.add(av.group); v.av = av;
+    const sign = bubbleSprite(vd.call); sign.userData.own = true; sign.position.y = 3.15; g.add(sign);
+    v.speed = 1.25;
+  } else {
+    g.add(new THREE.Mesh(bikeGeoC(pick(BIKE_COLS)), vcMat));
+    const rider = new THREE.Mesh(riderGeo(r), vcMat); rider.userData.own = true; g.add(rider);
+    if (r() < 0.35) { const p = new THREE.Mesh(riderGeo(r), vcMat); p.userData.own = true; p.position.set(0, 0.03, -0.36); g.add(p); }
+    if (!headMat.map) headMat.map = dotTex;
+    const hl = new THREE.Sprite(headMat); hl.scale.set(0.9, 0.9, 1); hl.position.set(0, 0.7, 0.58); g.add(hl);
+    v.speed = rand(4.5, 7.5);
+  }
+  g.position.set((dir > 0 ? 0.8 : -0.8) + rand(-0.12, 0.12), 0, dir > 0 ? FRONT_Z + 6 : BACK_Z - 10);
+  g.rotation.y = dir > 0 ? Math.PI : 0; v.vz = -dir * v.speed;
+  scene.add(g); traffic.push(v);
+}
+function updateTraffic(dt, T) {
+  trafficT -= dt;
+  if (trafficT <= 0) { trafficT = rand(2.2, 6.5); spawnVehicle(Math.random() < 0.14 && !traffic.some(v => v.kind === 'cart') ? 'cart' : 'bike'); }
+  for (let i = traffic.length - 1; i >= 0; i--) {
+    const v = traffic[i], p = v.g.position, ahead = Math.sign(v.vz);
+    let blocked = false;
+    for (const a of actors) { if (a.state !== 'walk') continue; const q = a.g.position; if (Math.abs(q.x - p.x) < 0.9) { const dz = (q.z - p.z) * ahead; if (dz > 0 && dz < 2.4) { blocked = true; break; } } }
+    if (blocked) { if (!v.honked) { v.honked = true; Snd.honk(); } }
+    else p.z += v.vz * dt;
+    if (v.kind === 'bike') {
+      p.y = Math.sin(T * 20 + i) * 0.008;
+      if (!v.passed && Math.abs(p.z + 3) < 1.2) { v.passed = true; Snd.vroom(); if (Math.random() < 0.25) Snd.honk(); }
+    } else if (!blocked) {
+      const s = Math.sin(T * 6); v.av.legL.rotation.x = s * 0.5; v.av.legR.rotation.x = -s * 0.5; v.av.armL.rotation.x = v.av.armR.rotation.x = -1.2;
+    }
+    if (p.z < BACK_Z - 12 || p.z > FRONT_Z + 8) {
+      scene.remove(v.g);
+      v.g.traverse(o => { if (!o.userData.own) return; if (o.isMesh) o.geometry.dispose(); if (o.isSprite) { o.material.map && o.material.map.dispose(); o.material.dispose(); } });
+      traffic.splice(i, 1);
+    }
+  }
 }
 
 /* =====================================================================
@@ -1417,12 +1801,23 @@ function updateDraw(dt) {
 const RE_TABLE = /(?:^|[^\p{L}])(?:bàn|ban|b)\s*(?:số|so)?\s*(\d{1,2})(?!\d)/u;
 const RE_TOAST = /(^|\s)(dzo+|zo+|vo+|yo+|zoo|cheers?|cung ly|tram phan tram|100\s*%|1\s*2\s*3\s*(dzo|zo|vo|yo)?|mot hai ba)(?=\s|$|!|\.)/;
 const RE_DANCE = /(^|\s)(nhay|quay|quay len|dance|lac lu)(?=\s|$|!|\.)/;
-const RE_BYE = /(^|\s)(ve nha|ve thoi|ve day|di ve|bye|tam biet|ve ngu)(?=\s|$|!|\.)/;
+const RE_BYE = /(^|\s)(ve nha|ve thoi|ve day|di ve|bye|tam biet|ve ngu|tinh tien)(?=\s|$|!|\.)/;
+const RE_PRIVATE = /(^|\s)(ban rieng|ngoi rieng|dat ban rieng|dat ban|bao ban|ban vip)(\s|$|!|\.)/;
+const RE_JOIN = /(?:^|\s)(?:ghép bàn với|ghép bàn|ghép với|ghép|ghep ban voi|ghep ban|ghep voi|ghep|ngồi với|ngồi cùng|ngoi voi|ngoi cung|join)\s+@?(.+)$/u;
+const RE_INVITE = /(?:^|\s)(?:(?:mời|rủ)\s+@?|(?:moi|ru)\s+@)(.+)$/u;
+const RE_INVITE_NOT = /(?:mời|rủ)\s+(?:bia|ly|1 ly|một ly|nhậu|cả|mọi|anh em|ae|các|lên|hát)/u;
+const RE_NAME = /(?:tên|ten)\s*(?:bàn|ban)\s*(?:là|la)?\s*[:\-]?\s*(.+)$/iu;
+const RE_CHANGE = /(^|\s)(doi ban|chuyen ban|qua ban khac)(\s|$|!|\.)/;
+const RE_CHEERS_WITH = /(?:^|\s)(?:cụng ly với|cụng ly|cụng với|cụng|cung ly voi|mời bia|mời 1 ly|mời một ly|mời ly)\s+@?(.+)$/u;
+const RE_SING = /^(hat|hat di|hat nao)(\s|$|!|\.)|(len hat|karaoke|xin hat|cho .{0,12}hat|dang ky hat|moi .{0,12}hat)/;
+const RE_RPS = /(oan tu ti|oan tu xi|oan tu ty|xi to)/;
+const RE_DICE = /(xi ngau|xuc xac|lac xi)/;
+const RE_TEA = /(tra da|them da|xin da|xo da|nuoc da|tra chanh)/;
 function onJoin(uid, name) {
   const existed = guests.has(String(uid));
   const g = ensureGuest(uid, name); if (!g) return;
   if (!existed) {
-    feed(`👋 <b>${esc(name)}</b> đã vào quán`, 'join'); addVibe(1.5);
+    feed(`👋 <b>${esc(name)}</b> đã vào quán${g.seat ? ' – ngồi bàn ' + g.seat.table.n : ''}`, 'join'); addVibe(1.5);
     if (Math.random() < 0.35) ownerSay(pick([`Mời ${trunc(name, 12)} vào ngồi!`, `${trunc(name, 12)} tới rồi, dzô!`, `Chào em ${trunc(name, 12)}!`, `Kéo ghế cho ${trunc(name, 12)} nè!`]));
     Snd.ding();
   }
@@ -1432,16 +1827,34 @@ function onChat(uid, name, text) {
   const isNew = !guests.has(String(uid));
   const g = ensureGuest(uid, name); if (!g) return;
   g.points += 1; g.comments++; addVibe(2);
-  feed(`<b>${esc(name)}</b>: ${esc(trunc(text, 120))}`);
+  const msg = trunc(text, 120);
+  g.msgs.push(msg); if (g.msgs.length > 8) g.msgs.shift();
+  const tb = g.seat && g.seat.table;
+  if (tb) { tb.chat.push({ name: g.name, text: msg }); if (tb.chat.length > 14) tb.chat.shift(); refreshCard(tb); }
+  if (selActor === g) showActorCard(g);
+  feed(`${tb ? `<span class="tb">B${tb.n}</span>` : ''}<b>${esc(name)}</b>: ${esc(msg)}`);
   if (isNew) Snd.ding(); else Snd.pop();
-  g.say(trunc(text, 70));
+  g.say(trunc(text, 80), 7, true); g.chatHold = now() + 1800;   // hiện lời chat trước, phản hồi lệnh sau
   speak(`${name} nói: ${text}`);
-  const t = norm(text);
-  const mt = text.normalize('NFC').toLowerCase().match(RE_TABLE);
-  if (mt) g.moveToTable(parseInt(mt[1], 10));
-  if (RE_TOAST.test(t)) { g.toast(isNew ? 2.5 : 0); if (g.seat) tableToast(g.seat.table, g); Snd.clink(0.3, isNew ? 2.5 : 0.25); addVibe(2); }
+  const t = norm(text), lo = text.normalize('NFC').toLowerCase();
+  let m;
+  // --- chọn chỗ ngồi ---
+  if ((m = lo.match(RE_TABLE))) goTable(g, parseInt(m[1], 10));
+  else if (RE_PRIVATE.test(t)) takePrivate(g);
+  else if ((m = lo.match(RE_JOIN))) { const f = findGuestIn(m[1], g); if (f) bringTogether(g, f, 'join'); else g.say(`Không thấy "${trunc(m[1], 14)}" trong quán 🤔`, 3); }
+  else if (!RE_RPS.test(t) && !RE_INVITE_NOT.test(lo) && (m = lo.match(RE_INVITE))) { const f = findGuestIn(m[1], g); if (f) bringTogether(f, g, 'invite'); else g.say(`"${trunc(m[1], 14)}" chưa vào quán, rủ vào Live đi!`, 3); }
+  else if ((m = text.normalize('NFC').match(RE_NAME))) nameTable(g, m[1]);
+  else if (RE_CHANGE.test(t)) changeTable(g);
+  // --- giao lưu ---
+  const cw = (m = lo.match(RE_CHEERS_WITH)) ? findGuestIn(m[1], g) : null;
+  if (cw) cheersWith(g, cw);
+  else if (RE_TOAST.test(t)) { g.toast(isNew ? 2.5 : 0); if (g.seat) tableToast(g.seat.table, g); Snd.clink(0.3, isNew ? 2.5 : 0.25); addVibe(2); }
   if (RE_DANCE.test(t)) { g.danceT = 6; addVibe(2); }
-  if (RE_BYE.test(t) && !isNew) { setTimeout(() => { if (!g.leaving) { feed(`🚶 <b>${esc(g.name)}</b> ra về, hẹn gặp lại!`, 'join'); g.leave(); } }, 2500); }
+  if (RE_SING.test(t)) requestSing(g);
+  if (RE_RPS.test(t)) playRps(g, t);
+  if (RE_DICE.test(t)) rollDice(g);
+  if (RE_TEA.test(t)) orderTea(g);
+  if (RE_BYE.test(t) && !isNew) { setTimeout(() => { if (!g.leaving) { feed(`🚶 <b>${esc(g.name)}</b> ${t.includes('tinh tien') ? 'tính tiền' : 'ra về'}, hẹn gặp lại!`, 'join'); if (t.includes('tinh tien')) { g.say('Tính tiền nha Cậu Cả! 💸', 2); Snd.coin(); } g.leave(); } }, 2500); }
 }
 function onLike(uid, name, n) {
   n = clamp(Number(n) || 1, 1, 500);
@@ -1555,7 +1968,7 @@ function onWsMessage(ev) {
 
 /* ---------- Khách ảo (chế độ chơi thử) ---------- */
 const DEMO_NAMES = ['Tuấn Bia Hơi', 'Lan Ngọc', 'Hùng Còi', 'Minh Béo', 'Thảo Mai', 'Dũng Xe Ôm', 'Tí Nị', 'Bé Na', 'Long Râu', 'Phương nè', 'Quân 2k3', 'Hoàng Anh', 'Trúc Linh', 'Kiên Nhậu', 'Vy Vy', 'Khánh Sún', 'Đạt Đen', 'Ngọc Hân', 'Nam Cá Rô', 'Huy Hột Mít', 'Mai Anh', 'Bảo Bối', 'Tú Tửu Lượng', 'Hải Sản', 'Cường Lực Sĩ', 'Linh Ka', 'Tâm Tửu', 'Hiếu Ham Chơi', 'Ngân 98', 'Thắng Ngố', 'Phát Lộc', 'Xuân Mai', 'Toàn Bia', 'Duy Mập', 'Hạnh Hâm', 'Quyên Bé', 'Trung Kiên', 'Lộc Nhậu', 'Sáng Mắt Hí', 'Cà Rốt', 'Na U40', 'Khải Tâm', 'Bác Tư', 'Chú Bảy', 'Út Ít', 'Rùa Con', 'Mèo Mập', 'Gấu Trúc', 'Tiểu Long', 'Sương Sớm'];
-const DEMO_CHATS = ['Dzô anh em ơi!', '1 2 3 dzô!', 'Quán đông vui quá', 'Cho em xin 1 chỗ với', 'bàn 3', 'bàn 7 có ai không', 'bàn 12', 'Hết chỗ để ngồi rồi', 'Nhậu tới bến nhé 😂', 'Cậu Cả ơi thêm đá', 'Mồi ngon quá', 'dzô dzô dzô', 'Trăm phần trăm nha', 'Mai đi làm sớm 😭', 'Ai uống tiếp không', 'Anh em ngồi gần nhau cho vui', 'nhảy đi mọi người', 'Ngon quá Cậu Cả ơi', 'Hello cả nhà', 'Gọi thêm lẩu đi', 'Bia lạnh không anh', 'Cụng ly cái nào', 'Quẩy lên', '100%', 'Đêm nay không say không về', 'Thêm đĩa mực nữa', 'Nhạc hay quá DJ ơi', 'nhảy', 'Ủa ai trả tiền 🤣', 'Vào đây ngồi với em', 'Cảm ơn Cậu Cả nha', 'Ngồi bàn 5 đi mọi người'];
+const DEMO_CHATS = ['Dzô anh em ơi!', '1 2 3 dzô!', 'Quán đông vui quá', 'Cho em xin 1 chỗ với', 'bàn 3', 'bàn 7 có ai không', 'bàn 12', 'Hết chỗ để ngồi rồi', 'Nhậu tới bến nhé 😂', 'Cậu Cả ơi thêm đá', 'Mồi ngon quá', 'dzô dzô dzô', 'Trăm phần trăm nha', 'Mai đi làm sớm 😭', 'Ai uống tiếp không', 'Anh em ngồi gần nhau cho vui', 'nhảy đi mọi người', 'Ngon quá Cậu Cả ơi', 'Hello cả nhà', 'Gọi thêm lẩu đi', 'Bia lạnh không anh', 'Cụng ly cái nào', 'Quẩy lên', '100%', 'Đêm nay không say không về', 'Thêm đĩa mực nữa', 'Nhạc hay quá Cậu Cả ơi', 'Ai hát karaoke đi', 'Quán vỉa hè vui ghê', 'nhảy', 'Ủa ai trả tiền 🤣', 'Vào đây ngồi với em', 'Cảm ơn Cậu Cả nha', 'Ngồi bàn 5 đi mọi người'];
 let demoOn = false, demoTimer = 0;
 function setDemo(on) {
   demoOn = on; $('#optDemo').checked = on; updateLiveTag();
@@ -1563,6 +1976,21 @@ function setDemo(on) {
 }
 function demoName() { let n = pick(DEMO_NAMES); if (Math.random() < 0.45) n += ' ' + randi(1, 99); return n; }
 function demoJoin() { const n = demoName(); handle('join', { uid: 'demo:' + n, name: n }); }
+function demoChat(g, live) {
+  const others = live.filter(x => x !== g); const o = others.length ? pick(others) : null; const r = Math.random();
+  if (o && r < 0.07) return `ghép ${o.name}`;
+  if (o && r < 0.1) return `mời ${o.name} qua bàn mình`;
+  if (o && r < 0.14) return `cụng ly với ${o.name}`;
+  if (r < 0.17) return 'bàn riêng';
+  if (r < 0.2) return pick(['hát', 'cho em lên hát karaoke', 'hát đi']);
+  if (r < 0.24) return 'oẳn tù tì ' + pick(['búa', 'bao', 'kéo', '']);
+  if (r < 0.27) return pick(['lắc xí ngầu', 'xí ngầu nè']);
+  if (r < 0.3) return pick(['cho ly trà đá', 'thêm đá Cậu Cả ơi']);
+  if (r < 0.32) return 'tên bàn ' + pick(['Hội Bia Hơi', 'Anh Em Cây Khế', 'Team Không Say', 'Hội Độc Thân', 'Bàn Vui Vẻ']);
+  if (r < 0.35) return 'bàn ' + randi(1, tables.length);
+  if (r < 0.37) return 'đổi bàn';
+  return pick(DEMO_CHATS);
+}
 function demoTick(dt) {
   if (!demoOn) return;
   demoTimer -= dt; if (demoTimer > 0) return;
@@ -1573,7 +2001,7 @@ function demoTick(dt) {
   if (live.length < 14 || r < 0.14) return demoJoin();
   const g = any(); if (!g) return;
   const d = { uid: g.uid, name: g.name };
-  if (r < 0.5) handle('chat', Object.assign(d, { text: pick(DEMO_CHATS) }));
+  if (r < 0.5) handle('chat', Object.assign(d, { text: demoChat(g, live) }));
   else if (r < 0.83) handle('like', Object.assign(d, { count: randi(1, 15) }));
   else if (r < 0.97) {
     const tot = SAMPLE_GIFTS.reduce((s, x) => s + x.w, 0); let x = Math.random() * tot, gf = SAMPLE_GIFTS[0];
@@ -1642,36 +2070,48 @@ function updateHud() {
 
 /* ---------- thẻ bàn / khách ---------- */
 const card = $('#card');
-function hideCard() { card.classList.add('hidden'); selRing.visible = false; selActor = null; selTable = null; }
 let selTable = null;
+function hideCard() { card.classList.add('hidden'); selRing.visible = false; selActor = null; selTable = null; }
 function dishButtons(prefix) {
   return `<div class="dish">${MENU.map(m => `<button class="btn" data-act="${prefix}" data-id="${m.id}">${m.icon} ${esc(m.dish)}<small>${money(m.price)}</small></button>`).join('')}</div>`;
+}
+function chatLog(list) { return list.length ? list.map(c => `<div class="cl"><b>${esc(c.name)}</b>: ${esc(c.text)}</div>`).join('') : '<div class="cl mut">Chưa ai nói gì…</div>'; }
+function keepChatScroll(render) {
+  const old = card.querySelector('.chatlog'); const atBottom = !old || old.scrollTop + old.clientHeight >= old.scrollHeight - 4;
+  render(); const cl = card.querySelector('.chatlog'); if (cl && atBottom) cl.scrollTop = cl.scrollHeight;
 }
 function showTableCard(t) {
   selActor = null; selTable = t;
   const gs = t.seats.filter(s => s.guest).map(s => s.guest);
-  const ds = [...t.dishes, t.center].filter(Boolean).map(m => MENU_BY[m.userData.id].dish);
-  card.innerHTML = `<button class="x" data-close="card">✕</button><h3>🪑 Bàn ${t.n}</h3>
-    <p>${gs.length}/4 khách${ds.length ? ' · Trên bàn: ' + esc(ds.join(', ')) : ' · Bàn còn trống món'}</p>
-    <div class="chips">${gs.map(g => `<span class="chip">${esc(g.name)}</span>`).join('') || '<span class="chip">Chưa có ai</span>'}</div>
-    <div class="btns"><button class="btn pri" data-act="tableToast">🍻 Cả bàn dzô</button>${gs.length < 4 ? '<button class="btn" data-act="addGuest">➕ Mời khách vào</button>' : ''}<button class="btn" data-act="clearTable">🧹 Dọn bàn</button></div>
+  const ds = [...t.dishes, ...t.centers].filter(Boolean).map(m => MENU_BY[m.userData.id].dish);
+  keepChatScroll(() => {
+    card.innerHTML = `<button class="x" data-close="card">✕</button><h3>🪑 Bàn ${t.n}${t.name ? ' · “' + esc(t.name) + '”' : ''}${t.private ? ' 🔒' : ''}</h3>
+    <p>${gs.length}/${SEATS_PER} khách${t.owner ? ' · Bàn riêng của <b>' + esc(t.owner.name) + '</b>' : ''}${ds.length ? ' · Trên bàn: ' + esc(ds.join(', ')) : ''}</p>
+    <div class="chips">${gs.map(g => `<span class="chip">${g === t.owner ? '🔒 ' : ''}${esc(g.name)}${g.drunk ? ' 🥴' : ''}</span>`).join('') || '<span class="chip">Chưa có ai</span>'}</div>
+    <h4>💬 Trò chuyện tại bàn</h4><div class="chatlog">${chatLog(t.chat)}</div>
+    <div class="btns" style="margin-top:8px"><button class="btn pri" data-act="tableToast">🍻 Cả bàn dzô</button>${gs.length < SEATS_PER ? '<button class="btn" data-act="addGuest">➕ Mời khách vào</button>' : ''}${t.private ? '<button class="btn" data-act="unlock">🔓 Bỏ bàn riêng</button>' : ''}<button class="btn" data-act="clearTable">🧹 Dọn bàn</button></div>
     <h4>Gọi món cho bàn (quán đãi)</h4>${dishButtons('orderTable')}`;
+  });
   card.classList.remove('hidden');
-  selRing.visible = true; selRing.position.set(t.x, 0, t.z); selRing.scale.setScalar(2.2);
+  selRing.visible = true; selRing.position.set(t.x, 0, t.z); selRing.scale.set(2.5, 1, 3.4);
 }
+function refreshCard(t) { if (t && selTable === t && !card.classList.contains('hidden')) showTableCard(t); }
 function showActorCard(a) {
   if (!(a instanceof Guest)) {
-    if (a === owner) { ownerSay(pick(['Anh em cứ tự nhiên như ở nhà!', 'Bia lạnh đây, dzô!', 'Tặng quà là có món liền!', 'Không say không về nha!']), true); Snd.clink(0.3); owner.toast(0); }
-    else if (a === dj) { dj.say(pick(['Lên nhạc!', 'Quẩy lên nào!', 'Bass căng chưa?']), 3); addVibe(4); }
-    else { a.say(pick(['Dạ có em!', 'Anh chị gọi món gì ạ?', 'Có ngay ạ!']), 2.5); }
+    if (a === owner) { ownerSay(pick(['Anh em cứ tự nhiên như ở nhà!', 'Bia lạnh đây, dzô!', 'Oẳn tù tì với Cậu Cả không?', 'Không say không về nha!']), true); Snd.clink(0.3); owner.toast(0); }
+    else a.say(pick(['Dạ có em!', 'Anh chị gọi món gì ạ?', 'Có ngay ạ!']), 2.5);
     return;
   }
   selActor = a; selTable = null;
-  card.innerHTML = `<button class="x" data-close="card">✕</button><h3>${esc(a.name)}${a.fan ? ' ⭐' : ''}</h3>
-    <p>${a.npc ? 'Khách quen của quán' : 'Khách xem Live'} · ${a.seat ? 'Bàn ' + a.seat.table.n : 'Đang đi'}${a.rank ? ' · Hạng ' + a.rank : ''}</p>
+  const t = a.seat && a.seat.table;
+  keepChatScroll(() => {
+    card.innerHTML = `<button class="x" data-close="card">✕</button><h3>${esc(a.name)}${a.fan ? ' ⭐' : ''}${a.drunk ? ' 🥴' : ''}</h3>
+    <p>${a.npc ? 'Khách quen của quán' : 'Khách xem Live'} · ${t ? 'Bàn ' + t.n + (t.name ? ' “' + esc(t.name) + '”' : '') + (t.owner === a ? ' (chủ bàn riêng)' : '') : 'Đang đi'}${a.rank ? ' · Hạng ' + a.rank : ''}${a.singing ? ' · 🎤 đang hát' : ''}</p>
     <div class="stat3"><div><b>${short(a.points)}</b>điểm</div><div><b>${short(a.likes)}</b>tim</div><div><b>${a.giftsN}</b>quà</div></div>
-    <div class="btns"><button class="btn pri" data-act="gToast">🍻 Mời cụng ly</button><button class="btn" data-act="gDance">💃 Quẩy</button><button class="btn" data-act="gHeart">❤️ Tặng tim</button><button class="btn" data-act="gLeave">🚪 Mời về</button></div>
+    <h4>💬 Tin nhắn gần đây</h4><div class="chatlog">${chatLog(a.msgs.map(x => ({ name: a.name, text: x })))}</div>
+    <div class="btns" style="margin-top:8px"><button class="btn pri" data-act="gToast">🍻 Mời cụng ly</button><button class="btn" data-act="gDance">💃 Quẩy</button><button class="btn" data-act="gSing">🎤 Mời hát</button><button class="btn" data-act="gPrivate">🔒 Cho bàn riêng</button><button class="btn" data-act="gHeart">❤️ Tặng tim</button><button class="btn" data-act="gLeave">🚪 Mời về</button></div>
     <h4>Mời món (quán đãi)</h4>${dishButtons('orderGuest')}`;
+  });
   card.classList.remove('hidden');
   selRing.visible = true; selRing.scale.setScalar(1);
 }
@@ -1683,12 +2123,15 @@ card.addEventListener('click', e => {
   const t = selTable, a = selActor;
   switch (act) {
     case 'tableToast': if (t) { tableToast(t); Snd.clink(0.35); Snd.clink(0.25, 0.1); } break;
-    case 'addGuest': if (t) { const free = t.seats.find(s => !s.guest); if (free) { const n = demoName(); const g = ensureGuest('host:' + n + Math.random().toString(36).slice(2, 5), n); if (g) { feed(`👋 <b>${esc(n)}</b> được mời vào bàn ${t.n}`, 'join'); g.pendingTable = t.n; } } } hideCard(); break;
-    case 'clearTable': if (t) { t.dishes.forEach(removeDish); t.dishes = [null, null, null, null]; removeDish(t.center); t.center = null; } hideCard(); break;
+    case 'addGuest': if (t && freeSeats(t).length) { const n = demoName(); const g = ensureGuest('host:' + n + Math.random().toString(36).slice(2, 5), n); if (g) { feed(`👋 <b>${esc(n)}</b> được mời vào bàn ${t.n}`, 'join'); if (g.seat.table !== t) goTable(g, t.n); } } hideCard(); break;
+    case 'unlock': if (t) { t.private = false; t.owner = null; refreshTableSign(t); showTableCard(t); } break;
+    case 'clearTable': if (t) { t.dishes.forEach(removeDish); t.dishes = Array(6).fill(null); t.centers.forEach(removeDish); t.centers = [null, null]; } hideCard(); break;
     case 'orderTable': if (t) { const it = MENU_BY[id]; if (it.id === 'phao') fireworksShow(6); else orderDish(t, it, false, null); G.revenue += it.price; flashMenu(id); Snd.coin(); } hideCard(); break;
     case 'orderGuest': if (a && a.seat) { const it = MENU_BY[id]; if (it.id === 'phao') fireworksShow(6); else orderDish(a.seat.table, it, false, a); G.revenue += it.price; flashMenu(id); Snd.coin(); a.say('Cảm ơn Cậu Cả! 🥰', 2.5); } hideCard(); break;
     case 'gToast': if (a) { a.toast(0); if (a.seat) tableToast(a.seat.table, a); Snd.clink(0.35); } break;
     case 'gDance': if (a) { a.danceT = 6; addVibe(3); } break;
+    case 'gSing': if (a) requestSing(a); hideCard(); break;
+    case 'gPrivate': if (a) takePrivate(a); hideCard(); break;
     case 'gHeart': if (a) onLike(a.uid, a.name, 10); break;
     case 'gLeave': if (a) { feed(`🚶 <b>${esc(a.name)}</b> được Cậu Cả tiễn về`, 'join'); a.leave(); } hideCard(); break;
   }
@@ -1705,6 +2148,12 @@ settings.addEventListener('click', e => {
     if (wsWant) disconnectWS();
     else { const url = $('#wsUrl').value.trim(); opts.ws = url; saveOpts(); connectWS(url); }
     return;
+  }
+  if (b.dataset.cmd) {
+    const name = $('#simName').value.trim() || 'Khách Thử'; const uid = 'sim:' + name;
+    let txt = b.dataset.cmd;
+    if (txt.includes('*')) { const o = [...guests.values()].filter(g => !g.leaving && g.uid !== uid); if (!o.length) { feed('Chưa có ai khác trong quán để thử', 'sys'); return; } txt = txt.replace('*', pick(o).name); }
+    $('#simText').value = txt; handle('chat', { uid, name, text: txt }); return;
   }
   const sim = b.dataset.sim;
   if (sim) {
@@ -1779,7 +2228,7 @@ canvas.addEventListener('pointerup', e => {
   const hA = ray.intersectObjects(pickables, false)[0]; const hT = ray.intersectObject(tableTops, false)[0];
   if (!settings.classList.contains('hidden')) closeSettings();
   if (hA && (!hT || hA.distance < hT.distance + 0.4)) return showActorCard(hA.object.userData.actor);
-  if (hT) return showTableCard(tables[hT.instanceId]);
+  if (hT) return showTableCard(tables[Math.floor(hT.instanceId / 2)]);
   hideCard();
 });
 
@@ -1787,31 +2236,42 @@ canvas.addEventListener('pointerup', e => {
    VÒNG LẶP
    ===================================================================== */
 const clock = new THREE.Clock(); let T = 0, hudAcc = 0, ledAcc = 0, slowAcc = 0, perfAcc = 0, perfN = 0, perfT = 0, tipAcc = 0, idleAcc = 0;
-const TIPS = ['💡 Comment <b>"bàn 7"</b> để ngồi cùng bạn bè', '💡 Comment <b>"dzô"</b> để cả bàn cụng ly', '💡 Thả ❤️ để đẩy thanh <b>Không khí</b> lên 100% – cả quán quẩy!', '💡 Tặng quà để nhân viên <b>bưng món</b> ra bàn bạn', '💡 Quà 500 xu trở lên = <b>pháo hoa cả quán</b> 🎆', '💡 Top 3 điểm cao được đội <b>vương miện</b> 👑'];
-const OWNER_IDLE = ['Anh em cứ tự nhiên nha!', 'Bia lạnh đây, dzô!', 'Comment "bàn mấy" để chọn bàn nè!', 'Thả tim cho quán đông vui nào!', 'Không say không về!', 'Tặng quà là có món ngay!', 'Ai chưa có ghế thì comment vào quán nha!'];
+const TIPS = ['💡 Comment <b>"bàn 7"</b> để chọn bàn', '💡 Comment <b>"bàn riêng"</b> để giữ một bàn cho hội bạn', '💡 Comment <b>"ghép Tên"</b> để ngồi chung bàn với bạn', '💡 Comment <b>"mời Tên"</b> để rủ bạn qua bàn mình', '💡 Comment <b>"tên bàn Hội Bia"</b> để đặt tên bàn', '💡 Comment <b>"hát"</b> để lên hát karaoke 🎤', '💡 Comment <b>"oẳn tù tì búa"</b> để thách Cậu Cả', '💡 Comment <b>"xí ngầu"</b> – ra 6 cả bàn uống!', '💡 Comment <b>"cụng ly với Tên"</b> để mời bạn 1 ly', '💡 Say quá? Comment <b>"trà đá"</b> cho tỉnh 😅', '💡 Thả ❤️ để đẩy thanh <b>Không khí</b> lên 100%', '💡 Tặng quà để nhân viên <b>bưng món</b> ra bàn bạn'];
+const OWNER_IDLE = ['Anh em cứ tự nhiên nha!', 'Bia lạnh đây, dzô!', 'Comment "bàn riêng" để giữ bàn nè!', 'Muốn ngồi với bạn thì comment "ghép" tên bạn!', 'Comment "hát" lên hát karaoke đi!', 'Oẳn tù tì với Cậu Cả không?', 'Thả tim cho quán đông vui nào!', 'Không say không về!', 'Tặng quà là có món ngay!'];
 function drawLED(t) {
   const g = ledCtx, W = 320, H = 160;
-  g.fillStyle = '#07040d'; g.fillRect(0, 0, W, H);
+  const gr = g.createLinearGradient(0, 0, W, H); gr.addColorStop(0, '#1a0638'); gr.addColorStop(1, '#3a0a2a'); g.fillStyle = gr; g.fillRect(0, 0, W, H);
   let data = null;
   if (Snd.analyser && opts.music && Snd.ctx && Snd.ctx.state === 'running') { data = Snd.freq; Snd.analyser.getByteFrequencyData(data); }
-  const n = 20;
-  for (let i = 0; i < n; i++) {
+  for (let i = 0; i < 20; i++) {
     const v = data ? Math.min(1, data[Math.min(data.length - 1, i + 1)] / 230) : 0.25 + 0.25 * Math.sin(t * 3 + i * 0.7) + (partyOn ? 0.3 : 0);
-    const bh = Math.max(4, v * 70);
-    g.fillStyle = `hsl(${(i * 16 + t * 60) % 360},95%,58%)`; g.fillRect(10 + i * 15, 150 - bh, 11, bh);
+    const bh = Math.max(3, v * 36);
+    g.fillStyle = `hsl(${(i * 16 + t * 60) % 360},95%,58%)`; g.fillRect(10 + i * 15, 156 - bh, 11, bh);
   }
-  g.textAlign = 'center'; g.font = `900 34px ${FONT}`; g.fillStyle = '#ffd54f'; g.shadowColor = '#ff6d00'; g.shadowBlur = 14;
-  g.fillText(partyOn ? 'QUẨY LÊN!!!' : 'CẬU CẢ', W / 2, 40); g.shadowBlur = 0;
-  g.textAlign = 'left'; g.font = `800 20px ${FONT}`; g.fillStyle = '#ffffff';
-  const tw = g.measureText(ledMsg).width; const x = W - ((t * 60) % (tw + W)); g.fillText(ledMsg, x, 72);
-  ledTex.needsUpdate = true;
+  g.textAlign = 'center'; g.shadowColor = '#ff2d7a'; g.shadowBlur = 12;
+  const k = karaoke;
+  if (k.singer && k.singer.singing) {
+    g.font = `800 17px ${FONT}`; g.fillStyle = '#80d8ff'; g.fillText('🎤 ' + trunc(k.singer.name, 20), W / 2, 24);
+    g.font = `900 22px ${FONT}`;
+    const lines = wrapLines(g, k.line || '♪ ♪ ♪', W - 30, 2);
+    g.fillStyle = '#ffffff'; lines.forEach((l, i) => g.fillText(l, W / 2, 60 + i * 28));
+    const prog = clamp(1 - k.lyricT / 3.2, 0, 1);
+    g.save(); g.beginPath(); g.rect(15, 40, (W - 30) * prog, 64); g.clip(); g.fillStyle = '#ffd54f'; lines.forEach((l, i) => g.fillText(l, W / 2, 60 + i * 28)); g.restore();
+  } else {
+    g.font = `900 28px ${FONT}`; g.fillStyle = '#ffd54f'; g.fillText(partyOn ? 'QUẨY LÊN!!!' : 'KARAOKE CẬU CẢ', W / 2, 36);
+    g.font = `700 15px ${FONT}`; g.fillStyle = '#ffffff';
+    g.fillText(k.queue.length ? trunc('Chờ hát: ' + k.queue.map(x => trunc(x.name, 10)).join(', '), 40) : 'Comment "hát" để lên hát 🎤', W / 2, 64);
+    g.textAlign = 'left'; g.font = `800 18px ${FONT}`; g.fillStyle = '#ffe9a6';
+    const tw = g.measureText(ledMsg).width; const x = W - ((t * 60) % (tw + W)); g.fillText(ledMsg, x, 96);
+  }
+  g.shadowBlur = 0; ledTex.needsUpdate = true;
 }
 function loop() {
   requestAnimationFrame(loop);
   const dt = Math.min(clock.getDelta(), 0.05); T += dt;
   demoTick(dt);
   for (let i = actors.length - 1; i >= 0; i--) actors[i].update(dt, T);
-  serveOrders();
+  serveOrders(); updateKaraoke(dt); updateTraffic(dt, T); notes.update(dt);
   hearts.update(dt); smoke.update(dt); updateFireworks(dt); updateDraw(dt);
   for (let i = dishPops.length - 1; i >= 0; i--) {
     const p = dishPops[i]; p.t += dt; const k = Math.min(1, p.t / 0.35); const s = p.m.userData.base * (1 + Math.sin(k * Math.PI) * 0.35) * k;
@@ -1842,7 +2302,8 @@ function loop() {
     slowAcc = 0;
     // khách im lặng quá lâu thì tự về khi quán gần kín chỗ
     const tnow = now(); const full = seatedCount() > seats.length * 0.85;
-    for (const g of guests.values()) if (!g.npc && !g.leaving && g.rank === 0 && tnow - g.lastActive > (full ? 240000 : 600000) && Math.random() < 0.35) g.leave();
+    for (const g of guests.values()) if (!g.npc && !g.leaving && !g.singing && g.rank === 0 && tnow - g.lastActive > (full ? 240000 : 600000) && Math.random() < 0.35) g.leave();
+    for (const g of guests.values()) if (g.drinks > 0) { g.drinks--; if (g.drunk && g.drinks < 4) { g.drunk = false; g.refreshLabel(); } }
   }
   controls.update();
   renderer.render(scene, camera);
@@ -1858,7 +2319,7 @@ addEventListener('resize', fitCamera);
 fitCamera();
 drawLED(0);
 window.__gameReady = true;
-window.__cc = { renderer, guests, handle, runEvent, tables, camera, THREE };
+window.__cc = { renderer, guests, handle, runEvent, tables, camera, THREE, karaoke, traffic };
 document.getElementById('loadErr').style.display = 'none';
 loop();
 
