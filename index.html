@@ -352,6 +352,8 @@ kbd{background:rgba(255,255,255,.15);border-radius:5px;padding:0 5px;font-size:1
   <p><b>Claude MC</b>: Claude đọc comment, quà, tim theo thời gian thực rồi điều khiển Cậu Cả nói chuyện, chào khách, trả lời bình luận, mở sự kiện đúng lúc và mời món thưởng khách.</p>
   <p class="warn">🔑 Dùng API key riêng từ console.anthropic.com, nên đặt giới hạn chi tiêu cho key. Key chỉ lưu trong trình duyệt này và gửi thẳng tới api.anthropic.com – đừng bật trên máy dùng chung.</p>
   <div class="row"><input type="password" id="aiKey" placeholder="Claude API key (sk-ant-...)" autocomplete="off" spellcheck="false" style="flex:1;min-width:0;background:rgba(0,0,0,.35);border:1px solid var(--line);border-radius:10px;color:#fff;padding:9px 10px;font:inherit"></div>
+  <div class="row"><input type="text" id="aiBridge" placeholder="Hoặc cầu nối trên máy (an toàn hơn): http://127.0.0.1:8787/mc" autocomplete="off" spellcheck="false"></div>
+  <p style="font-size:11.5px">Cầu nối (thư mục <code>bridge/</code> trong repo) giữ key trên máy bạn, trang game không cần key. Đã điền cầu nối thì game bỏ qua ô key.</p>
   <div class="row"><label class="lbl">Model</label><select id="aiModel"><option value="claude-opus-5-5">Claude Opus 5.5 – thông minh nhất (~$0.7–2.3/giờ)</option><option value="claude-sonnet-5-5">Claude Sonnet 5.5 – cân bằng (~$0.4–1.2/giờ)</option><option value="claude-haiku-5-5">Claude Haiku 5.5 – rẻ nhất (~$0.02–0.06/giờ)</option></select></div>
   <div class="row"><label class="lbl">Nhịp xử lý (giây)</label><input type="number" id="aiEvery" min="8" max="120"><label class="lbl">Tối đa lượt/giờ</label><input type="number" id="aiMax" min="10" max="1000"></div>
   <label class="tg"><input type="checkbox" id="optAI"><span></span>Bật Claude MC</label>
@@ -1065,6 +1067,18 @@ const stageLight = new THREE.PointLight(0xff3d9a, 35, 13, 1.6); stageLight.posit
   const st = []; for (let k = 0; k < 6; k++) st.push(CY(0.16, 0.18, 0.06, k % 2 ? '#1f7fd8' : '#d7332f', [0, 0.2 + k * 0.07, 0], null, 10), CY(0.12, 0.17, 0.24, k % 2 ? '#1f7fd8' : '#d7332f', [0, 0.1 + k * 0.07, 0], null, 8));
   const stack = new THREE.Mesh(merge(st), vcMat); stack.position.set(-FACADE_X + 0.3, 0, 7.9); scene.add(stack);
   const bin = new THREE.Mesh(merge([CY(0.25, 0.22, 0.75, '#2e7d32', [0, 0.375, 0], null, 10), CY(0.27, 0.27, 0.06, '#1b5e20', [0, 0.77, 0], null, 10)]), vcMat); bin.position.set(-2.6, 0, -9.8); scene.add(bin);
+}
+// tiền cảnh bên này đường (như ảnh chụp thật): trụ cứu hỏa, cột đèn thấp; băng rôn dọc trên cột điện bên kia
+{
+  const hyd = new THREE.Mesh(merge([CY(0.16, 0.18, 0.55, '#c62828', [0, 0.275, 0], null, 10), SP(0.16, '#c62828', [0, 0.58, 0], [1, 0.8, 1], 10, 6), CY(0.07, 0.07, 0.36, '#b71c1c', [0, 0.38, 0], [0, 0, Math.PI / 2], 8), CY(0.2, 0.2, 0.05, '#8e1a1a', [0, 0.05, 0], null, 10)]), vcMat);
+  hyd.position.set(2.35, 0, 3.4); scene.add(hyd);
+  const lamp = new THREE.Mesh(CY(0.06, 0.09, 4.2, '#4a4f55', [0, 2.1, 0], null, 8), vcMat);
+  lamp.position.set(2.4, 0, -6.2); scene.add(lamp);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.24, 12, 8), new THREE.MeshBasicMaterial({ color: 0xfff1c8 }));
+  head.position.set(2.4, 4.35, -6.2); scene.add(head);
+  const vb = signTexture([{ t: 'CẬU CẢ', size: 44, color: '#ffe14d', y: 60 }, { t: 'BIA HƠI', size: 34, color: '#fff', y: 130, blur: 4 }, { t: '10K', size: 54, color: '#ffeb3b', y: 200 }, { t: 'DZÔ!', size: 40, color: '#fff', y: 280, blur: 4 }], { w: 140, h: 330, bg: '#b71c1c', border: '#ffd54f', bw: 6, r: 6 });
+  const vban = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 2.0), new THREE.MeshBasicMaterial({ map: vb, side: THREE.DoubleSide }));
+  vban.position.set(-CURB_X - 0.1, 3.6, -8.6 + 0.02); vban.rotation.y = Math.PI / 2 - 0.5; scene.add(vban);
 }
 // xe máy đậu dọc vỉa hè
 function bikeGeo(c) {
@@ -1991,16 +2005,16 @@ function playRps(g, t) {
     if (g.leaving) return;
     ownerSay(`Cậu Cả ra ${RPS[cc][1]} ${RPS[cc][0]}!`, true);
     const win = (mine === 'bua' && cc === 'keo') || (mine === 'keo' && cc === 'bao') || (mine === 'bao' && cc === 'bua');
-    if (mine === cc) { feed(`✊ <b>${esc(g.name)}</b> hòa Cậu Cả – cả hai cùng uống!`); g.toast(0.2); owner.toast(0.2); Snd.clink(0.3, 0.3); }
-    else if (win) { feed(`🏆 <b>${esc(g.name)}</b> thắng oẳn tù tì – Cậu Cả tặng đĩa đậu phộng!`, 'gift'); g.points += 5; g.danceT = 3; g.say('Thắng rồi! 🎉', 2.5); if (g.seat) orderDish(g.seat.table, MENU_BY.lac, false, null); Snd.sparkle(); }
-    else { feed(`🍺 <b>${esc(g.name)}</b> thua oẳn tù tì – uống phạt 1 ly!`); g.say('Thua rồi, uống phạt! 🍺', 2.5); g.toast(0.3); Snd.clink(0.3, 0.4); }
+    if (mine === cc) { feed(`✊ <b>${g.npc ? "🏠 " : ""}${esc(g.name)}</b> hòa Cậu Cả – cả hai cùng uống!`); g.toast(0.2); owner.toast(0.2); Snd.clink(0.3, 0.3); }
+    else if (win) { feed(`🏆 <b>${g.npc ? "🏠 " : ""}${esc(g.name)}</b> thắng oẳn tù tì – Cậu Cả tặng đĩa đậu phộng!`, 'gift'); g.points += 5; g.danceT = 3; g.say('Thắng rồi! 🎉', 2.5); if (g.seat) orderDish(g.seat.table, MENU_BY.lac, false, null); Snd.sparkle(); }
+    else { feed(`🍺 <b>${g.npc ? "🏠 " : ""}${esc(g.name)}</b> thua oẳn tù tì – uống phạt 1 ly!`); g.say('Thua rồi, uống phạt! 🍺', 2.5); g.toast(0.3); Snd.clink(0.3, 0.4); }
   }, 1300);
 }
 function rollDice(g) {
   if (!g.canDo('dice', 5)) return;
   const n = randi(1, 6); Snd.dice();
   g.say(`🎲 Lắc được ${n}! ${n === 6 ? 'Cả bàn uống! 🍻' : n === 1 ? 'Xui quá, tự uống 😵' : ''}`, 3.5);
-  feed(`🎲 <b>${esc(g.name)}</b> lắc xí ngầu ra <b>${n}</b>${n === 6 ? ' – cả bàn uống!' : ''}`);
+  feed(`🎲 <b>${g.npc ? "🏠 " : ""}${esc(g.name)}</b> lắc xí ngầu ra <b>${n}</b>${n === 6 ? ' – cả bàn uống!' : ''}`);
   if (n === 6 && g.seat) tableToast(g.seat.table); else if (n === 1) g.toast(0.4);
 }
 function orderTea(g) {
@@ -2032,7 +2046,10 @@ function spawnVehicle(kind) {
   const dir = Math.random() < 0.5 ? 1 : -1; // 1: chạy ra xa (làn phải), -1: chạy về phía trước
   const g = new THREE.Group(); const r = mulberry32((Math.random() * 1e9) | 0);
   const v = { g, kind, passed: false, honked: false };
-  if (kind === 'cart') {
+  if (kind === 'walker') {
+    const av = buildAvatar(lookFor('walker' + Math.random())); av.body.userData.own = true; av.legs2.visible = av.arms2.visible = false;
+    g.add(av.group); v.av = av; v.walker = true; v.speed = rand(1.0, 1.5);
+  } else if (kind === 'cart') {
     const vd = pick(VENDORS); g.add(new THREE.Mesh(cartGeo(vd.col), vcMat));
     const av = buildAvatar(Object.assign(lookFor('vendor' + Math.random()), { hair: 4, scale: 1 }));
     av.group.position.z = -0.95; av.body.userData.own = true; av.legs2.visible = av.arms2.visible = false; g.add(av.group); v.av = av;
@@ -2046,24 +2063,26 @@ function spawnVehicle(kind) {
     const hl = new THREE.Sprite(headMat); hl.scale.set(0.9, 0.9, 1); hl.position.set(0, 0.7, 0.58); g.add(hl);
     v.speed = rand(4.5, 7.5);
   }
-  g.position.set((dir > 0 ? 0.8 : -0.8) + rand(-0.12, 0.12), 0, dir > 0 ? FRONT_Z + 6 : BACK_Z - 10);
+  g.position.set(v.walker ? rand(2.6, 4.6) : (dir > 0 ? 0.8 : -0.8) + rand(-0.12, 0.12), 0, dir > 0 ? FRONT_Z + 6 : BACK_Z - 10);
   g.rotation.y = dir > 0 ? Math.PI : 0; v.vz = -dir * v.speed;
   scene.add(g); traffic.push(v);
 }
 function updateTraffic(dt, T) {
   trafficT -= dt;
-  if (trafficT <= 0) { trafficT = rand(2.2, 6.5); spawnVehicle(Math.random() < 0.14 && !traffic.some(v => v.kind === 'cart') ? 'cart' : 'bike'); }
+  if (trafficT <= 0) { trafficT = rand(2.2, 6.5); const r = Math.random(); spawnVehicle(r < 0.3 && traffic.filter(v => v.kind === 'walker').length < 3 ? 'walker' : r < 0.42 && !traffic.some(v => v.kind === 'cart') ? 'cart' : 'bike'); }
   for (let i = traffic.length - 1; i >= 0; i--) {
     const v = traffic[i], p = v.g.position, ahead = Math.sign(v.vz);
     let blocked = false;
-    for (const a of actors) { if (a.state !== 'walk') continue; const q = a.g.position; if (Math.abs(q.x - p.x) < 0.9) { const dz = (q.z - p.z) * ahead; if (dz > 0 && dz < 2.4) { blocked = true; break; } } }
+    if (!v.walker) for (const a of actors) { if (a.state !== 'walk') continue; const q = a.g.position; if (Math.abs(q.x - p.x) < 0.9) { const dz = (q.z - p.z) * ahead; if (dz > 0 && dz < 2.4) { blocked = true; break; } } }
     if (blocked) { if (!v.honked) { v.honked = true; Snd.honk(); } }
     else p.z += v.vz * dt;
     if (v.kind === 'bike') {
       p.y = Math.sin(T * 20 + i) * 0.008;
       if (!v.passed && Math.abs(p.z) < 1.2) { v.passed = true; Snd.vroom(); if (Math.random() < 0.25) Snd.honk(); }
     } else if (!blocked) {
-      const s = Math.sin(T * 6); v.av.legL.rotation.x = s * 0.5; v.av.legR.rotation.x = -s * 0.5; v.av.armL.rotation.x = v.av.armR.rotation.x = -1.2;
+      const s = Math.sin(T * (v.walker ? 8 : 6) + i); v.av.legL.rotation.x = s * 0.5; v.av.legR.rotation.x = -s * 0.5;
+      if (v.walker) { v.av.armL.rotation.x = -s * 0.45; v.av.armR.rotation.x = s * 0.45; p.y = Math.abs(Math.cos(T * 8 + i)) * 0.04; }
+      else v.av.armL.rotation.x = v.av.armR.rotation.x = -1.2;
     }
     if (p.z < BACK_Z - 12 || p.z > FRONT_Z + 8) {
       scene.remove(v.g);
@@ -2931,7 +2950,6 @@ async function aiTick() {
   const userText = `TRẠNG THÁI QUÁN\n${aiState()}\n\nCẬU CẢ VỪA NÓI GẦN ĐÂY\n${AI.said.map(s => '- ' + s).join('\n') || '(chưa nói gì)'}\n\n<su_kien_moi>\n${ev.join('\n') || '(không có sự kiện mới – quán đang yên ắng)'}\n</su_kien_moi>\n\nChọn 0–3 hành động cho lượt này.`;
   AI.busy = true; AI.calls.push(now());
   try {
-    const client = await aiClient();
     const model = AI_MODELS[opts.aiModel] ? opts.aiModel : 'claude-opus-5-5';
     const req = {
       model, max_tokens: 2048,
@@ -2941,7 +2959,13 @@ async function aiTick() {
       messages: [{ role: 'user', content: userText }],
     };
     if (model !== 'claude-haiku-5-5') { req.betas = ['server-side-fallback-2026-07-01']; req.fallbacks = 'default'; } // tự chuyển model khi bị từ chối
-    const res = await client.beta.messages.create(req);
+    let res;
+    const bridge = String(opts.aiBridge || '').trim();
+    if (bridge) {   // gọi qua cầu nối trên máy: key không nằm trong trình duyệt
+      const r = await fetch(bridge, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(req) });
+      res = await r.json().catch(() => ({}));
+      if (!r.ok) throw Object.assign(new Error((res.error && res.error.message) || ('Cầu nối lỗi HTTP ' + r.status)), { status: r.status });
+    } else res = await (await aiClient()).beta.messages.create(req);
     const u = res.usage || {}, pr = AI_MODELS[model];
     AI.nCalls++; AI.cost += ((u.input_tokens || 0) + (u.cache_creation_input_tokens || 0) * 1.25 + (u.cache_read_input_tokens || 0) * 0.1) * pr[0] / 1e6 + (u.output_tokens || 0) * pr[1] / 1e6;
     AI.err = '';
@@ -2967,7 +2991,7 @@ function updateAI(dt) {
   AI.acc = 0; AI.quiet = 0; aiTick();
 }
 function setAI(on) {
-  if (on && !String(opts.aiKey || '').trim()) { AI.err = 'Nhập Claude API key trước khi bật'; on = false; }
+  if (on && !String(opts.aiKey || '').trim() && !String(opts.aiBridge || '').trim()) { AI.err = 'Nhập Claude API key hoặc địa chỉ cầu nối trước khi bật'; on = false; }
   AI.on = on; opts.aiOn = on; saveOpts();
   $('#optAI').checked = on; $('#aiTag').classList.toggle('hidden', !on);
   if (on) { AI.acc = 1e9; keepAwake(true); feed('🤖 Claude MC đã nhận quán – Cậu Cả sẽ tự dẫn live', 'sys'); }
@@ -2980,8 +3004,8 @@ function renderAI() {
   $('#aiLog').innerHTML = AI.log.map(l => `<div>${esc(l)}</div>`).join('') || '<div class="mut">Chưa có hành động nào.</div>';
 }
 // tự động & Claude MC
-Object.assign(opts, Object.assign({ autoOn: false, autoLuckyMin: 8, aiKey: '', aiModel: 'claude-opus-5-5', aiEvery: 20, aiMax: 150, aiOn: false, aiTts: false }, opts));
-for (const id of ['aiKey', 'aiModel', 'aiEvery', 'aiMax', 'autoLuckyMin']) {
+Object.assign(opts, Object.assign({ aiBridge: '', autoOn: false, autoLuckyMin: 8, aiKey: '', aiModel: 'claude-opus-5-5', aiEvery: 20, aiMax: 150, aiOn: false, aiTts: false }, opts));
+for (const id of ['aiKey', 'aiBridge', 'aiModel', 'aiEvery', 'aiMax', 'autoLuckyMin']) {
   const el = $('#' + id); el.value = opts[id];
   el.addEventListener('change', () => { opts[id] = (el.type === 'number') ? Number(el.value) : el.value.trim(); saveOpts(); if (id === 'aiKey') { AI.client = null; if (!opts.aiKey && AI.on) setAI(false); } renderAI(); });
 }
@@ -3002,7 +3026,7 @@ function applyLivePreset() {
   for (const id of ['aiModel', 'aiEvery', 'aiMax', 'autoLuckyMin', 'botMin', 'mgEvery', 'kMin', 'kPrio', 'kMax']) { const el = $('#' + id); if (el) el.value = opts[id]; }
   for (const [id, k] of [['optAiTts', 'aiTts'], ['optAuto', 'autoOn'], ['optBots', 'botsOn'], ['optMgAuto', 'mgAuto'], ['optMusic', 'music'], ['optSfx', 'sfx'], ['optNums', 'nums']]) $('#' + id).checked = !!opts[k];
   Snd.setMusic(true); Snd.setSfx(true); updateSoundBtn(); setNumbersVisible(true); keepAwake(true); MG.autoAcc = 0;
-  if (String(opts.aiKey || '').trim()) setAI(true); else AI.err = 'Nhập Claude API key rồi bật Claude MC để Cậu Cả tự dẫn';
+  if (String(opts.aiKey || '').trim() || String(opts.aiBridge || '').trim()) setAI(true); else AI.err = 'Nhập Claude API key (hoặc cầu nối) rồi bật Claude MC để Cậu Cả tự dẫn';
   renderAI(); feed('⚡ Đã áp dụng cấu hình Live: Haiku 5.5 · tự động dẫn · khách quen ≥ 20 · trò chơi mỗi 3 phút', 'sys');
 }
 $('#presetLive').onclick = () => { Snd.resume(); applyLivePreset(); };
