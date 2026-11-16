@@ -6,6 +6,19 @@ Mục đích: **lưu trữ riêng**, phòng khi thư mục gốc bị xoá hoặ
 > Phần lớn sách còn bản quyền của tác giả, dịch giả và nhà xuất bản. Bản sao lưu chỉ để bạn giữ riêng:
 > **không bật chia sẻ công khai** thư mục hay kho lưu trữ, và không đổi link trong game sang bản sao này.
 
+## Cách 0 — Google Apps Script (làm trên điện thoại được, không cần máy nào bật)
+Google tự sao chép từng thư mục sang Drive của tài khoản bạn đăng nhập, tự chạy lại mỗi 10 phút tới khi xong.
+1. Trên điện thoại mở Chrome, **đăng nhập đúng tài khoản Google sẽ nhận bản sao**. Bật **Trang web cho máy tính** (menu ⋮).
+2. Mở https://script.google.com → **Dự án mới**.
+3. Mở mã script tại https://raw.githubusercontent.com/doviettu/like/ccr-c1e2e7ed-k0ue6s/tools/sao_luu_apps_script.gs → chọn tất cả → sao chép.
+4. Quay lại dự án: xoá hết mã có sẵn, dán vào → bấm 💾 Lưu.
+5. Ở ô chọn hàm phía trên, chọn **batDau** → bấm **▶ Chạy**.
+6. Google hỏi quyền: **Xem xét quyền** → chọn tài khoản → **Nâng cao** → **Đi tới dự án (không an toàn)** → **Cho phép**. (Cảnh báo này vì script do bạn tự tạo, chưa được Google xét duyệt.)
+7. Xong. Xem tiến độ trong Drive: thư mục **Thu vien kinh sach - sao luu** → tệp **TIEN-DO.txt**.
+   - Tài khoản Gmail thường được chạy khoảng 90 phút/ngày nên có thể mất 1–3 ngày.
+   - Drive miễn phí có 15 GB; nếu đầy, Google sẽ báo lỗi chép — xem TIEN-DO.txt.
+   - Muốn dừng: chọn hàm **dungLai** → Chạy. Muốn làm tiếp: hàm **tiepTuc**.
+
 ## Cách 1 — Sao vào Google Drive của bạn (dễ nhất, khoảng 10–30 phút, không cần cài gì)
 Google tự sao chép giữa các máy chủ, không tải qua máy của bạn.
 1. Mở https://colab.research.google.com (đăng nhập Google của bạn) → **Tệp → Sổ tay mới**.
