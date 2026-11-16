@@ -1,0 +1,17 @@
+# Máy chủ phòng chùa (chơi chung) — xem docs/HUONG-DAN-CLOUDFLARE.md
+name = "lenchua-phong"
+main = "src/index.js"
+compatibility_date = "2025-04-01"
+
+[vars]
+# Chỉ trang game được phép kết nối (thêm tên miền riêng, cách nhau bằng dấu phẩy)
+ALLOW_ORIGINS = "https://doviettu.github.io"
+
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+# Gói miễn phí chỉ dùng được Durable Objects loại SQLite
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]

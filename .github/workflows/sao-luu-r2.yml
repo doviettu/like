@@ -1,0 +1,36 @@
+# Sao lưu toàn bộ thư viện kinh sách (Google Drive công khai) vào kho R2 riêng, vùng luu-tru/.
+# Chạy trên máy chủ GitHub — không cần máy tính của bạn bật. Chạy lại bao nhiêu lần cũng được (tệp đã có thì bỏ qua).
+# Cần 2 secret: R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY (xem docs/KHO-SACH-RIENG.md). Chưa có thì tự bỏ qua.
+name: Sao lưu thư viện vào R2
+on:
+  push:
+    branches: [ccr-c1e2e7ed-k0ue6s]
+    paths: ['tools/thu-vien-thu-muc.tsv', 'tools/sao_luu_r2_actions.py', '.github/workflows/sao-luu-r2.yml', 'tools/chay-sao-luu.txt']
+  workflow_dispatch:
+concurrency: { group: sao-luu-r2, cancel-in-progress: false }
+jobs:
+  sao-luu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    steps:
+      - id: chk
+        env:
+          K: ${{ secrets.R2_ACCESS_KEY_ID }}
+          S: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          if [ -n "$K" ] && [ -n "$S" ]; then echo "ok=1" >> "$GITHUB_OUTPUT";
+          else echo "::notice::Chưa có R2_ACCESS_KEY_ID / R2_SECRET_ACCESS_KEY — bỏ qua sao lưu."; fi
+      - if: steps.chk.outputs.ok == '1'
+        uses: actions/checkout@v4
+      - if: steps.chk.outputs.ok == '1'
+        uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - if: steps.chk.outputs.ok == '1'
+        run: pip install -q "gdown==6.5.1" boto3
+      - if: steps.chk.outputs.ok == '1'
+        env:
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_ACCOUNT_ID: 7391866ef46f5ed5d2814c310a8a53f1
+          R2_BUCKET: thu-vien-sach
+        run: python tools/sao_luu_r2_actions.py

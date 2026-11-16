@@ -1,0 +1,13 @@
+# Cấu hình Cloudflare Worker nhận ủng hộ — xem docs/XUAT-BAN-VA-UNG-HO.md
+name = "lenchua-ungho"
+main = "donate-worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+GAME_URL = "https://doviettu.github.io/like/"      # đổi thành tên miền của bạn nếu có
+ALLOW_ORIGIN = "https://doviettu.github.io"        # nguồn được phép gọi API (để "*" khi thử)
+
+# Tạo KV: npx wrangler kv namespace create DB  → dán id vào dưới
+[[kv_namespaces]]
+binding = "DB"
+id = "THAY_BANG_ID_KV"
